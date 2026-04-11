@@ -2427,7 +2427,7 @@ PAIRS = [
         "page1": "Pegasus Seiya",
         "wiki2": "dragonball",
         "page2": "Goku",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Hanamichi Sakuragi",
@@ -2439,7 +2439,7 @@ PAIRS = [
         "page1": "Hanamichi Sakuragi",
         "wiki2": "naruto",
         "page2": "Naruto Uzumaki",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Inuyasha",
@@ -2451,7 +2451,7 @@ PAIRS = [
         "page1": "Inuyasha",
         "wiki2": "dragonball",
         "page2": "Vegeta",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Kenshiro",
@@ -2463,7 +2463,7 @@ PAIRS = [
         "page1": "Kenshiro",
         "wiki2": "berserk",
         "page2": "Guts",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Ranma Saotome",
@@ -2475,7 +2475,7 @@ PAIRS = [
         "page1": "Ranma Saotome",
         "wiki2": "inuyasha",
         "page2": "Inuyasha",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Yugi Mutou",
@@ -2487,7 +2487,7 @@ PAIRS = [
         "page1": "Yugi Mutou",
         "wiki2": "hunterxhunter",
         "page2": "Gon Freecss",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Tsubasa Ozora",
@@ -2499,7 +2499,7 @@ PAIRS = [
         "page1": "Tsubasa Ozora",
         "wiki2": "slamdunk",
         "page2": "Hanamichi Sakuragi",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Gintoki Sakata",
@@ -2511,7 +2511,7 @@ PAIRS = [
         "page1": "Gintoki Sakata",
         "wiki2": "cowboy-bebop",
         "page2": "Spike Spiegel",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Himura Kenshin",
@@ -2523,7 +2523,7 @@ PAIRS = [
         "page1": "Himura Kenshin",
         "wiki2": "hokuto",
         "page2": "Kenshiro",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Vash the Stampede",
@@ -2535,7 +2535,7 @@ PAIRS = [
         "page1": "Vash the Stampede",
         "wiki2": "gintama",
         "page2": "Gintoki Sakata",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Hiei",
@@ -2547,7 +2547,7 @@ PAIRS = [
         "page1": "Hiei",
         "wiki2": "dragonball",
         "page2": "Vegeta",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Yusuke Urameshi",
@@ -2559,7 +2559,7 @@ PAIRS = [
         "page1": "Yusuke Urameshi",
         "wiki2": "dragonball",
         "page2": "Goku",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Kagome Higurashi",
@@ -2571,7 +2571,7 @@ PAIRS = [
         "page1": "Kagome Higurashi",
         "wiki2": "sailormoon",
         "page2": "Usagi Tsukino",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Sesshōmaru",
@@ -2583,7 +2583,7 @@ PAIRS = [
         "page1": "Sesshōmaru",
         "wiki2": "bleach",
         "page2": "Byakuya Kuchiki",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Miroku",
@@ -2595,7 +2595,7 @@ PAIRS = [
         "page1": "Miroku",
         "wiki2": "naruto",
         "page2": "Jiraiya",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Spike Spiegel",
@@ -2607,7 +2607,7 @@ PAIRS = [
         "page1": "Spike Spiegel",
         "wiki2": "rurounikenshin",
         "page2": "Himura Kenshin",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Char Aznable",
@@ -2619,7 +2619,7 @@ PAIRS = [
         "page1": "Char Aznable",
         "wiki2": "berserk",
         "page2": "Griffith",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Pegasus Seiya",
@@ -2631,7 +2631,7 @@ PAIRS = [
         "page1": "Pegasus Seiya",
         "wiki2": "naruto",
         "page2": "Rock Lee",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Hanamichi Sakuragi",
@@ -2643,7 +2643,7 @@ PAIRS = [
         "page1": "Hanamichi Sakuragi",
         "wiki2": "blackclover",
         "page2": "Asta",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
     {
         "civil": "Shinomori Aoshi",
@@ -2655,7 +2655,7 @@ PAIRS = [
         "page1": "Shinomori Aoshi",
         "wiki2": "naruto",
         "page2": "Sasuke Uchiha",
-        "mode": "classic",
+        "mode": "anime_classic",
     },
 
     # =========================================================================
@@ -2855,7 +2855,7 @@ PAIRS = [
         "page1": "Goku",
         "wiki2": "dragonball",
         "page2": "Vegeta",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Naruto Uzumaki",
@@ -2867,7 +2867,7 @@ PAIRS = [
         "page1": "Naruto Uzumaki",
         "wiki2": "naruto",
         "page2": "Sasuke Uchiha",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Monkey D. Luffy",
@@ -2879,7 +2879,7 @@ PAIRS = [
         "page1": "Monkey D. Luffy",
         "wiki2": "onepiece",
         "page2": "Roronoa Zoro",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Pikachu",
@@ -2891,7 +2891,7 @@ PAIRS = [
         "page1": "Pikachu",
         "wiki2": "pokemon",
         "page2": "Charizard",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Sailor Moon",
@@ -2903,7 +2903,7 @@ PAIRS = [
         "page1": "Usagi Tsukino",
         "wiki2": "cardcaptorsakura",
         "page2": "Sakura Kinomoto",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Goku",
@@ -2915,7 +2915,7 @@ PAIRS = [
         "page1": "Goku",
         "wiki2": "onepunchman",
         "page2": "Saitama",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Ash Ketchum",
@@ -2927,7 +2927,7 @@ PAIRS = [
         "page1": "Ash Ketchum",
         "wiki2": "pokemon",
         "page2": "Gary Oak",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Light Yagami",
@@ -2939,7 +2939,7 @@ PAIRS = [
         "page1": "Light Yagami",
         "wiki2": "deathnote",
         "page2": "L (character)",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Conan Edogawa",
@@ -2951,7 +2951,7 @@ PAIRS = [
         "page1": "Conan Edogawa",
         "wiki2": "detectiveconan",
         "page2": "Shinichi Kudo",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Doraemon",
@@ -2963,7 +2963,7 @@ PAIRS = [
         "page1": "Doraemon",
         "wiki2": "doraemon",
         "page2": "Nobita Nobi",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Totoro",
@@ -2975,7 +2975,7 @@ PAIRS = [
         "page1": "Totoro",
         "wiki2": "ghibli",
         "page2": "Catbus",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Astro Boy",
@@ -2987,7 +2987,7 @@ PAIRS = [
         "page1": "Astro Boy",
         "wiki2": "megaman",
         "page2": "Mega Man",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Gon Freecss",
@@ -2999,7 +2999,7 @@ PAIRS = [
         "page1": "Gon Freecss",
         "wiki2": "hunterxhunter",
         "page2": "Killua Zoldyck",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Edward Elric",
@@ -3011,7 +3011,7 @@ PAIRS = [
         "page1": "Edward Elric",
         "wiki2": "fma",
         "page2": "Alphonse Elric",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Spike Spiegel",
@@ -3023,7 +3023,7 @@ PAIRS = [
         "page1": "Spike Spiegel",
         "wiki2": "trigun",
         "page2": "Vash the Stampede",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Ichigo Kurosaki",
@@ -3035,7 +3035,7 @@ PAIRS = [
         "page1": "Ichigo Kurosaki",
         "wiki2": "bleach",
         "page2": "Rukia Kuchiki",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Eren Yeager",
@@ -3047,7 +3047,7 @@ PAIRS = [
         "page1": "Eren Yeager",
         "wiki2": "attackontitan",
         "page2": "Mikasa Ackerman",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Satoru Gojo",
@@ -3059,7 +3059,7 @@ PAIRS = [
         "page1": "Satoru Gojo",
         "wiki2": "jujutsu-kaisen",
         "page2": "Ryomen Sukuna",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Tanjiro Kamado",
@@ -3071,7 +3071,7 @@ PAIRS = [
         "page1": "Tanjiro Kamado",
         "wiki2": "kimetsu-no-yaiba",
         "page2": "Nezuko Kamado",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Levi Ackerman",
@@ -3083,7 +3083,7 @@ PAIRS = [
         "page1": "Levi Ackerman",
         "wiki2": "attackontitan",
         "page2": "Erwin Smith",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "All Might",
@@ -3095,7 +3095,7 @@ PAIRS = [
         "page1": "Toshinori Yagi",
         "wiki2": "myheroacademia",
         "page2": "Izuku Midoriya",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Kakashi Hatake",
@@ -3107,7 +3107,7 @@ PAIRS = [
         "page1": "Kakashi Hatake",
         "wiki2": "naruto",
         "page2": "Itachi Uchiha",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Lelouch Lamperouge",
@@ -3119,7 +3119,7 @@ PAIRS = [
         "page1": "Lelouch Lamperouge",
         "wiki2": "codegeass",
         "page2": "Suzaku Kururugi",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Natsu Dragneel",
@@ -3131,7 +3131,7 @@ PAIRS = [
         "page1": "Natsu Dragneel",
         "wiki2": "fairytail",
         "page2": "Gray Fullbuster",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
     {
         "civil": "Meliodas",
@@ -3143,7 +3143,7 @@ PAIRS = [
         "page1": "Meliodas",
         "wiki2": "nanatsu-no-taizai",
         "page2": "Ban",
-        "mode": "or_anime",
+        "mode": "anime_gold",
     },
 
     # =========================================================================
@@ -3161,7 +3161,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f431",
         "emoji2": "\U0001f436",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Coca",
@@ -3175,7 +3175,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f964",
         "emoji2": "\U0001f964",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "McDonald's",
@@ -3189,7 +3189,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f354",
         "emoji2": "\U0001f35f",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Plage",
@@ -3203,7 +3203,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f3d6\ufe0f",
         "emoji2": "\U0001f3ca",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Pizza",
@@ -3217,7 +3217,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f355",
         "emoji2": "\U0001f967",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Guitare",
@@ -3231,7 +3231,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f3b8",
         "emoji2": "\U0001f3b8",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Football",
@@ -3245,7 +3245,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\u26bd",
         "emoji2": "\U0001f3c9",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Roi",
@@ -3259,7 +3259,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f451",
         "emoji2": "\U0001f478",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Lion",
@@ -3273,7 +3273,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f981",
         "emoji2": "\U0001f42f",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Chocolat noir",
@@ -3287,7 +3287,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f36b",
         "emoji2": "\U0001f36b",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Soleil",
@@ -3301,7 +3301,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\u2600\ufe0f",
         "emoji2": "\U0001f319",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Caf\u00e9",
@@ -3315,7 +3315,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\u2615",
         "emoji2": "\U0001f375",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Avion",
@@ -3329,7 +3329,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\u2708\ufe0f",
         "emoji2": "\U0001f681",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Montagne",
@@ -3343,7 +3343,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\u26f0\ufe0f",
         "emoji2": "\U0001f30a",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "\u00c9t\u00e9",
@@ -3357,7 +3357,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\u2600\ufe0f",
         "emoji2": "\u2744\ufe0f",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Pomme",
@@ -3371,7 +3371,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f34e",
         "emoji2": "\U0001f34a",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Voiture",
@@ -3385,7 +3385,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f697",
         "emoji2": "\U0001f3cd\ufe0f",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Piano",
@@ -3399,7 +3399,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f3b9",
         "emoji2": "\U0001f3bb",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Chaud",
@@ -3413,7 +3413,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f525",
         "emoji2": "\U0001f9ca",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Jour",
@@ -3427,7 +3427,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f305",
         "emoji2": "\U0001f303",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Paris",
@@ -3441,7 +3441,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f5fc",
         "emoji2": "\U0001f3a1",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Batman",
@@ -3455,7 +3455,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f987",
         "emoji2": "\U0001f4aa",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Rap",
@@ -3469,7 +3469,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f3a4",
         "emoji2": "\U0001f3b8",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Train",
@@ -3483,7 +3483,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f682",
         "emoji2": "\U0001f68c",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Basket",
@@ -3497,7 +3497,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f3c0",
         "emoji2": "\U0001f3d0",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Rose",
@@ -3511,7 +3511,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f339",
         "emoji2": "\U0001f337",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Cheval",
@@ -3525,7 +3525,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f434",
         "emoji2": "\U0001f984",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Ninja",
@@ -3539,7 +3539,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f977",
         "emoji2": "\u2694\ufe0f",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Robot",
@@ -3553,7 +3553,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f916",
         "emoji2": "\U0001f47d",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Pluie",
@@ -3567,7 +3567,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f327\ufe0f",
         "emoji2": "\U0001f328\ufe0f",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Croissant",
@@ -3581,7 +3581,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f950",
         "emoji2": "\U0001f36b",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Instagram",
@@ -3595,7 +3595,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f4f8",
         "emoji2": "\U0001f3b5",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "iPhone",
@@ -3609,7 +3609,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f4f1",
         "emoji2": "\U0001f4f1",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Netflix",
@@ -3623,7 +3623,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f3ac",
         "emoji2": "\U0001f3f0",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Fortnite",
@@ -3637,7 +3637,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f3ae",
         "emoji2": "\u26cf\ufe0f",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Messi",
@@ -3651,7 +3651,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\u26bd",
         "emoji2": "\u26bd",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Harry Potter",
@@ -3665,7 +3665,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f9d9",
         "emoji2": "\U0001f9d9",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Dragon",
@@ -3679,7 +3679,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f409",
         "emoji2": "\U0001f525",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Vampire",
@@ -3693,7 +3693,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f9db",
         "emoji2": "\U0001f43a",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
     {
         "civil": "Ange",
@@ -3707,7 +3707,7 @@ PAIRS = [
         "page2": "emoji",
         "emoji1": "\U0001f607",
         "emoji2": "\U0001f608",
-        "mode": "classique_pur",
+        "mode": "casual",
     },
 
     # =========================================================================
@@ -3723,7 +3723,7 @@ PAIRS = [
         "page1": "Eleven",
         "wiki2": "strangerthings",
         "page2": "Max Mayfield",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Walter White",
@@ -3735,7 +3735,7 @@ PAIRS = [
         "page1": "Walter White",
         "wiki2": "breakingbad",
         "page2": "Jesse Pinkman",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Sherlock Holmes",
@@ -3747,7 +3747,7 @@ PAIRS = [
         "page1": "Sherlock Holmes",
         "wiki2": "bakerstreet",
         "page2": "John Watson",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Joe Goldberg",
@@ -3759,7 +3759,7 @@ PAIRS = [
         "page1": "Joe Goldberg",
         "wiki2": "you",
         "page2": "Love Quinn",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Tommy Shelby",
@@ -3771,7 +3771,7 @@ PAIRS = [
         "page1": "Thomas Shelby",
         "wiki2": "peakyblinders",
         "page2": "Alfie Solomons",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "BoJack Horseman",
@@ -3783,7 +3783,7 @@ PAIRS = [
         "page1": "BoJack Horseman",
         "wiki2": "bojackhorseman",
         "page2": "Mr. Peanutbutter",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Geralt de Riv",
@@ -3795,7 +3795,7 @@ PAIRS = [
         "page1": "Geralt of Rivia",
         "wiki2": "witcher",
         "page2": "Yennefer of Vengerberg",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Ragnar Lothbrok",
@@ -3807,7 +3807,7 @@ PAIRS = [
         "page1": "Ragnar Lothbrok",
         "wiki2": "vikings",
         "page2": "Bjorn Ironside",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Pablo Escobar",
@@ -3819,7 +3819,7 @@ PAIRS = [
         "page1": "Pablo Escobar",
         "wiki2": "narcos",
         "page2": "El Chapo",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Jon Snow",
@@ -3831,7 +3831,7 @@ PAIRS = [
         "page1": "Jon Snow",
         "wiki2": "gameofthrones",
         "page2": "Daenerys Targaryen",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Tyrion Lannister",
@@ -3843,7 +3843,7 @@ PAIRS = [
         "page1": "Tyrion Lannister",
         "wiki2": "gameofthrones",
         "page2": "Cersei Lannister",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Rick Grimes",
@@ -3855,7 +3855,7 @@ PAIRS = [
         "page1": "Rick Grimes",
         "wiki2": "walkingdead",
         "page2": "Negan",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Dexter Morgan",
@@ -3867,7 +3867,7 @@ PAIRS = [
         "page1": "Dexter Morgan",
         "wiki2": "hannibal",
         "page2": "Hannibal Lecter",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "Seong Gi-hun",
@@ -3879,7 +3879,7 @@ PAIRS = [
         "page1": "Seong Gi-hun",
         "wiki2": "squidgame",
         "page2": "Front Man",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
     {
         "civil": "The Professor",
@@ -3891,7 +3891,7 @@ PAIRS = [
         "page1": "The Professor",
         "wiki2": "lacasadepapel",
         "page2": "Berlin",
-        "mode": "series_netflix",
+        "mode": "series_tv",
     },
 
     # =========================================================================
@@ -3907,7 +3907,7 @@ PAIRS = [
         "page1": "Simba",
         "wiki2": "lionking",
         "page2": "Mufasa",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Elsa",
@@ -3919,7 +3919,7 @@ PAIRS = [
         "page1": "Elsa",
         "wiki2": "frozen",
         "page2": "Anna",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Tony Stark",
@@ -3931,7 +3931,7 @@ PAIRS = [
         "page1": "Tony Stark",
         "wiki2": "marvelcinematicuniverse",
         "page2": "Steve Rogers",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Luke Skywalker",
@@ -3943,7 +3943,7 @@ PAIRS = [
         "page1": "Luke Skywalker",
         "wiki2": "starwars",
         "page2": "Anakin Skywalker",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Thor",
@@ -3955,7 +3955,7 @@ PAIRS = [
         "page1": "Thor Odinson",
         "wiki2": "marvelcinematicuniverse",
         "page2": "Loki Laufeyson",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Buzz l'\u00c9clair",
@@ -3967,7 +3967,7 @@ PAIRS = [
         "page1": "Buzz Lightyear",
         "wiki2": "pixar",
         "page2": "Woody",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Aladdin",
@@ -3979,7 +3979,7 @@ PAIRS = [
         "page1": "Aladdin",
         "wiki2": "disney",
         "page2": "Genie",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Mando",
@@ -3991,7 +3991,7 @@ PAIRS = [
         "page1": "Din Djarin",
         "wiki2": "starwars",
         "page2": "Grogu",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Spider-Man",
@@ -4003,7 +4003,7 @@ PAIRS = [
         "page1": "Peter Parker",
         "wiki2": "marvelcinematicuniverse",
         "page2": "Stephen Strange",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Wanda",
@@ -4015,7 +4015,7 @@ PAIRS = [
         "page1": "Wanda Maximoff",
         "wiki2": "marvelcinematicuniverse",
         "page2": "Vision",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Obi-Wan",
@@ -4027,7 +4027,7 @@ PAIRS = [
         "page1": "Obi-Wan Kenobi",
         "wiki2": "starwars",
         "page2": "Anakin Skywalker",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Mulan",
@@ -4039,7 +4039,7 @@ PAIRS = [
         "page1": "Mulan",
         "wiki2": "disney",
         "page2": "Mushu",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Rapunzel",
@@ -4051,7 +4051,7 @@ PAIRS = [
         "page1": "Rapunzel",
         "wiki2": "disney",
         "page2": "Flynn Rider",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Moana",
@@ -4063,7 +4063,7 @@ PAIRS = [
         "page1": "Moana Waialiki",
         "wiki2": "disney",
         "page2": "Maui",
-        "mode": "series_disney",
+        "mode": "disney",
     },
     {
         "civil": "Baymax",
@@ -4075,7 +4075,7 @@ PAIRS = [
         "page1": "Baymax",
         "wiki2": "disney",
         "page2": "Hiro Hamada",
-        "mode": "series_disney",
+        "mode": "disney",
     },
 
     # =========================================================================
@@ -4335,7 +4335,7 @@ PAIRS = [
         "page1": "Goku",
         "wiki2": "dc",
         "page2": "Superman",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "L",
@@ -4347,7 +4347,7 @@ PAIRS = [
         "page1": "L (character)",
         "wiki2": "bakerstreet",
         "page2": "Sherlock Holmes",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Eren Yeager",
@@ -4359,7 +4359,7 @@ PAIRS = [
         "page1": "Eren Yeager",
         "wiki2": "breakingbad",
         "page2": "Walter White",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Naruto Uzumaki",
@@ -4371,7 +4371,7 @@ PAIRS = [
         "page1": "Naruto Uzumaki",
         "wiki2": "harrypotter",
         "page2": "Harry Potter",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Monkey D. Luffy",
@@ -4383,7 +4383,7 @@ PAIRS = [
         "page1": "Monkey D. Luffy",
         "wiki2": "pirates",
         "page2": "Jack Sparrow",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Levi Ackerman",
@@ -4395,7 +4395,7 @@ PAIRS = [
         "page1": "Levi Ackerman",
         "wiki2": "johnwick",
         "page2": "John Wick",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Madara Uchiha",
@@ -4407,7 +4407,7 @@ PAIRS = [
         "page1": "Madara Uchiha",
         "wiki2": "marvelcinematicuniverse",
         "page2": "Thanos",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Itachi Uchiha",
@@ -4419,7 +4419,7 @@ PAIRS = [
         "page1": "Itachi Uchiha",
         "wiki2": "harrypotter",
         "page2": "Severus Snape",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Satoru Gojo",
@@ -4431,7 +4431,7 @@ PAIRS = [
         "page1": "Satoru Gojo",
         "wiki2": "marvelcinematicuniverse",
         "page2": "Stephen Strange",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Roronoa Zoro",
@@ -4443,7 +4443,7 @@ PAIRS = [
         "page1": "Roronoa Zoro",
         "wiki2": "lotr",
         "page2": "Aragorn II Elessar",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Aang",
@@ -4455,7 +4455,7 @@ PAIRS = [
         "page1": "Aang",
         "wiki2": "starwars",
         "page2": "Luke Skywalker",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Kakashi Hatake",
@@ -4467,7 +4467,7 @@ PAIRS = [
         "page1": "Kakashi Hatake",
         "wiki2": "starwars",
         "page2": "Obi-Wan Kenobi",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Frieza",
@@ -4479,7 +4479,7 @@ PAIRS = [
         "page1": "Frieza",
         "wiki2": "starwars",
         "page2": "Anakin Skywalker",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Saitama",
@@ -4491,7 +4491,7 @@ PAIRS = [
         "page1": "Saitama",
         "wiki2": "dc",
         "page2": "Superman",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
     {
         "civil": "Mikasa Ackerman",
@@ -4503,7 +4503,7 @@ PAIRS = [
         "page1": "Mikasa Ackerman",
         "wiki2": "dc",
         "page2": "Wonder Woman",
-        "mode": "series_mix",
+        "mode": "tout_melanger",
     },
 
     # =========================================================================

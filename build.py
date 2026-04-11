@@ -79,11 +79,18 @@ def fetch_fandom_image(wiki_subdomain, page_title):
 
 
 def image_to_base64(img_bytes):
-    """Resize to 200x200 square and return base64 data URI."""
+    """Crop to face/upper-body portrait, resize to 200x200, return base64 data URI."""
     img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
     w, h = img.size
+    # First: crop to upper portion (face/head area) - keep top 55%
+    if h > w:  # Portrait orientation
+        crop_h = int(h * 0.55)
+        img = img.crop((0, 0, w, crop_h))
+        w, h = img.size
+    # Then square crop from center-top
     side = min(w, h)
-    left, top = (w - side) // 2, (h - side) // 2
+    left = (w - side) // 2
+    top = 0  # Anchor to top, not center
     img = img.crop((left, top, left + side, top + side))
     img = img.resize((200, 200), Image.LANCZOS)
     buf = io.BytesIO()
@@ -153,6 +160,7 @@ def main():
             "universe1": p["universe1"],
             "universe2": p["universe2"],
             "archetype": p["archetype"],
+            "mode": p.get("mode", "normal"),
             "civilImg": char_images.get((p["wiki1"], p["page1"]), ""),
             "undercoverImg": char_images.get((p["wiki2"], p["page2"]), ""),
         })

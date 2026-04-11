@@ -3113,6 +3113,79 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 // ===== GAME DATA (replaced by build script) =====
 const PAIRS = __PAIRS_DATA_JSON__;
 
+// ===== IMAGE LOADER (lazy load from images.json) =====
+const ImageLoader = {
+  _cache: {},
+  _loaded: false,
+  _loading: false,
+  _callbacks: [],
+
+  async load() {
+    if (this._loaded) return;
+    if (this._loading) return new Promise(r => this._callbacks.push(r));
+    this._loading = true;
+    try {
+      // Try IndexedDB first
+      const cached = await this._getFromIDB();
+      if (cached) { this._cache = cached; this._loaded = true; this._resolveAll(); return; }
+      // Fetch images.json
+      const resp = await fetch("images.json");
+      if (resp.ok) {
+        this._cache = await resp.json();
+        this._loaded = true;
+        this._saveToIDB(this._cache);
+        this._resolveAll();
+      }
+    } catch(e) { console.warn("ImageLoader: failed to load images", e); }
+    this._loading = false;
+  },
+
+  resolve(key) {
+    if (!key || key.startsWith("data:")) return key;
+    return this._cache[key] || "";
+  },
+
+  _resolveAll() {
+    this._loading = false;
+    this._callbacks.forEach(cb => cb());
+    this._callbacks = [];
+  },
+
+  async _getFromIDB() {
+    return new Promise(resolve => {
+      try {
+        const req = indexedDB.open("uc_images", 1);
+        req.onupgradeneeded = e => e.target.result.createObjectStore("imgs");
+        req.onsuccess = e => {
+          const db = e.target.result;
+          const tx = db.transaction("imgs", "readonly");
+          const get = tx.objectStore("imgs").get("all");
+          get.onsuccess = () => resolve(get.result || null);
+          get.onerror = () => resolve(null);
+        };
+        req.onerror = () => resolve(null);
+      } catch(e) { resolve(null); }
+    });
+  },
+
+  async _saveToIDB(data) {
+    try {
+      const req = indexedDB.open("uc_images", 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore("imgs");
+      req.onsuccess = e => {
+        const db = e.target.result;
+        const tx = db.transaction("imgs", "readwrite");
+        tx.objectStore("imgs").put(data, "all");
+      };
+    } catch(e) {}
+  }
+};
+
+// Preload images on first interaction
+document.addEventListener("click", function() { ImageLoader.load(); }, { once: true });
+// Also preload after 2 seconds
+setTimeout(function() { ImageLoader.load(); }, 2000);
+
 // ===== SOUND FX ENGINE =====
 const SoundFX = (() => {
   let ctx = null;
@@ -3642,11 +3715,13 @@ function getPairCharacter2(pair) {
 }
 
 function getPairImage1(pair) {
-  return pair.civilImg || pair.image1 || null;
+  var raw = pair.civilImg || pair.image1 || null;
+  return raw ? ImageLoader.resolve(raw) || raw : null;
 }
 
 function getPairImage2(pair) {
-  return pair.undercoverImg || pair.image2 || null;
+  var raw = pair.undercoverImg || pair.image2 || null;
+  return raw ? ImageLoader.resolve(raw) || raw : null;
 }
 
 function getPairUniverse(pair) {
@@ -4555,30 +4630,9 @@ document.querySelectorAll('.screen').forEach(screen => {
 });
 
 
-// ===== SERVICE WORKER (INLINE) =====
+// ===== SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
-  const swCode = `
-    const CACHE = 'uc-manga-v1';
-    self.addEventListener('install', e => {
-      e.waitUntil(
-        caches.open(CACHE).then(c => c.addAll(['./', './index.html']))
-          .catch(() => {})
-      );
-      self.skipWaiting();
-    });
-    self.addEventListener('activate', e => {
-      e.waitUntil(self.clients.claim());
-    });
-    self.addEventListener('fetch', e => {
-      e.respondWith(
-        caches.match(e.request).then(r => r || fetch(e.request))
-          .catch(() => caches.match('./'))
-      );
-    });
-  `;
-  const swBlob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(swBlob);
-  navigator.serviceWorker.register(swUrl).catch(() => {});
+  navigator.serviceWorker.register('./sw.js').catch(function() {});
 }
 
 

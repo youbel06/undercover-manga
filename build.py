@@ -92,9 +92,9 @@ def image_to_base64(img_bytes):
     left = (w - side) // 2
     top = 0  # Anchor to top, not center
     img = img.crop((left, top, left + side, top + side))
-    img = img.resize((250, 250), Image.LANCZOS)
+    img = img.resize((160, 160), Image.LANCZOS)
     buf = io.BytesIO()
-    img.save(buf, format="JPEG", quality=82)
+    img.save(buf, format="JPEG", quality=65)
     return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
@@ -166,10 +166,19 @@ def main():
 </svg>'''
         char_images[key] = "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
 
-    # Build JSON data
-    pairs_json = []
-    for p in PAIRS:
-        pairs_json.append({
+    # Build JSON data — separate images from metadata
+    pairs_meta = []  # Lightweight: no image data
+    images_map = {}  # image key -> data URI
+    for i, p in enumerate(PAIRS):
+        ci_key = f"c{i}"
+        ui_key = f"u{i}"
+        ci_img = char_images.get((p["wiki1"], p["page1"]), "")
+        ui_img = char_images.get((p["wiki2"], p["page2"]), "")
+        if ci_img:
+            images_map[ci_key] = ci_img
+        if ui_img:
+            images_map[ui_key] = ui_img
+        pairs_meta.append({
             "civil": p["civil"],
             "undercover": p["undercover"],
             "universe1": p["universe1"],
@@ -179,23 +188,31 @@ def main():
             "hint": p.get("hint", ""),
             "emoji1": p.get("emoji1", ""),
             "emoji2": p.get("emoji2", ""),
-            "civilImg": char_images.get((p["wiki1"], p["page1"]), ""),
-            "undercoverImg": char_images.get((p["wiki2"], p["page2"]), ""),
+            "civilImg": ci_key,
+            "undercoverImg": ui_key,
         })
 
-    json_str = json.dumps(pairs_json, ensure_ascii=False)
+    meta_str = json.dumps(pairs_meta, ensure_ascii=False)
+    images_str = json.dumps(images_map, ensure_ascii=False)
 
     # Count stats
     ok_count = sum(1 for v in char_images.values() if not v.startswith("data:image/svg"))
     ph_count = sum(1 for v in char_images.values() if v.startswith("data:image/svg"))
     print(f"\nImages: {ok_count} fetched, {ph_count} placeholders")
 
-    # Read template and inject
+    # Write images.json separately
+    images_path = os.path.join(os.path.dirname(__file__), "images.json")
+    with open(images_path, "w", encoding="utf-8") as f:
+        f.write(images_str)
+    img_size = os.path.getsize(images_path) / (1024 * 1024)
+    print(f"Images file: {img_size:.1f} MB")
+
+    # Read template and inject ONLY metadata (no images)
     template_path = os.path.join(os.path.dirname(__file__), "game_template.html")
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
 
-    output = template.replace("__PAIRS_DATA_JSON__", json_str)
+    output = template.replace("__PAIRS_DATA_JSON__", meta_str)
 
     output_path = os.path.join(os.path.dirname(__file__), "index.html")
     with open(output_path, "w", encoding="utf-8") as f:
@@ -203,9 +220,10 @@ def main():
 
     size_mb = os.path.getsize(output_path) / (1024 * 1024)
     print(f"\n=== BUILD COMPLETE ===")
-    print(f"Output: {output_path}")
-    print(f"Size: {size_mb:.1f} MB")
-    print(f"Pairs: {len(pairs_json)}")
+    print(f"Output: {output_path} ({size_mb:.1f} MB)")
+    print(f"Images: {images_path} ({img_size:.1f} MB)")
+    print(f"Total: {size_mb + img_size:.1f} MB")
+    print(f"Pairs: {len(pairs_meta)}")
     print(f"Characters: {len(chars)}")
 
 

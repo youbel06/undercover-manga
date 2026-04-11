@@ -176,6 +176,7 @@ def main():
             "universe2": p["universe2"],
             "archetype": p["archetype"],
             "mode": p.get("mode", "normal"),
+            "hint": p.get("hint", ""),
             "emoji1": p.get("emoji1", ""),
             "emoji2": p.get("emoji2", ""),
             "civilImg": char_images.get((p["wiki1"], p["page1"]), ""),

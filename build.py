@@ -121,13 +121,20 @@ def fetch_character(wiki, page, display):
 
 
 def main():
-    # Collect all unique characters
+    # Collect all unique characters (skip emoji-only pairs)
     chars = {}  # (wiki, page) -> display_name
+    emoji_pairs = {}  # store emoji data for emoji-mode pairs
     for p in PAIRS:
         key1 = (p["wiki1"], p["page1"])
         key2 = (p["wiki2"], p["page2"])
-        chars[key1] = DISPLAY_NAMES.get(p["page1"], p["civil"])
-        chars[key2] = DISPLAY_NAMES.get(p["page2"], p["undercover"])
+        if p["wiki1"] == "emoji":
+            emoji_pairs[key1] = p.get("emoji1", "❓")
+        else:
+            chars[key1] = DISPLAY_NAMES.get(p["page1"], p["civil"])
+        if p["wiki2"] == "emoji":
+            emoji_pairs[key2] = p.get("emoji2", "❓")
+        else:
+            chars[key2] = DISPLAY_NAMES.get(p["page2"], p["undercover"])
 
     print(f"Fetching images for {len(chars)} unique characters...")
     print(f"(Cached images in {CACHE_DIR})")
@@ -151,6 +158,14 @@ def main():
             status = "PLACEHOLDER" if is_placeholder else "OK"
             print(f"  [{done}/{total}] {display} ({wiki}) ... {status}")
 
+    # Generate emoji SVGs for emoji-mode pairs
+    for key, emoji in emoji_pairs.items():
+        svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+<rect width="200" height="200" rx="20" fill="#1a1a2e"/>
+<text x="100" y="130" font-size="100" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">{emoji}</text>
+</svg>'''
+        char_images[key] = "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
+
     # Build JSON data
     pairs_json = []
     for p in PAIRS:
@@ -161,6 +176,8 @@ def main():
             "universe2": p["universe2"],
             "archetype": p["archetype"],
             "mode": p.get("mode", "normal"),
+            "emoji1": p.get("emoji1", ""),
+            "emoji2": p.get("emoji2", ""),
             "civilImg": char_images.get((p["wiki1"], p["page1"]), ""),
             "undercoverImg": char_images.get((p["wiki2"], p["page2"]), ""),
         })

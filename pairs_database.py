@@ -4505,6 +4505,498 @@ PAIRS = [
         "page2": "Wonder Woman",
         "mode": "series_mix",
     },
+
+    # =========================================================================
+    # JEUX VIDEO - VIDEO GAME PAIRS
+    # =========================================================================
+
+    # -------------------------------------------------------------------------
+    # INTRA-UNIVERSE (same franchise)
+    # -------------------------------------------------------------------------
+    {
+        "civil": "Mario",
+        "undercover": "Luigi",
+        "universe1": "Mario",
+        "universe2": "Mario",
+        "archetype": "Frères de jeu",
+        "wiki1": "mario",
+        "page1": "Mario",
+        "wiki2": "mario",
+        "page2": "Luigi",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Sonic",
+        "undercover": "Shadow",
+        "universe1": "Sonic",
+        "universe2": "Sonic",
+        "archetype": "Rival éternel",
+        "wiki1": "sonic",
+        "page1": "Sonic the Hedgehog",
+        "wiki2": "sonic",
+        "page2": "Shadow the Hedgehog",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Link",
+        "undercover": "Ganondorf",
+        "universe1": "Zelda",
+        "universe2": "Zelda",
+        "archetype": "Héros contre villain",
+        "wiki1": "zelda",
+        "page1": "Link",
+        "wiki2": "zelda",
+        "page2": "Ganondorf",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Kratos",
+        "undercover": "Zeus",
+        "universe1": "God of War",
+        "universe2": "God of War",
+        "archetype": "Guerrier divin",
+        "wiki1": "godofwar",
+        "page1": "Kratos",
+        "wiki2": "godofwar",
+        "page2": "Zeus",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Master Chief",
+        "undercover": "Arbiter",
+        "universe1": "Halo",
+        "universe2": "Halo",
+        "archetype": "Soldat en armure",
+        "wiki1": "halo",
+        "page1": "John-117",
+        "wiki2": "halo",
+        "page2": "Thel 'Vadam",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Cloud",
+        "undercover": "Sephiroth",
+        "universe1": "Final Fantasy",
+        "universe2": "Final Fantasy",
+        "archetype": "Rival éternel",
+        "wiki1": "finalfantasy",
+        "page1": "Cloud Strife",
+        "wiki2": "finalfantasy",
+        "page2": "Sephiroth",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Pikachu",
+        "undercover": "Mewtwo",
+        "universe1": "Pokémon",
+        "universe2": "Pokémon",
+        "archetype": "Mascotte contre création",
+        "wiki1": "pokemon",
+        "page1": "Pikachu",
+        "wiki2": "pokemon",
+        "page2": "Mewtwo",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Ryu",
+        "undercover": "Ken",
+        "universe1": "Street Fighter",
+        "universe2": "Street Fighter",
+        "archetype": "Frères de combat",
+        "wiki1": "streetfighter",
+        "page1": "Ryu",
+        "wiki2": "streetfighter",
+        "page2": "Ken Masters",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Sub-Zero",
+        "undercover": "Scorpion",
+        "universe1": "Mortal Kombat",
+        "universe2": "Mortal Kombat",
+        "archetype": "Rival éternel",
+        "wiki1": "mortalkombat",
+        "page1": "Sub-Zero",
+        "wiki2": "mortalkombat",
+        "page2": "Scorpion",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Ezio",
+        "undercover": "Altaïr",
+        "universe1": "Assassin's Creed",
+        "universe2": "Assassin's Creed",
+        "archetype": "Assassin légendaire",
+        "wiki1": "assassinscreed",
+        "page1": "Ezio Auditore da Firenze",
+        "wiki2": "assassinscreed",
+        "page2": "Altaïr Ibn-La'Ahad",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Joel",
+        "undercover": "Ellie",
+        "universe1": "The Last of Us",
+        "universe2": "The Last of Us",
+        "archetype": "Survivants liés",
+        "wiki1": "thelastofus",
+        "page1": "Joel",
+        "wiki2": "thelastofus",
+        "page2": "Ellie",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Geralt",
+        "undercover": "Yennefer",
+        "universe1": "The Witcher",
+        "universe2": "The Witcher",
+        "archetype": "Duo légendaire",
+        "wiki1": "witcher",
+        "page1": "Geralt of Rivia",
+        "wiki2": "witcher",
+        "page2": "Yennefer of Vengerberg",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Tracer",
+        "undercover": "Genji",
+        "universe1": "Overwatch",
+        "universe2": "Overwatch",
+        "archetype": "Héros véloce",
+        "wiki1": "overwatch",
+        "page1": "Tracer",
+        "wiki2": "overwatch",
+        "page2": "Genji",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Steve",
+        "undercover": "Alex",
+        "universe1": "Minecraft",
+        "universe2": "Minecraft",
+        "archetype": "Bâtisseur cubique",
+        "wiki1": "minecraft",
+        "page1": "Steve",
+        "wiki2": "minecraft",
+        "page2": "Alex",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Sans",
+        "undercover": "Papyrus",
+        "universe1": "Undertale",
+        "universe2": "Undertale",
+        "archetype": "Frères squelettes",
+        "wiki1": "undertale",
+        "page1": "Sans",
+        "wiki2": "undertale",
+        "page2": "Papyrus",
+        "mode": "jeux_video",
+    },
+
+    # -------------------------------------------------------------------------
+    # CROSS-UNIVERSE (different franchises)
+    # -------------------------------------------------------------------------
+    {
+        "civil": "Kratos",
+        "undercover": "Dante",
+        "universe1": "God of War",
+        "universe2": "Devil May Cry",
+        "archetype": "Guerrier divin",
+        "wiki1": "godofwar",
+        "page1": "Kratos",
+        "wiki2": "devilmaycry",
+        "page2": "Dante",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Mario",
+        "undercover": "Crash Bandicoot",
+        "universe1": "Mario",
+        "universe2": "Crash Bandicoot",
+        "archetype": "Mascotte platformer",
+        "wiki1": "mario",
+        "page1": "Mario",
+        "wiki2": "crashbandicoot",
+        "page2": "Crash Bandicoot",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Lara Croft",
+        "undercover": "Nathan Drake",
+        "universe1": "Tomb Raider",
+        "universe2": "Uncharted",
+        "archetype": "Chasseur de trésors",
+        "wiki1": "tombraider",
+        "page1": "Lara Croft",
+        "wiki2": "uncharted",
+        "page2": "Nathan Drake",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Arthur Morgan",
+        "undercover": "Joel",
+        "universe1": "Red Dead Redemption",
+        "universe2": "The Last of Us",
+        "archetype": "Survivant au grand cœur",
+        "wiki1": "reddead",
+        "page1": "Arthur Morgan",
+        "wiki2": "thelastofus",
+        "page2": "Joel",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Solid Snake",
+        "undercover": "Sam Fisher",
+        "universe1": "Metal Gear",
+        "universe2": "Splinter Cell",
+        "archetype": "Espion infiltration",
+        "wiki1": "metalgear",
+        "page1": "Solid Snake",
+        "wiki2": "splintercell",
+        "page2": "Sam Fisher",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Doom Slayer",
+        "undercover": "Master Chief",
+        "universe1": "Doom",
+        "universe2": "Halo",
+        "archetype": "Soldat en armure",
+        "wiki1": "doom",
+        "page1": "Doom Slayer",
+        "wiki2": "halo",
+        "page2": "John-117",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Gordon Freeman",
+        "undercover": "Isaac Clarke",
+        "universe1": "Half-Life",
+        "universe2": "Dead Space",
+        "archetype": "Héros silencieux",
+        "wiki1": "half-life",
+        "page1": "Gordon Freeman",
+        "wiki2": "deadspace",
+        "page2": "Isaac Clarke",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Ellie",
+        "undercover": "Clementine",
+        "universe1": "The Last of Us",
+        "universe2": "The Walking Dead",
+        "archetype": "Enfant de l'apocalypse",
+        "wiki1": "thelastofus",
+        "page1": "Ellie",
+        "wiki2": "walkingdead",
+        "page2": "Clementine",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "2B",
+        "undercover": "Aloy",
+        "universe1": "NieR",
+        "universe2": "Horizon",
+        "archetype": "Héroïne futuriste",
+        "wiki1": "nier",
+        "page1": "2B",
+        "wiki2": "horizon",
+        "page2": "Aloy",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Mega Man",
+        "undercover": "Samus",
+        "universe1": "Mega Man",
+        "universe2": "Metroid",
+        "archetype": "Soldat en armure",
+        "wiki1": "megaman",
+        "page1": "Mega Man",
+        "wiki2": "metroid",
+        "page2": "Samus Aran",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Link",
+        "undercover": "Cloud",
+        "universe1": "Zelda",
+        "universe2": "Final Fantasy",
+        "archetype": "Héros à l'épée",
+        "wiki1": "zelda",
+        "page1": "Link",
+        "wiki2": "finalfantasy",
+        "page2": "Cloud Strife",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Sonic",
+        "undercover": "Mario",
+        "universe1": "Sonic",
+        "universe2": "Mario",
+        "archetype": "Mascotte platformer",
+        "wiki1": "sonic",
+        "page1": "Sonic the Hedgehog",
+        "wiki2": "mario",
+        "page2": "Mario",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Kirby",
+        "undercover": "Pac-Man",
+        "universe1": "Kirby",
+        "universe2": "Pac-Man",
+        "archetype": "Dévoreur mignon",
+        "wiki1": "kirby",
+        "page1": "Kirby",
+        "wiki2": "pacman",
+        "page2": "Pac-Man",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Pikachu",
+        "undercover": "Agumon",
+        "universe1": "Pokémon",
+        "universe2": "Digimon",
+        "archetype": "Mascotte créature",
+        "wiki1": "pokemon",
+        "page1": "Pikachu",
+        "wiki2": "digimon",
+        "page2": "Agumon",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Sephiroth",
+        "undercover": "Ganondorf",
+        "universe1": "Final Fantasy",
+        "universe2": "Zelda",
+        "archetype": "Villain iconique",
+        "wiki1": "finalfantasy",
+        "page1": "Sephiroth",
+        "wiki2": "zelda",
+        "page2": "Ganondorf",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Dante",
+        "undercover": "Bayonetta",
+        "universe1": "Devil May Cry",
+        "universe2": "Bayonetta",
+        "archetype": "Chasseur de démons stylé",
+        "wiki1": "devilmaycry",
+        "page1": "Dante",
+        "wiki2": "bayonetta",
+        "page2": "Bayonetta",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Snake",
+        "undercover": "Agent 47",
+        "universe1": "Metal Gear",
+        "universe2": "Hitman",
+        "archetype": "Espion infiltration",
+        "wiki1": "metalgear",
+        "page1": "Solid Snake",
+        "wiki2": "hitman",
+        "page2": "Agent 47",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "CJ",
+        "undercover": "Niko Bellic",
+        "universe1": "GTA",
+        "universe2": "GTA",
+        "archetype": "Gangster de rue",
+        "wiki1": "gta",
+        "page1": "Carl Johnson",
+        "wiki2": "gta",
+        "page2": "Niko Bellic",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Kratos",
+        "undercover": "Doom Slayer",
+        "universe1": "God of War",
+        "universe2": "Doom",
+        "archetype": "Guerrier divin",
+        "wiki1": "godofwar",
+        "page1": "Kratos",
+        "wiki2": "doom",
+        "page2": "Doom Slayer",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Princess Zelda",
+        "undercover": "Princess Peach",
+        "universe1": "Zelda",
+        "universe2": "Mario",
+        "archetype": "Princesse légendaire",
+        "wiki1": "zelda",
+        "page1": "Princess Zelda",
+        "wiki2": "mario",
+        "page2": "Princess Peach",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Bowser",
+        "undercover": "Dr. Eggman",
+        "universe1": "Mario",
+        "universe2": "Sonic",
+        "archetype": "Villain iconique",
+        "wiki1": "mario",
+        "page1": "Bowser",
+        "wiki2": "sonic",
+        "page2": "Doctor Eggman",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Leon Kennedy",
+        "undercover": "Chris Redfield",
+        "universe1": "Resident Evil",
+        "universe2": "Resident Evil",
+        "archetype": "Survivant héroïque",
+        "wiki1": "residentevil",
+        "page1": "Leon S. Kennedy",
+        "wiki2": "residentevil",
+        "page2": "Chris Redfield",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Tifa",
+        "undercover": "Lara Croft",
+        "universe1": "Final Fantasy",
+        "universe2": "Tomb Raider",
+        "archetype": "Héroïne combattante",
+        "wiki1": "finalfantasy",
+        "page1": "Tifa Lockhart",
+        "wiki2": "tombraider",
+        "page2": "Lara Croft",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Yoshi",
+        "undercover": "Pikachu",
+        "universe1": "Mario",
+        "universe2": "Pokémon",
+        "archetype": "Compagnon adorable",
+        "wiki1": "mario",
+        "page1": "Yoshi",
+        "wiki2": "pokemon",
+        "page2": "Pikachu",
+        "mode": "jeux_video",
+    },
+    {
+        "civil": "Donkey Kong",
+        "undercover": "Crash Bandicoot",
+        "universe1": "Donkey Kong",
+        "universe2": "Crash Bandicoot",
+        "archetype": "Mascotte platformer",
+        "wiki1": "donkeykong",
+        "page1": "Donkey Kong",
+        "wiki2": "crashbandicoot",
+        "page2": "Crash Bandicoot",
+        "mode": "jeux_video",
+    },
 ]
 
 
@@ -5168,4 +5660,142 @@ DISPLAY_NAMES = {
 
     # Lord of the Rings
     "Aragorn II Elessar": "Aragorn",
+
+    # --- MODE JEUX_VIDEO ---
+    # Mario
+    "Mario": "Mario",
+    "Luigi": "Luigi",
+    "Princess Peach": "Peach",
+    "Bowser": "Bowser",
+    "Yoshi": "Yoshi",
+
+    # Sonic
+    "Sonic the Hedgehog": "Sonic",
+    "Shadow the Hedgehog": "Shadow",
+    "Doctor Eggman": "Dr. Eggman",
+
+    # Zelda
+    "Link": "Link",
+    "Ganondorf": "Ganondorf",
+    "Princess Zelda": "Zelda",
+
+    # God of War
+    "Kratos": "Kratos",
+    "Zeus": "Zeus",
+
+    # Halo
+    "John-117": "Master Chief",
+    "Thel 'Vadam": "Arbiter",
+
+    # Final Fantasy
+    "Cloud Strife": "Cloud",
+    "Sephiroth": "Sephiroth",
+    "Tifa Lockhart": "Tifa",
+
+    # Pokémon
+    "Pikachu": "Pikachu",
+    "Mewtwo": "Mewtwo",
+
+    # Street Fighter
+    "Ryu": "Ryu",
+    "Ken Masters": "Ken",
+
+    # Mortal Kombat
+    "Sub-Zero": "Sub-Zero",
+    "Scorpion": "Scorpion",
+
+    # Assassin's Creed
+    "Ezio Auditore da Firenze": "Ezio",
+    "Altaïr Ibn-La'Ahad": "Altaïr",
+
+    # The Last of Us
+    "Joel": "Joel",
+    "Ellie": "Ellie",
+
+    # The Witcher
+    "Geralt of Rivia": "Geralt",
+    "Yennefer of Vengerberg": "Yennefer",
+
+    # Overwatch
+    "Tracer": "Tracer",
+    "Genji": "Genji",
+
+    # Minecraft
+    "Steve": "Steve",
+    "Alex": "Alex",
+
+    # Undertale
+    "Sans": "Sans",
+    "Papyrus": "Papyrus",
+
+    # Devil May Cry
+    "Dante": "Dante",
+
+    # Crash Bandicoot
+    "Crash Bandicoot": "Crash",
+
+    # Tomb Raider
+    "Lara Croft": "Lara Croft",
+
+    # Uncharted
+    "Nathan Drake": "Nathan Drake",
+
+    # Red Dead Redemption
+    "Arthur Morgan": "Arthur Morgan",
+
+    # Metal Gear
+    "Solid Snake": "Snake",
+
+    # Splinter Cell
+    "Sam Fisher": "Sam Fisher",
+
+    # Doom
+    "Doom Slayer": "Doom Slayer",
+
+    # Half-Life
+    "Gordon Freeman": "Gordon Freeman",
+
+    # Dead Space
+    "Isaac Clarke": "Isaac Clarke",
+
+    # The Walking Dead (game)
+    "Clementine": "Clementine",
+
+    # NieR
+    "2B": "2B",
+
+    # Horizon
+    "Aloy": "Aloy",
+
+    # Mega Man
+    "Mega Man": "Mega Man",
+
+    # Metroid
+    "Samus Aran": "Samus",
+
+    # Kirby
+    "Kirby": "Kirby",
+
+    # Pac-Man
+    "Pac-Man": "Pac-Man",
+
+    # Digimon
+    "Agumon": "Agumon",
+
+    # Bayonetta
+    "Bayonetta": "Bayonetta",
+
+    # Hitman
+    "Agent 47": "Agent 47",
+
+    # GTA
+    "Carl Johnson": "CJ",
+    "Niko Bellic": "Niko",
+
+    # Resident Evil
+    "Leon S. Kennedy": "Leon",
+    "Chris Redfield": "Chris",
+
+    # Donkey Kong
+    "Donkey Kong": "Donkey Kong",
 }

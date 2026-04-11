@@ -70,6 +70,11 @@ def main():
         step("1. Load HTML file")
         page.goto(FILE_URL)
         page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(300)
+        # Dismiss tutorial if shown
+        page.evaluate("() => { try { localStorage.setItem('uc_tutorial_done','true'); } catch(e) {} }")
+        page.evaluate("() => { const t = document.getElementById('tutorial-overlay'); if (t) t.classList.remove('visible'); }")
+        page.wait_for_timeout(200)
         print(f"  Title: {page.title()}")
 
         if page.evaluate("() => document.getElementById('screen-splash').classList.contains('active')"):
@@ -158,6 +163,9 @@ def main():
 
         # ── 8. Role reveals ──
         step("8. Reveal all 4 players")
+        # Dismiss tutorial overlay if it appeared
+        page.evaluate("() => { const t = document.getElementById('tutorial-overlay'); if(t) { t.classList.remove('visible'); t.style.display='none'; } }")
+        page.wait_for_timeout(200)
         for i in range(4):
             unrevealed = page.locator(".reveal-player-item:not(.revealed)")
             if unrevealed.count() == 0:

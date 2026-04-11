@@ -38,7 +38,7 @@ def fetch_fandom_image(wiki_subdomain, page_title):
     try:
         params = {
             "action": "query", "titles": page_title,
-            "prop": "pageimages", "pithumbsize": 400, "format": "json",
+            "prop": "pageimages", "pithumbsize": 500, "format": "json",
         }
         resp = requests.get(api_url, params=params, headers=HEADERS, timeout=15)
         pages = resp.json().get("query", {}).get("pages", {})
@@ -92,9 +92,9 @@ def image_to_base64(img_bytes):
     left = (w - side) // 2
     top = 0  # Anchor to top, not center
     img = img.crop((left, top, left + side, top + side))
-    img = img.resize((200, 200), Image.LANCZOS)
+    img = img.resize((250, 250), Image.LANCZOS)
     buf = io.BytesIO()
-    img.save(buf, format="JPEG", quality=80)
+    img.save(buf, format="JPEG", quality=82)
     return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
 

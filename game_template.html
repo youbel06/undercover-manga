@@ -1381,7 +1381,7 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 
 
 /* ===== RADIAL MUSIC PLAYER ===== */
-.music-radial{position:fixed;bottom:80px;left:24px;z-index:9999}
+.music-radial{position:fixed;bottom:80px;left:70px;z-index:9999}
 .music-main-btn{width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,0.7);
   backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);
   display:flex;align-items:center;justify-content:center;font-size:1.3rem;
@@ -9863,6 +9863,17 @@ var _origMpUi = MusicPlayer._ui;
 MusicPlayer._ui = function() {
   if (typeof _origMpUi === "function") _origMpUi.call(MusicPlayer);
   updateRadialUI();
+};
+
+
+// Hide music radial during active game phases
+var _prevShowScreenRadial = showScreen;
+showScreen = function(id) {
+  _prevShowScreenRadial(id);
+  var radial = document.getElementById("music-radial");
+  if (!radial) return;
+  var hide = ["screen-reveal","screen-vote","screen-elimination","screen-mp-game"].indexOf(id) >= 0;
+  radial.style.display = hide ? "none" : "";
 };
 
 </script>

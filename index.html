@@ -8368,9 +8368,16 @@ mpStartGame = async function() {
   var available = PAIRS.filter(function(p) { return (p.mode || "normal") === (GameState.currentMode || "normal"); });
   if (available.length === 0) available = PAIRS;
   var pair = available[Math.floor(Math.random() * available.length)];
+  // Force fresh query (no cache)
   var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId);
   var players = res.data || [];
-  if (players.length < 2) { showToast("Il faut au moins 2 joueurs"); return; }
+  // If only 1 player, retry after a short delay (DB propagation)
+  if (players.length < 2) {
+    await new Promise(function(r) { setTimeout(r, 2000); });
+    res = await sb.from("room_players").select("*").eq("room_id", mpRoomId);
+    players = res.data || [];
+  }
+  if (players.length < 2) { showToast("Il faut au moins 2 joueurs (" + players.length + " trouvé(s))"); return; }
   // Shuffle and assign
   var indices = players.map(function(_,i){return i}).sort(function(){return Math.random()-0.5});
   var roles = {};

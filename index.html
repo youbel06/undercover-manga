@@ -7845,9 +7845,16 @@ function broadcastPlayerJoin(playerData) {
   _mpLocalPlayers = _mpLocalPlayers.filter(function(p) { return p.player_id !== playerData.player_id; });
   _mpLocalPlayers.push(playerData);
   if (mpChannel) {
-    mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}});
+    // Request current list from other players
+    mpChannel.send({type: "broadcast", event: "request_players", payload: {from: playerData.player_id}});
+    // Also send our current list
+    setTimeout(function() {
+      mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}});
+      renderMpLobby();
+    }, 500);
+  } else {
+    renderMpLobby();
   }
-  renderMpLobby();
 }
 
 function broadcastPlayerLeave(playerId) {
@@ -7972,7 +7979,8 @@ async function mpJoinRoom() {
 function mpSubscribe() {
   if (!sb || !mpRoomId) return;
   mpChannel = sb.channel("room-" + mpRoomId, {config: {broadcast: {self: true}}})
-    .on("broadcast", {event: "player_list"}, function(payload) { console.log("[MP] Got broadcast player_list:", JSON.stringify(payload.payload?.players?.length)); if (payload.payload && payload.payload.players) { _mpLocalPlayers = payload.payload.players; renderMpLobby(); } })
+    .on("broadcast", {event: "player_list"}, function(payload) { console.log("[MP] Got player_list:", payload.payload?.players?.length); if (payload.payload && payload.payload.players) { _mpLocalPlayers = payload.payload.players; renderMpLobby(); } })
+    .on("broadcast", {event: "request_players"}, function(payload) { console.log("[MP] Got request, sending our list:", _mpLocalPlayers.length); mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}}); })
     .on("postgres_changes", {event:"*", schema:"public", table:"game_state", filter:"room_id=eq." + mpRoomId}, function(p) { handleMpGame(p.new); })
     .subscribe();
 }

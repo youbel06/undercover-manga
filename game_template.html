@@ -8461,9 +8461,7 @@ mpStartGame = async function() {
   if (available.length === 0) available = PAIRS;
   var pair = available[Math.floor(Math.random() * available.length)];
   // Force fresh query (no cache)
-  var playersDisplay = await rawQueryRoomPlayers(mpRoomId);
-  var playerIds = await getRoomPlayerIds(mpRoomId);
-  var players = playerIds.length > 0 ? playerIds : playersDisplay;
+  var players = _mpLocalPlayers.slice(); // Use local broadcast-synced list
   // If only 1 player, retry after a short delay (DB propagation)
   if (players.length < 2) {
     await new Promise(function(r) { setTimeout(r, 2000); });

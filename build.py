@@ -186,6 +186,8 @@ def main():
             "archetype": p["archetype"],
             "mode": p.get("mode", "normal"),
             "hint": p.get("hint", ""),
+            "pair_type": p.get("pair_type", ""),
+            "similarity": p.get("similarity", p.get("hint", "")),
             "emoji1": p.get("emoji1", ""),
             "emoji2": p.get("emoji2", ""),
             "civilImg": ci_key,

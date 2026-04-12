@@ -8432,9 +8432,11 @@ mpResolveVote = async function() {
   if (!mpIsHost) return;
   var gs = (await gsRead(mpRoomId));
   if (!gs) return;
-  var votes = gs.votes || {};
+  var rawVotes = gs.votes || {};
+  var votes = {};
+  Object.keys(rawVotes).forEach(function(k) { if (!k.startsWith("_")) votes[k] = rawVotes[k]; });
   var tally = {};
-  Object.values(votes).forEach(function(v) { tally[v] = (tally[v]||0) + 1; });
+  Object.values(votes).forEach(function(v) { if (v && typeof v === "string") tally[v] = (tally[v]||0) + 1; });
   var maxV = Math.max(0, Math.max.apply(null, Object.values(tally).concat([0])));
   if (maxV === 0) return;
   var tied = Object.keys(tally).filter(function(k) { return tally[k] === maxV; });

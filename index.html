@@ -1379,6 +1379,39 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 .music-modal-card input[type=range]{-webkit-appearance:none;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;outline:none}
 .music-modal-card input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent-gold);cursor:pointer}
 
+
+/* ===== RADIAL MUSIC PLAYER ===== */
+.music-radial{position:fixed;bottom:80px;left:16px;z-index:9999}
+.music-main-btn{width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+  cursor:pointer;transition:transform 0.2s;color:#fff;position:relative;z-index:2}
+.music-main-btn:active{transform:scale(0.9)}
+.music-main-btn.playing{animation:musicBtnPulse 2s ease infinite}
+@keyframes musicBtnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 0 10px rgba(245,166,35,0)}}
+.music-radial-items{position:absolute;bottom:0;left:0;pointer-events:none}
+.music-radial-items.open{pointer-events:auto}
+.music-radial-btn{position:absolute;width:40px;height:40px;border-radius:50%;
+  background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;
+  cursor:pointer;color:#fff;transform:scale(0);opacity:0;transition:none;bottom:4px;left:4px}
+.music-radial-items.open .music-radial-btn{
+  animation:radialIn 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.music-radial-items.closing .music-radial-btn{
+  animation:radialOut 0.15s ease forwards}
+.music-radial-btn:nth-child(1){--tx:-49px;--ty:-49px;animation-delay:0s}
+.music-radial-btn:nth-child(2){--tx:0px;--ty:-70px;animation-delay:0.04s}
+.music-radial-btn:nth-child(3){--tx:49px;--ty:-49px;animation-delay:0.08s}
+.music-radial-btn:nth-child(4){--tx:-70px;--ty:0px;animation-delay:0.12s}
+@keyframes radialIn{from{transform:scale(0) translate(0,0);opacity:0}
+  to{transform:scale(1) translate(var(--tx),var(--ty));opacity:1}}
+@keyframes radialOut{from{transform:scale(1) translate(var(--tx),var(--ty));opacity:1}
+  to{transform:scale(0) translate(0,0);opacity:0}}
+.music-tooltip{position:absolute;bottom:56px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,0.85);color:#fff;font-size:0.7rem;padding:4px 10px;
+  border-radius:8px;white-space:nowrap;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.music-radial-items.open .music-tooltip{opacity:1;transition-delay:0.5s}
+
 /* ===== APP CONTAINER ===== */
 #app {
   width: 100%; height: 100%;
@@ -2906,9 +2939,7 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 </div>
 
 <!-- ===== AUDIO CONTROLS (FLOATING) ===== -->
-<div class="audio-float" id="audio-float">
-  <button class="audio-float-btn" id="music-btn" onclick="musicTap()" aria-label="Audio">🔊</button>
-</div>
+<!-- audio-float removed, using radial player -->
 <div class="music-modal" id="music-modal">
   <div class="music-modal-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -9784,13 +9815,70 @@ if (typeof LofiPlayerV9 !== 'undefined') {
   LofiPlayerV9.stop = function() {};
 }
 
+
+// ===== RADIAL MUSIC MENU =====
+var _radialOpen = false;
+
+function toggleRadialMenu() {
+  var items = document.getElementById("music-radial-items");
+  if (_radialOpen) {
+    items.classList.remove("open");
+    items.classList.add("closing");
+    setTimeout(function() { items.classList.remove("closing"); }, 200);
+    _radialOpen = false;
+  } else {
+    items.classList.remove("closing");
+    items.classList.add("open");
+    _radialOpen = true;
+    updateRadialUI();
+  }
+}
+
+function updateRadialUI() {
+  var pb = document.getElementById("radial-play");
+  if (pb) pb.textContent = (MusicPlayer.audio && !MusicPlayer.audio.paused && !MusicPlayer.stopped) ? "⏸" : "▶";
+  var mb = document.getElementById("radial-mute");
+  if (mb) mb.textContent = MusicPlayer.vol <= 0.01 ? "🔇" : "🔊";
+  var tt = document.getElementById("radial-tooltip");
+  if (tt) tt.textContent = MusicPlayer.tracks[MusicPlayer.idx].name;
+  var main = document.getElementById("music-main-btn");
+  if (main) main.classList.toggle("playing", MusicPlayer.audio && !MusicPlayer.audio.paused && !MusicPlayer.stopped);
+}
+
+function radialToggleMute() {
+  if (MusicPlayer.vol > 0.01) { MusicPlayer._prevVol = MusicPlayer.vol; MusicPlayer.setVolume(0); }
+  else { MusicPlayer.setVolume(MusicPlayer._prevVol || 0.3); }
+  updateRadialUI();
+}
+
+// Close on outside click
+document.addEventListener("click", function(e) {
+  if (_radialOpen && !e.target.closest(".music-radial")) {
+    toggleRadialMenu();
+  }
+});
+
+// Update radial UI when music state changes
+var _origMpUi = MusicPlayer._ui;
+MusicPlayer._ui = function() {
+  if (typeof _origMpUi === "function") _origMpUi.call(MusicPlayer);
+  updateRadialUI();
+};
+
 </script>
 
-<div id="music-bar" style="position:fixed;bottom:70px;left:0;right:0;background:rgba(10,10,20,0.97);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 16px;z-index:9999;font-size:13px;color:#fff;">
-  <button onclick="MusicPlayer.prev()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">⏮</button>
-  <button onclick="MusicPlayer.togglePlay()" id="mp-bar-play" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">▶</button>
-  <span id="mp-bar-name" style="min-width:120px;text-align:center;opacity:0.8">—</span>
-  <button onclick="MusicPlayer.next()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">⏭</button>
+
+
+
+<div class="music-radial" id="music-radial">
+  <div class="music-radial-items" id="music-radial-items">
+    <button class="music-radial-btn" onclick="MusicPlayer.prev();updateRadialUI()">⏮</button>
+    <button class="music-radial-btn" id="radial-play" onclick="MusicPlayer.togglePlay();updateRadialUI()">▶</button>
+    <button class="music-radial-btn" onclick="MusicPlayer.next();updateRadialUI()">⏭</button>
+    <button class="music-radial-btn" id="radial-mute" onclick="radialToggleMute()">🔊</button>
+    <div class="music-tooltip" id="radial-tooltip">—</div>
+  </div>
+  <button class="music-main-btn" id="music-main-btn" onclick="toggleRadialMenu()">🎵</button>
 </div>
 
 </body>

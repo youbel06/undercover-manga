@@ -1315,7 +1315,7 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 
 /* ===== V15 ANIME PHOTO AVATARS ===== */
 .photo-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;object-position:top}
-.photo-avatar-lg{width:100px;height:100px;border-radius:50%;object-fit:cover;object-position:top;border:3px solid var(--border-glass)}
+.photo-avatar-lg{width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:top}
 
 /* Aura levels */
 .aura-5{box-shadow:0 0 10px rgba(255,255,255,0.2)}
@@ -1368,6 +1368,9 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 .hof-medal{font-size:1.2rem;width:24px;text-align:center}
 .hof-name{flex:1;font-size:0.8rem;font-weight:600;color:var(--text-bright)}
 .hof-pts{font-size:0.75rem;color:var(--accent-gold)}
+
+#cosm-preview { overflow:hidden !important; }
+#cosm-preview img { width:100% !important; height:100% !important; object-fit:cover !important; object-position:top center !important; border-radius:50%; }
 
 /* ===== APP CONTAINER ===== */
 #app {
@@ -3209,7 +3212,7 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
     <button class="btn btn-icon btn-ghost back-btn" onclick="showScreen('screen-profile')" aria-label="Retour">←</button>
     <h2>🎨 Personnalisation</h2>
     <div style="text-align:center;margin-bottom:12px;">
-      <div class="avatar-equipped" id="cosm-preview" style="width:80px;height:80px;font-size:2.5rem;margin:0 auto;"></div>
+      <div class="avatar-equipped" id="cosm-preview" style="width:80px;height:80px;font-size:2.5rem;margin:0 auto;overflow:hidden;"></div>
       <div id="cosm-title" style="font-size:0.85rem;color:var(--accent-gold);margin-top:6px;"></div>
     </div>
     <div class="cosmetics-tabs" id="cosm-tabs"></div>
@@ -7017,7 +7020,7 @@ function renderCosmeticsScreen() {
   if (activeTab === 'avatars') {
     ALL_AVATARS.forEach(av => {
       const owned = ownsCosmetic('avatar', av.id) || av.rarity === 'common';
-      const equipped = eq.avatar === av.icon;
+      const equipped = av.isPhoto ? (eq.avatarId === av.id) : (eq.avatar === av.icon && !eq.avatarId);
       const item = document.createElement('div');
       item.className = 'cosmetic-item' + (equipped ? ' equipped' : '') + (!owned ? ' locked' : '');
       item.innerHTML = '<div class="ci-icon">' + av.icon + '</div><div>' + av.name + '</div>';
@@ -7630,7 +7633,7 @@ renderCosmeticsScreen = function() {
   if (activeTab === 'avatars') {
     ALL_AVATARS.forEach(av => {
       const owned = ownsCosmetic('avatar', av.id) || av.rarity === 'common';
-      const equipped = eq.avatar === av.icon;
+      const equipped = av.isPhoto ? (eq.avatarId === av.id) : (eq.avatar === av.icon && !eq.avatarId);
       const item = document.createElement('div');
       item.className = 'cosmetic-item' + (equipped ? ' equipped' : '') + (!owned ? ' locked' : '');
       item.innerHTML = '<div class="ci-icon">' + av.icon + '</div><div>' + av.name + '</div>';
@@ -9104,6 +9107,60 @@ equipCosmetic = function(type, id) {
       preview.querySelector("img")?.remove();
     }
   }
+};
+
+
+// ===== FIX: Anime avatar equipped state =====
+// Override renderCosmeticsScreen to fix equipped detection
+var _fixRenderCosm = renderCosmeticsScreen;
+renderCosmeticsScreen = function() {
+  _fixRenderCosm();
+  // Post-fix: correct equipped class for anime avatars
+  var eq = getEquipped();
+  var grid = document.getElementById("cosm-grid");
+  var tabs = document.getElementById("cosm-tabs");
+  if (!grid || !tabs || tabs.dataset.active !== "avatars") return;
+
+  var items = grid.querySelectorAll(".cosmetic-item");
+  items.forEach(function(item) {
+    var nameEl = item.querySelector("div:last-child");
+    if (!nameEl) return;
+    var name = nameEl.textContent;
+    var av = ALL_AVATARS.find(function(a) { return a.name === name; });
+    if (!av) return;
+
+    // Determine if THIS avatar is the one equipped
+    var isEquipped = false;
+    if (av.isPhoto) {
+      isEquipped = eq.avatarId === av.id;
+    } else {
+      isEquipped = eq.avatar === av.icon && !eq.avatarId;
+    }
+
+    item.classList.toggle("equipped", isEquipped);
+
+    // Re-bind onclick to always work (fix the "no Equip button" issue)
+    item.onclick = function() {
+      var owned = !item.classList.contains("locked");
+      var gachaOnly = av.rarity === "epic" || av.rarity === "legendary";
+      var price = av.isPhoto ? (av.price || 0) : (av.rarity === "rare" ? 150 : av.rarity === "common" ? 50 : 0);
+      if (av.isPhoto && av.price === 0) owned = true; // free anime avatars
+      if (av.isPhoto && av.price > 0) {
+        owned = owned || (Economy._data.gachaCollection || []).some(function(c){return c.name===av.name});
+      }
+      if (av.rarity === "common" && !av.isPhoto) owned = true;
+
+      openItemModal({
+        icon: av.icon, name: av.name, rarity: av.rarity,
+        desc: av.isPhoto ? "Avatar anime" : "Avatar emoji",
+        price: price,
+        owned: owned || Economy._data.isAdmin,
+        equipped: isEquipped,
+        gachaOnly: !owned && (av.isPhoto ? av.price < 0 : gachaOnly),
+        type: "avatar", id: av.id, cls: av.cls || ""
+      });
+    };
+  });
 };
 
 </script>

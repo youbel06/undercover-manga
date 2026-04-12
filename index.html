@@ -7894,7 +7894,7 @@ function mpSubscribe() {
 
 async function renderMpLobby() {
   document.getElementById("mp-room-code").textContent = mpRoomCode || "------";
-  var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId);
+  var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId).order("joined_at");
   var players = res.data || [];
   var list = document.getElementById("mp-player-list");
   if (!list) return;
@@ -7929,7 +7929,7 @@ async function mpToggleReady() {
 async function mpStartGame() {
   if (!mpIsHost) return;
   var pair = PAIRS[Math.floor(Math.random() * PAIRS.length)];
-  var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId);
+  var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId).order("joined_at");
   var players = res.data || [];
   var roles = {};
   var shuffled = players.map(function(_,i){return i}).sort(function(){return Math.random()-0.5});
@@ -7983,7 +7983,7 @@ async function mpAdvancePhase(phase) {
 
 async function mpRenderVote(state) {
   var content = document.getElementById("mp-game-content");
-  var res = await sb.from("room_players").select("*").eq("room_id",mpRoomId);
+  var res = await sb.from("room_players").select("*").eq("room_id",mpRoomId).order("joined_at");
   var players = res.data || [];
   var eliminated = state.eliminated || [];
   var alive = players.filter(function(p){return eliminated.indexOf(p.player_id)<0});
@@ -8209,7 +8209,7 @@ handleMpGame = function(state) {
 // Synced vote rendering with live progress bars
 async function mpRenderVoteSync(state) {
   var content = document.getElementById("mp-game-content");
-  var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId);
+  var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId).order("joined_at");
   var players = res.data || [];
   var eliminated = state.eliminated || [];
   var alive = players.filter(function(p) { return eliminated.indexOf(p.player_id) < 0; });
@@ -8332,7 +8332,7 @@ mpResolveVote = async function() {
   var tied = Object.keys(tally).filter(function(k) { return tally[k] === maxV; });
   var elimId = tied[Math.floor(Math.random() * tied.length)];
   // Get name
-  var pRes = await sb.from("room_players").select("username").eq("room_id", mpRoomId).eq("player_id", elimId).single();
+  var pRes = await sb.from("room_players").select("username").eq("room_id", mpRoomId).order("joined_at").eq("player_id", elimId).single();
   var elimName = pRes.data?.username || "Joueur";
   var newElim = (gs.eliminated || []).concat([elimId]);
   await sb.from("game_state").update({
@@ -8369,12 +8369,12 @@ mpStartGame = async function() {
   if (available.length === 0) available = PAIRS;
   var pair = available[Math.floor(Math.random() * available.length)];
   // Force fresh query (no cache)
-  var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId);
+  var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId).order("joined_at");
   var players = res.data || [];
   // If only 1 player, retry after a short delay (DB propagation)
   if (players.length < 2) {
     await new Promise(function(r) { setTimeout(r, 2000); });
-    res = await sb.from("room_players").select("*").eq("room_id", mpRoomId);
+    res = await sb.from("room_players").select("*").eq("room_id", mpRoomId).order("joined_at");
     players = res.data || [];
   }
   if (players.length < 2) { showToast("Il faut au moins 2 joueurs (" + players.length + " trouvé(s))"); return; }
@@ -8445,7 +8445,7 @@ function setupVoiceSignaling() {
 }
 
 async function broadcastVoiceOffer() {
-  var res = await sb.from("room_players").select("player_id").eq("room_id", mpRoomId);
+  var res = await sb.from("room_players").select("player_id").eq("room_id", mpRoomId).order("joined_at");
   var players = (res.data || []).filter(function(p){return p.player_id !== mpPlayerId});
   players.forEach(function(p) { createPeerConnection(p.player_id, true); });
 }

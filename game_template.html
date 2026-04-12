@@ -7979,7 +7979,7 @@ async function mpJoinRoom() {
 function mpSubscribe() {
   if (!sb || !mpRoomId) return;
   mpChannel = sb.channel("room-" + mpRoomId, {config: {broadcast: {self: true}}})
-    .on("broadcast", {event: "player_list"}, function(payload) { console.log("[MP] Got player_list:", payload.payload?.players?.length); if (payload.payload && payload.payload.players) { _mpLocalPlayers = payload.payload.players; renderMpLobby(); } })
+    .on("broadcast", {event: "player_list"}, function(payload) { if (payload.payload && payload.payload.players) { var incoming = payload.payload.players; incoming.forEach(function(p) { if (!_mpLocalPlayers.find(function(x){return x.player_id===p.player_id})) { _mpLocalPlayers.push(p); } }); console.log("[MP] Merged players:", _mpLocalPlayers.length); renderMpLobby(); } })
     .on("broadcast", {event: "request_players"}, function(payload) { console.log("[MP] Got request, sending our list:", _mpLocalPlayers.length); mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}}); })
     .on("postgres_changes", {event:"*", schema:"public", table:"game_state", filter:"room_id=eq." + mpRoomId}, function(p) { handleMpGame(p.new); })
     .subscribe();

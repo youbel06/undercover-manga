@@ -7832,14 +7832,47 @@ function initSupabase() {
 
 
 // Raw REST query helper (bypasses Supabase client caching/FK issues)
+
 async function rawQueryRoomPlayers(roomId) {
   try {
-    var resp = await fetch(SUPABASE_URL + "/rest/v1/room_players?room_id=eq." + roomId + "&select=username,avatar_emoji,is_ready&order=joined_at", {
-      headers: {"apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Accept": "application/json"}
-    });
-    if (resp.ok) return await resp.json();
-  } catch(e) { console.warn("rawQuery failed:", e); }
+    // Read player list from rooms.settings JSONB (no FK issues)
+    var res = await sb.from("rooms").select("settings").eq("id", roomId).single();
+    if (res.data && res.data.settings && res.data.settings.players) {
+      return res.data.settings.players;
+    }
+  } catch(e) {}
   return [];
+}
+
+// Add/update player in room settings
+async function addPlayerToRoom(roomId, playerData) {
+  var res = await sb.from("rooms").select("settings").eq("id", roomId).single();
+  var settings = (res.data && res.data.settings) ? res.data.settings : {};
+  if (!settings.players) settings.players = [];
+  // Remove existing entry for this player
+  settings.players = settings.players.filter(function(p) { return p.player_id !== playerData.player_id; });
+  settings.players.push(playerData);
+  await sb.from("rooms").update({settings: settings}).eq("id", roomId);
+}
+
+// Remove player from room settings
+async function removePlayerFromRoom(roomId, playerId) {
+  var res = await sb.from("rooms").select("settings").eq("id", roomId).single();
+  var settings = (res.data && res.data.settings) ? res.data.settings : {};
+  if (settings.players) {
+    settings.players = settings.players.filter(function(p) { return p.player_id !== playerId; });
+    await sb.from("rooms").update({settings: settings}).eq("id", roomId);
+  }
+}
+
+// Update player ready status in room settings
+async function updatePlayerReady(roomId, playerId, isReady) {
+  var res = await sb.from("rooms").select("settings").eq("id", roomId).single();
+  var settings = (res.data && res.data.settings) ? res.data.settings : {};
+  if (settings.players) {
+    settings.players.forEach(function(p) { if (p.player_id === playerId) p.is_ready = isReady; });
+    await sb.from("rooms").update({settings: settings}).eq("id", roomId);
+  }
 }
 
 
@@ -7902,6 +7935,7 @@ async function mpCreateRoom() {
   mpRoomId = res.data.id; mpRoomCode = code; mpIsHost = true;
   var p = await sb.from("players").select("username,avatar_emoji").eq("id", mpPlayerId).single();
   await sb.from("room_players").insert({room_id: mpRoomId, player_id: mpPlayerId, username: p.data?.username || "Hôte", is_host: true, is_ready: true});
+  await addPlayerToRoom(mpRoomId, {player_id: mpPlayerId, username: p.data?.username || "Hôte", avatar_emoji: p.data?.avatar_emoji || "🕵️", is_host: true, is_ready: true});
   showScreen("screen-mp-lobby"); renderMpLobby(); mpSubscribe();
 }
 
@@ -7920,7 +7954,7 @@ async function mpJoinRoom() {
 function mpSubscribe() {
   if (!sb || !mpRoomId) return;
   mpChannel = sb.channel("room-" + mpRoomId)
-    .on("postgres_changes", {event:"*", schema:"public", table:"room_players", filter:"room_id=eq." + mpRoomId}, function() { renderMpLobby(); })
+    .on("postgres_changes", {event:"*", schema:"public", table:"rooms", filter:"id=eq." + mpRoomId}, function() { renderMpLobby(); })
     .on("postgres_changes", {event:"*", schema:"public", table:"game_state", filter:"room_id=eq." + mpRoomId}, function(p) { handleMpGame(p.new); })
     .subscribe();
 }
@@ -7955,6 +7989,7 @@ async function renderMpLobby() {
 async function mpToggleReady() {
   mpIsReady = !mpIsReady;
   await sb.from("room_players").update({is_ready: mpIsReady}).eq("room_id", mpRoomId).eq("player_id", mpPlayerId);
+  await updatePlayerReady(mpRoomId, mpPlayerId, mpIsReady);
   document.getElementById("mp-ready-btn").textContent = mpIsReady ? "PAS PRÊT" : "PRÊT";
 }
 
@@ -8060,6 +8095,7 @@ async function mpResolveVote() {
 async function mpLeaveRoom() {
   if (sb && mpRoomId) {
     await sb.from("room_players").delete().eq("room_id",mpRoomId).eq("player_id",mpPlayerId);
+    await removePlayerFromRoom(mpRoomId, mpPlayerId);
     if (mpIsHost) await sb.from("rooms").delete().eq("id",mpRoomId);
   }
   if (mpChannel) {sb.removeChannel(mpChannel);mpChannel=null;}

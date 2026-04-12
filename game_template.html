@@ -8287,6 +8287,9 @@ mpAdvancePhase = async function(phase) {
     update.votes = {};
   }
   await sb.from("game_state").update(update).eq("room_id", mpRoomId);
+  // Re-read and apply locally (realtime may not fire for sender)
+  var gsRes = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
+  if (gsRes.data) handleMpGame(gsRes.data);
 };
 
 // Continue after elimination - check win conditions
@@ -8308,7 +8311,11 @@ async function mpContinueAfterElim() {
   } else {
     // Continue to discuss
     await mpAdvancePhase("discuss");
+    return; // mpAdvancePhase already handles local re-read
   }
+  // Re-read for finished state
+  var gsRes3 = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
+  if (gsRes3.data) handleMpGame(gsRes3.data);
 }
 
 // Resolve vote with name tracking
@@ -8335,6 +8342,8 @@ mpResolveVote = async function() {
     eliminated_name: elimName,
     votes: {}
   }).eq("room_id", mpRoomId);
+  var gsRes2 = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
+  if (gsRes2.data) handleMpGame(gsRes2.data);
 };
 
 // Revanche - new game same room
@@ -8361,7 +8370,7 @@ mpStartGame = async function() {
   var pair = available[Math.floor(Math.random() * available.length)];
   var res = await sb.from("room_players").select("*").eq("room_id", mpRoomId);
   var players = res.data || [];
-  if (players.length < 3) { showToast("Il faut au moins 3 joueurs"); return; }
+  if (players.length < 2) { showToast("Il faut au moins 2 joueurs"); return; }
   // Shuffle and assign
   var indices = players.map(function(_,i){return i}).sort(function(){return Math.random()-0.5});
   var roles = {};
@@ -8378,6 +8387,9 @@ mpStartGame = async function() {
   });
   await sb.from("rooms").update({status: "playing"}).eq("id", mpRoomId);
   SoundFX.reveal();
+  // Manually trigger game state for host (realtime may not fire for creator)
+  var gsRes = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
+  if (gsRes.data) handleMpGame(gsRes.data);
 };
 
 

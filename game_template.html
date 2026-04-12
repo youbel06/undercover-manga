@@ -5713,7 +5713,7 @@ const _origApplyModeFilter = applyModeFilter;
 applyModeFilter = function() {
   const mode = GameState.currentMode;
   // For modes that filter by pair.mode field
-  const modeFilterModes = ['or_anime', 'classique_pur', 'series_netflix', 'series_disney', 'cartoons', 'series_mix'];
+  const modeFilterModes = ['anime_gold', 'casual', 'series_tv', 'disney', 'cartoons', 'tout_melanger', 'jeux_video', 'shojo', 'isekai', 'anime_classic', 'shonen', 'seinen', 'normal'];
   if (modeFilterModes.includes(mode)) {
     // These modes filter by the pair's mode field, not by universe
     GameState.enabledUniverses = new Set();
@@ -5730,12 +5730,12 @@ applyModeFilter = function() {
 const _origGetAvailablePairs = getAvailablePairs;
 getAvailablePairs = function() {
   const mode = GameState.currentMode;
-  const modeFilterModes = ['or_anime', 'classique_pur', 'series_netflix', 'series_disney', 'cartoons', 'series_mix'];
+  const modeFilterModes = ['anime_gold', 'casual', 'series_tv', 'disney', 'cartoons', 'tout_melanger', 'jeux_video', 'shojo', 'isekai', 'anime_classic', 'shonen', 'seinen', 'normal'];
 
   if (modeFilterModes.includes(mode)) {
     let modesToMatch;
-    if (mode === 'series_mix') {
-      modesToMatch = ['series_netflix', 'series_disney', 'cartoons', 'series_mix', 'or_anime', 'normal'];
+    if (mode === 'tout_melanger') {
+      modesToMatch = null; // match all
     } else {
       modesToMatch = [mode];
     }

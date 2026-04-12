@@ -1,4 +1,4 @@
-const CACHE = 'uc-lelox-v15';
+const CACHE = 'uc-lelox-v16';
 const ASSETS = ['./', './index.html', './images.json', './avatars.json'];
 
 self.addEventListener('install', e => {
@@ -15,13 +15,26 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
-      if (resp.ok && e.request.url.includes('images.json')) {
-        const clone = resp.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
-      }
-      return resp;
-    })).catch(() => caches.match('./'))
-  );
+  // Network-first for HTML (always get latest), cache-first for assets
+  if (e.request.url.includes('index.html') || e.request.url.endsWith('/')) {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        if (resp.ok) {
+          const clone = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return resp;
+      }).catch(() => caches.match(e.request))
+    );
+  } else {
+    e.respondWith(
+      caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
+        if (resp.ok) {
+          const clone = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return resp;
+      })).catch(() => caches.match('./'))
+    );
+  }
 });

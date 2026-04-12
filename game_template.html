@@ -8440,8 +8440,8 @@ mpResolveVote = async function() {
   var tied = Object.keys(tally).filter(function(k) { return tally[k] === maxV; });
   var elimId = tied[Math.floor(Math.random() * tied.length)];
   // Get name
-  var pRes = await sb.from("room_players").select("username").eq("room_id", mpRoomId).order("joined_at").eq("player_id", elimId).single();
-  var elimName = pRes.data?.username || "Joueur";
+  var elimPlayer = _mpLocalPlayers.find(function(p) { return p.player_id === elimId; });
+  var elimName = elimPlayer ? elimPlayer.username : "Joueur";
   var newElim = (gs.eliminated || []).concat([elimId]);
   await gsUpdate(mpRoomId, {
     phase: "elimination",

@@ -7833,19 +7833,28 @@ function initSupabase() {
 
 // Raw REST query helper (bypasses Supabase client caching/FK issues)
 
+
+// ===== BROADCAST-BASED PLAYER LIST (no DB dependency) =====
+var _mpLocalPlayers = [];
+
 async function rawQueryRoomPlayers(roomId) {
-  try {
-    var resp = await fetch(SUPABASE_URL + "/rest/v1/rooms?id=eq." + roomId + "&select=settings", {
-      headers: {"apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Accept": "application/json"}
-    });
-    if (resp.ok) {
-      var data = await resp.json();
-      if (data[0] && data[0].settings && data[0].settings.players) {
-        return data[0].settings.players;
-      }
-    }
-  } catch(e) { console.warn("[MP] rawQuery error:", e); }
-  return [];
+  return _mpLocalPlayers;
+}
+
+function broadcastPlayerJoin(playerData) {
+  _mpLocalPlayers = _mpLocalPlayers.filter(function(p) { return p.player_id !== playerData.player_id; });
+  _mpLocalPlayers.push(playerData);
+  if (mpChannel) {
+    mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}});
+  }
+  renderMpLobby();
+}
+
+function broadcastPlayerLeave(playerId) {
+  _mpLocalPlayers = _mpLocalPlayers.filter(function(p) { return p.player_id !== playerId; });
+  if (mpChannel) {
+    mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}});
+  }
 }
 
 // Add/update player in room settings
@@ -7941,8 +7950,8 @@ async function mpCreateRoom() {
   mpRoomId = res.data.id; mpRoomCode = code; mpIsHost = true;
   var p = await sb.from("players").select("username,avatar_emoji").eq("id", mpPlayerId).single();
   await sb.from("room_players").insert({room_id: mpRoomId, player_id: mpPlayerId, username: p.data?.username || "Hôte", is_host: true, is_ready: true});
-  await addPlayerToRoom(mpRoomId, {player_id: mpPlayerId, username: p.data?.username || "Hôte", avatar_emoji: p.data?.avatar_emoji || "🕵️", is_host: true, is_ready: true});
-  showScreen("screen-mp-lobby"); renderMpLobby(); mpSubscribe();
+  showScreen("screen-mp-lobby"); mpSubscribe();
+  broadcastPlayerJoin({player_id: mpPlayerId, username: p.data?.username || "Hôte", avatar_emoji: p.data?.avatar_emoji || "🕵️", is_host: true, is_ready: true});
 }
 
 async function mpJoinRoom() {
@@ -7954,14 +7963,16 @@ async function mpJoinRoom() {
   mpRoomId = res.data.id; mpRoomCode = code; mpIsHost = false;
   var p = await sb.from("players").select("username,avatar_emoji").eq("id", mpPlayerId).single();
   await sb.from("room_players").insert({room_id: mpRoomId, player_id: mpPlayerId, username: p.data?.username || "Joueur", is_host: false, is_ready: false});
-  await addPlayerToRoom(mpRoomId, {player_id: mpPlayerId, username: p.data?.username || "Joueur", avatar_emoji: p.data?.avatar_emoji || "🕵️", is_host: false, is_ready: false});
-  showScreen("screen-mp-lobby"); renderMpLobby(); mpSubscribe();
+  showScreen("screen-mp-lobby"); mpSubscribe();
+  // Small delay to ensure subscription is active before broadcasting
+  await new Promise(function(r) { setTimeout(r, 1000); });
+  broadcastPlayerJoin({player_id: mpPlayerId, username: p.data?.username || "Joueur", avatar_emoji: p.data?.avatar_emoji || "🕵️", is_host: false, is_ready: false});
 }
 
 function mpSubscribe() {
   if (!sb || !mpRoomId) return;
   mpChannel = sb.channel("room-" + mpRoomId)
-    .on("postgres_changes", {event:"*", schema:"public", table:"rooms", filter:"id=eq." + mpRoomId}, function() { renderMpLobby(); })
+    .on("broadcast", {event: "player_list"}, function(payload) { if (payload.payload && payload.payload.players) { _mpLocalPlayers = payload.payload.players; renderMpLobby(); } })
     .on("postgres_changes", {event:"*", schema:"public", table:"game_state", filter:"room_id=eq." + mpRoomId}, function(p) { handleMpGame(p.new); })
     .subscribe();
 }
@@ -7995,8 +8006,10 @@ async function renderMpLobby() {
 
 async function mpToggleReady() {
   mpIsReady = !mpIsReady;
-  await sb.from("room_players").update({is_ready: mpIsReady}).eq("room_id", mpRoomId).eq("player_id", mpPlayerId);
-  await updatePlayerReady(mpRoomId, mpPlayerId, mpIsReady);
+  // Update local and broadcast
+  _mpLocalPlayers.forEach(function(p) { if (p.player_id === mpPlayerId) p.is_ready = mpIsReady; });
+  if (mpChannel) mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}});
+  renderMpLobby();
   document.getElementById("mp-ready-btn").textContent = mpIsReady ? "PAS PRÊT" : "PRÊT";
 }
 
@@ -8101,8 +8114,7 @@ async function mpResolveVote() {
 
 async function mpLeaveRoom() {
   if (sb && mpRoomId) {
-    await sb.from("room_players").delete().eq("room_id",mpRoomId).eq("player_id",mpPlayerId);
-    await removePlayerFromRoom(mpRoomId, mpPlayerId);
+    broadcastPlayerLeave(mpPlayerId);
     if (mpIsHost) await sb.from("rooms").delete().eq("id",mpRoomId);
   }
   if (mpChannel) {sb.removeChannel(mpChannel);mpChannel=null;}

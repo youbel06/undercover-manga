@@ -3039,6 +3039,14 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
         </div>
       </div>
       <div class="settings-group" style="margin-top:12px;">
+        <label class="settings-label">🎵 Volume Musique</label>
+        <input type="range" min="0" max="100" id="slider-music-vol" value="30"
+          oninput="MusicPlayer.setVolume(this.value/100)" style="width:100%;margin-bottom:10px">
+        <label class="settings-label">🔊 Volume Effets</label>
+        <input type="range" min="0" max="100" id="slider-sfx-vol" value="80"
+          oninput="SfxGlobalVol=this.value/100;localStorage.setItem('uc_sfx_vol',SfxGlobalVol)" style="width:100%;margin-bottom:10px">
+      </div>
+      <div class="settings-group" style="margin-top:12px;">
         <label class="settings-label">Mode Aveugle (noms cachés)</label>
         <button class="btn btn-ghost" id="blind-toggle" onclick="toggleBlindMode()">Désactivé</button>
       </div>
@@ -3361,14 +3369,7 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 
 </div>
 
-<!-- ===== MUSIC MINI PLAYER ===== -->
-<div class="music-fab" id="music-fab" onclick="toggleMusicExpanded()">🎵</div>
-<div class="music-expanded" id="music-expanded">
-  <button onclick="lofiPrev()">⏮</button>
-  <button id="music-play-btn" onclick="toggleMusicPlay()">▶</button>
-  <span class="me-title" id="me-title">—</span>
-  <button onclick="lofiNext()">⏭</button>
-</div>
+<!-- mini player removed, using music-modal instead -->
 
 <!-- ===== VOICE CHAT FAB ===== -->
 <div class="voice-fab" id="voice-fab" onclick="toggleVoice()">
@@ -9729,6 +9730,53 @@ function lofiNext() { MusicPlayer.next(); }
 function lofiPrev() { MusicPlayer.prev(); }
 function updateMiniTitle() { MusicPlayer._ui(); }
 function toggleMusicExpanded() { openMusicModal(); }
+
+
+// ===== INIT AUDIO SLIDERS ON SETTINGS SCREEN =====
+var SfxGlobalVol = parseFloat(localStorage.getItem('uc_sfx_vol') || '0.8');
+
+var _origRenderSettingsFinal = renderSettings;
+renderSettings = function() {
+  _origRenderSettingsFinal();
+  // Init sliders
+  var ms = document.getElementById('slider-music-vol');
+  if (ms) ms.value = Math.round((MusicPlayer.vol || 0.3) * 100);
+  var ss = document.getElementById('slider-sfx-vol');
+  if (ss) ss.value = Math.round(SfxGlobalVol * 100);
+};
+
+// Make SFX respect global volume
+var _origSfxClick = SoundFX.click;
+SoundFX.click = function() {
+  if (SfxGlobalVol <= 0.01) return;
+  try { _origSfxClick(); } catch(e) {}
+};
+var _origSfxReveal = SoundFX.reveal;
+SoundFX.reveal = function() { if (SfxGlobalVol <= 0.01) return; try { _origSfxReveal(); } catch(e) {} };
+var _origSfxElim = SoundFX.eliminate;
+SoundFX.eliminate = function() { if (SfxGlobalVol <= 0.01) return; try { _origSfxElim(); } catch(e) {} };
+var _origSfxVict = SoundFX.victory;
+SoundFX.victory = function() { if (SfxGlobalVol <= 0.01) return; try { _origSfxVict(); } catch(e) {} };
+var _origSfxSusp = SoundFX.suspense;
+SoundFX.suspense = function() { if (SfxGlobalVol <= 0.01) return; try { _origSfxSusp(); } catch(e) {} };
+
+// Disable ALL old music systems to prevent interference
+MusicEngine.stop = function() {};
+MusicEngine.lobby = function() {};
+MusicEngine.suspense = function() {};
+MusicEngine.victoryCivils = function() {};
+MusicEngine.victoryUndercover = function() {};
+MusicEngine.reveal = function() {};
+if (typeof LofiPlayer !== 'undefined') {
+  LofiPlayer.play = function() {};
+  LofiPlayer.stop = function() {};
+  LofiPlayer.next = function() {};
+  LofiPlayer.prev = function() {};
+}
+if (typeof LofiPlayerV9 !== 'undefined') {
+  LofiPlayerV9.play = function() {};
+  LofiPlayerV9.stop = function() {};
+}
 
 </script>
 </body>

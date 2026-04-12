@@ -9613,9 +9613,11 @@ var SfxVolume = parseFloat(localStorage.getItem('uc_sfx_vol') || '0.8');
 var MusicPlayer = {
   audio: null,
   tracks: [
-    {name: "Lofi Chill", url: "https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3"},
-    {name: "Relaxing", url: "https://cdn.pixabay.com/audio/2024/11/01/audio_ffd7183e41.mp3"},
-    {name: "Peaceful", url: "https://cdn.pixabay.com/audio/2022/10/25/audio_102b42dae5.mp3"},
+    {name: "Lofi Tokyo", url: "https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3"},
+    {name: "Deep Focus", url: "https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3"},
+    {name: "Anime Chill", url: "https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3"},
+    {name: "Night Vibes", url: "https://cdn.pixabay.com/audio/2022/02/22/audio_d1718ab41b.mp3"},
+    {name: "Sakura Rain", url: "https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3"},
   ],
   idx: 0,
   vol: 0.3,
@@ -9626,7 +9628,7 @@ var MusicPlayer = {
     this.audio = new Audio();
     this.audio.loop = false;
     var self = this;
-    this.audio.addEventListener('ended', function() { self.next(); });
+    this.audio.addEventListener('ended', function() { console.log('[Music] Track ended, playing next'); self.idx = (self.idx + 1) % self.tracks.length; self.play(); });
     try {
       var s = JSON.parse(localStorage.getItem('uc_mp_settings') || '{}');
       if (s.vol !== undefined) this.vol = s.vol;
@@ -9784,7 +9786,7 @@ if (typeof LofiPlayerV9 !== 'undefined') {
 
 </script>
 
-<div id="music-bar" style="position:fixed;bottom:60px;left:0;right:0;background:rgba(10,10,20,0.95);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 16px;z-index:350;font-size:13px;color:#fff;">
+<div id="music-bar" style="position:fixed;bottom:70px;left:0;right:0;background:rgba(10,10,20,0.97);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 16px;z-index:9999;font-size:13px;color:#fff;">
   <button onclick="MusicPlayer.prev()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">⏮</button>
   <button onclick="MusicPlayer.togglePlay()" id="mp-bar-play" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">▶</button>
   <span id="mp-bar-name" style="min-width:120px;text-align:center;opacity:0.8">—</span>

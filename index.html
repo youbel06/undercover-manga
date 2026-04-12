@@ -7846,13 +7846,15 @@ async function rawQueryRoomPlayers(roomId) {
 
 // Add/update player in room settings
 async function addPlayerToRoom(roomId, playerData) {
-  var res = await sb.from("rooms").select("settings").eq("id", roomId).single();
-  var settings = (res.data && res.data.settings) ? res.data.settings : {};
-  if (!settings.players) settings.players = [];
-  // Remove existing entry for this player
-  settings.players = settings.players.filter(function(p) { return p.player_id !== playerData.player_id; });
-  settings.players.push(playerData);
-  await sb.from("rooms").update({settings: settings}).eq("id", roomId);
+  try {
+    var res = await sb.from("rooms").select("settings").eq("id", roomId).single();
+    var settings = (res.data && res.data.settings && typeof res.data.settings === "object") ? res.data.settings : {};
+    if (!settings.players) settings.players = [];
+    settings.players = settings.players.filter(function(p) { return p.player_id !== playerData.player_id; });
+    settings.players.push(playerData);
+    var upd = await sb.from("rooms").update({settings: settings}).eq("id", roomId);
+    console.log("[MP] addPlayerToRoom: " + playerData.username + " -> " + (upd.error ? "ERROR: " + JSON.stringify(upd.error) : "OK, " + settings.players.length + " players"));
+  } catch(e) { console.error("[MP] addPlayerToRoom error:", e); }
 }
 
 // Remove player from room settings
@@ -7948,6 +7950,7 @@ async function mpJoinRoom() {
   mpRoomId = res.data.id; mpRoomCode = code; mpIsHost = false;
   var p = await sb.from("players").select("username,avatar_emoji").eq("id", mpPlayerId).single();
   await sb.from("room_players").insert({room_id: mpRoomId, player_id: mpPlayerId, username: p.data?.username || "Joueur", is_host: false, is_ready: false});
+  await addPlayerToRoom(mpRoomId, {player_id: mpPlayerId, username: p.data?.username || "Joueur", avatar_emoji: p.data?.avatar_emoji || "🕵️", is_host: false, is_ready: false});
   showScreen("screen-mp-lobby"); renderMpLobby(); mpSubscribe();
 }
 

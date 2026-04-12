@@ -7834,12 +7834,33 @@ function initSupabase() {
 // Raw REST query helper (bypasses Supabase client caching/FK issues)
 async function rawQueryRoomPlayers(roomId) {
   try {
-    var resp = await fetch(SUPABASE_URL + "/rest/v1/room_players?room_id=eq." + roomId + "&select=username,avatar_emoji,is_ready,is_host,player_id&order=joined_at", {
+    var resp = await fetch(SUPABASE_URL + "/rest/v1/room_players?room_id=eq." + roomId + "&select=username,avatar_emoji,is_ready,is_host&order=joined_at", {
       headers: {"apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Accept": "application/json"}
     });
     if (resp.ok) return await resp.json();
   } catch(e) { console.warn("rawQuery failed:", e); }
   return [];
+}
+
+
+// Get player_ids for a room (separate query to avoid FK embedding)
+async function getRoomPlayerIds(roomId) {
+  try {
+    var resp = await fetch(SUPABASE_URL + "/rest/v1/room_players?room_id=eq." + roomId + "&select=username&order=joined_at", {
+      headers: {"apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Accept": "application/json"}
+    });
+    if (!resp.ok) return [];
+    var players = await resp.json();
+    // Now get player_ids by matching usernames via players table
+    var result = [];
+    for (var i = 0; i < players.length; i++) {
+      var pRes = await sb.from("players").select("id,username").eq("username", players[i].username).single();
+      if (pRes.data) {
+        result.push({player_id: pRes.data.id, username: players[i].username});
+      }
+    }
+    return result;
+  } catch(e) { return []; }
 }
 
 async function mpEnsurePlayer() {
@@ -8377,7 +8398,9 @@ mpStartGame = async function() {
   if (available.length === 0) available = PAIRS;
   var pair = available[Math.floor(Math.random() * available.length)];
   // Force fresh query (no cache)
-  var players = await rawQueryRoomPlayers(mpRoomId);
+  var playersDisplay = await rawQueryRoomPlayers(mpRoomId);
+  var playerIds = await getRoomPlayerIds(mpRoomId);
+  var players = playerIds.length > 0 ? playerIds : playersDisplay;
   // If only 1 player, retry after a short delay (DB propagation)
   if (players.length < 2) {
     await new Promise(function(r) { setTimeout(r, 2000); });

@@ -5,7 +5,7 @@ with open("game_template.html", "r", encoding="utf-8") as f:
     html = f.read()
 
 SUPABASE_URL = "https://frrluakugoabzmkndriv.supabase.co"
-SUPABASE_KEY = "sb_publishable_upJEigFQYYBwro5uyjCYfw_vB3TUY-y"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZycmx1YWt1Z29hYnpta25kcml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MzA2ODEsImV4cCI6MjA5MTUwNjY4MX0.AMVDA104Otfx6LPTxgCUEyk0M5OaG6jszW8G_Nucgmc"
 
 # ═══ 1. CSS for MP screens ═══
 CSS = """

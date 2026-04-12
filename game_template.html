@@ -4054,6 +4054,8 @@ function pairKey(pair) {
 }
 
 function selectRandomPair() {
+  var _mode = GameState.currentMode || 'normal';
+  console.log('[PAIR] selectRandomPair mode=' + _mode);
   let available = getAvailablePairs();
   if (available.length === 0) {
     // Reset anti-repetition if exhausted
@@ -4082,6 +4084,14 @@ function selectRandomPair() {
     localStorage.setItem('uc_recent_pairs', JSON.stringify(GameState.recentPairKeys));
   } catch(e) {}
 
+  // HARD SAFETY: verify pair matches mode
+  if (pair && _mode !== 'tout_melanger' && _mode !== 'mixte_total' && pair.mode !== _mode) {
+    console.error('[PAIR] WRONG MODE! wanted=' + _mode + ' got=' + pair.mode + ' pair=' + pair.civil);
+    // Force re-filter
+    var safe = PAIRS.filter(function(p) { return p.mode === _mode; });
+    if (safe.length > 0) pair = safe[Math.floor(Math.random() * safe.length)];
+  }
+  console.log('[PAIR] selected: ' + (pair?pair.civil:'null') + ' mode=' + (pair?pair.mode:'?'));
   return pair;
 }
 

@@ -7835,12 +7835,16 @@ function initSupabase() {
 
 async function rawQueryRoomPlayers(roomId) {
   try {
-    // Read player list from rooms.settings JSONB (no FK issues)
-    var res = await sb.from("rooms").select("settings").eq("id", roomId).single();
-    if (res.data && res.data.settings && res.data.settings.players) {
-      return res.data.settings.players;
+    var resp = await fetch(SUPABASE_URL + "/rest/v1/rooms?id=eq." + roomId + "&select=settings", {
+      headers: {"apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Accept": "application/json"}
+    });
+    if (resp.ok) {
+      var data = await resp.json();
+      if (data[0] && data[0].settings && data[0].settings.players) {
+        return data[0].settings.players;
+      }
     }
-  } catch(e) {}
+  } catch(e) { console.warn("[MP] rawQuery error:", e); }
   return [];
 }
 

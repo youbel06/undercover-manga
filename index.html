@@ -8239,7 +8239,7 @@ handleMpGame = function(state) {
   }
 
   else if (state.phase === "discuss") {
-    var endTime = state.discuss_end_time || 0;
+    var endTime = (state.votes && state.votes._timer_end) || 0;
     var remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
     content.innerHTML = "<h2>💬 Discussion</h2>" +
       "<div class=\"mp-timer\" id=\"mp-discuss-timer\">" + remaining + "s</div>" +
@@ -8388,8 +8388,8 @@ mpAdvancePhase = async function(phase) {
   if (!mpIsHost) return;
   var update = {phase: phase};
   if (phase === "discuss") {
-    update.discuss_end_time = Date.now() + 60000; // 60s timer
-    update.votes = {};
+    // Store timer in votes field as a workaround
+    update.votes = {_timer_end: Date.now() + 60000};
   }
   if (phase === "vote") {
     update.votes = {};

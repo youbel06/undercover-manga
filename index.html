@@ -7971,8 +7971,8 @@ async function mpJoinRoom() {
 
 function mpSubscribe() {
   if (!sb || !mpRoomId) return;
-  mpChannel = sb.channel("room-" + mpRoomId)
-    .on("broadcast", {event: "player_list"}, function(payload) { if (payload.payload && payload.payload.players) { _mpLocalPlayers = payload.payload.players; renderMpLobby(); } })
+  mpChannel = sb.channel("room-" + mpRoomId, {config: {broadcast: {self: true}}})
+    .on("broadcast", {event: "player_list"}, function(payload) { console.log("[MP] Got broadcast player_list:", JSON.stringify(payload.payload?.players?.length)); if (payload.payload && payload.payload.players) { _mpLocalPlayers = payload.payload.players; renderMpLobby(); } })
     .on("postgres_changes", {event:"*", schema:"public", table:"game_state", filter:"room_id=eq." + mpRoomId}, function(p) { handleMpGame(p.new); })
     .subscribe();
 }

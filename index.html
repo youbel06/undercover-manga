@@ -9958,6 +9958,21 @@ showHintForPair = function(pair) {
   hintBox.style.display = "block";
 };
 
+
+// Hide universe filter for specific modes
+var _prevShowScreenUniv = showScreen;
+showScreen = function(id) {
+  _prevShowScreenUniv(id);
+  if (id === "screen-settings") {
+    var filter = document.getElementById("universe-filter");
+    if (filter && filter.parentElement) {
+      var mode = GameState.currentMode;
+      var show = ["normal","shonen","seinen","anime_classic","anime_gold","tout_melanger"].indexOf(mode) >= 0;
+      filter.parentElement.style.display = show ? "" : "none";
+    }
+  }
+};
+
 </script>
 
 

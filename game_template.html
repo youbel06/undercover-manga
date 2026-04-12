@@ -6996,7 +6996,11 @@ function renderCosmeticsScreen() {
   if (preview) {
     const frame = ALL_FRAMES.find(f => f.id === eq.frame);
     preview.className = 'avatar-equipped ' + (frame ? frame.cls : 'frame-rookie');
-    preview.textContent = eq.avatar;
+    if (eq.avatarId && _avatarImagesCache && _avatarImagesCache[eq.avatarId]) {
+      preview.innerHTML = "<img src='" + _avatarImagesCache[eq.avatarId] + "' style='width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:top' />";
+    } else {
+      preview.textContent = eq.avatar;
+    }
   }
   const title = document.getElementById('cosm-title');
   if (title) title.textContent = eq.title || 'Aucun titre';
@@ -7612,7 +7616,11 @@ renderCosmeticsScreen = function() {
     const frame = ALL_FRAMES.find(f => f.id === eq.frame);
     preview.className = 'avatar-equipped ' + (frame ? frame.cls : 'frame-rookie') + ' ' + getAvatarBgClass(eq.avatarColor);
     preview.style.cssText = getAvatarBgStyle(eq.avatarColor);
-    preview.textContent = eq.avatar;
+    if (eq.avatarId && _avatarImagesCache && _avatarImagesCache[eq.avatarId]) {
+      preview.innerHTML = "<img src='" + _avatarImagesCache[eq.avatarId] + "' style='width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:top' />";
+    } else {
+      preview.textContent = eq.avatar;
+    }
   }
 
   const tabs = document.getElementById('cosm-tabs');
@@ -9162,6 +9170,63 @@ renderCosmeticsScreen = function() {
     };
   });
 };
+
+
+// ===== PROFILE SYNC (Solo ↔ Supabase) =====
+async function syncProfileToSupabase() {
+  if (!sb || !mpPlayerId) return;
+  var eq = getEquipped();
+  var data = {
+    level: Economy.data.level || 1,
+    xp: Economy.data.xp || 0,
+    gems: Economy.data.gems || 0,
+    wins: Economy.data.totalWins || 0,
+    losses: (Economy.data.totalGames||0) - (Economy.data.totalWins||0),
+    avatar_emoji: eq.avatar || "🕵️",
+    last_seen: new Date().toISOString(),
+  };
+  try {
+    await sb.from("players").update(data).eq("id", mpPlayerId);
+  } catch(e) { console.warn("Sync to Supabase failed:", e); }
+}
+
+async function syncProfileFromSupabase() {
+  if (!sb || !mpPlayerId) return false;
+  try {
+    var res = await sb.from("players").select("*").eq("id", mpPlayerId).single();
+    if (!res.data) return false;
+    var d = res.data;
+    // Update local economy with Supabase data (Supabase is source of truth for level/gems)
+    if (d.level > (Economy.data.level || 1)) Economy._data.level = d.level;
+    if (d.xp > (Economy.data.xp || 0)) Economy._data.xp = d.xp;
+    if (d.gems > (Economy.data.gems || 0)) Economy._data.gems = d.gems;
+    if (d.wins > (Economy.data.totalWins || 0)) Economy._data.totalWins = d.wins;
+    if (d.username) Economy._data.pseudo = d.username;
+    Economy.save();
+    Economy.updateUI();
+    return true;
+  } catch(e) { return false; }
+}
+
+// Sync after each game ends
+var _origShowFinalSync = showFinalScreen;
+showFinalScreen = function() {
+  _origShowFinalSync();
+  // Async sync to Supabase
+  syncProfileToSupabase().catch(function(){});
+};
+
+// Sync on app start if connected
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    if (localStorage.getItem("mp_player_id")) {
+      initSupabase().then(function() {
+        mpPlayerId = localStorage.getItem("mp_player_id");
+        syncProfileFromSupabase();
+      }).catch(function(){});
+    }
+  }, 3000);
+});
 
 </script>
 </body>

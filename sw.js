@@ -1,4 +1,4 @@
-const CACHE = 'uc-lelox-v16';
+const CACHE = 'uc-lelox-v17';
 const ASSETS = ['./', './index.html', './images.json', './avatars.json'];
 
 self.addEventListener('install', e => {

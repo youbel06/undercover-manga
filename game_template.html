@@ -9677,6 +9677,10 @@ var MusicPlayer = {
     if (vs) vs.value = Math.round(this.vol * 100);
     var vl = document.getElementById('mvol-label');
     if (vl) vl.textContent = Math.round(this.vol * 100) + '%';
+    var bp = document.getElementById('mp-bar-play');
+    if (bp) bp.textContent = (this.audio && !this.audio.paused && !this.stopped) ? '⏸' : '▶';
+    var bn = document.getElementById('mp-bar-name');
+    if (bn) bn.textContent = this.tracks[this.idx].name;
   }
 };
 
@@ -9779,5 +9783,13 @@ if (typeof LofiPlayerV9 !== 'undefined') {
 }
 
 </script>
+
+<div id="music-bar" style="position:fixed;bottom:60px;left:0;right:0;background:rgba(10,10,20,0.95);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 16px;z-index:350;font-size:13px;color:#fff;">
+  <button onclick="MusicPlayer.prev()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">⏮</button>
+  <button onclick="MusicPlayer.togglePlay()" id="mp-bar-play" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">▶</button>
+  <span id="mp-bar-name" style="min-width:120px;text-align:center;opacity:0.8">—</span>
+  <button onclick="MusicPlayer.next()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">⏭</button>
+</div>
+
 </body>
 </html>

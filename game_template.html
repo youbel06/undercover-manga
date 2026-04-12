@@ -4018,18 +4018,34 @@ function releaseWakeLock() {
 // ===== PAIR SELECTION =====
 
 function getAvailablePairs() {
-  return PAIRS.filter(p => {
-    // Check universe filter
-    if (GameState.enabledUniverses.size > 0) {
-      const u1 = p.universe1 || '';
-      const u2 = p.universe2 || '';
-      if (u1 && !GameState.enabledUniverses.has(u1) && u2 && !GameState.enabledUniverses.has(u2)) return false;
-    }
-    const key = pairKey(p);
-    if (GameState.recentPairKeys.includes(key)) return false;
-    return true;
+  var mode = GameState.currentMode || 'normal';
+  var recent = GameState.recentPairKeys || [];
+
+  if (mode === 'tout_melanger' || mode === 'mixte_total') {
+    var all = PAIRS.filter(function(p) {
+      return recent.indexOf(pairKey(p)) === -1;
+    });
+    if (all.length < 5) { GameState.recentPairKeys = []; return PAIRS.slice(); }
+    return all;
+  }
+
+  var filtered = PAIRS.filter(function(p) {
+    return (p.mode || 'normal') === mode && recent.indexOf(pairKey(p)) === -1;
   });
+
+  if (filtered.length < 5) {
+    GameState.recentPairKeys = [];
+    filtered = PAIRS.filter(function(p) { return (p.mode || 'normal') === mode; });
+  }
+
+  if (filtered.length === 0) {
+    console.error('[MODE] No pairs for mode:', mode);
+    return PAIRS.slice();
+  }
+
+  return filtered;
 }
+
 
 function pairKey(pair) {
   const n1 = (pair.civil || '').toLowerCase();
@@ -5709,46 +5725,10 @@ GAME_MODES.push(
 
 
 // ===== PATCH applyModeFilter for new modes =====
-const _origApplyModeFilter = applyModeFilter;
-applyModeFilter = function() {
-  const mode = GameState.currentMode;
-  // For modes that filter by pair.mode field
-  const modeFilterModes = ['anime_gold', 'casual', 'series_tv', 'disney', 'cartoons', 'tout_melanger', 'jeux_video', 'shojo', 'isekai', 'anime_classic', 'shonen', 'seinen', 'normal'];
-  if (modeFilterModes.includes(mode)) {
-    // These modes filter by the pair's mode field, not by universe
-    GameState.enabledUniverses = new Set();
-    PAIRS.forEach(p => {
-      if (p.universe1) GameState.enabledUniverses.add(p.universe1);
-      if (p.universe2) GameState.enabledUniverses.add(p.universe2);
-    });
-    return;
-  }
-  _origApplyModeFilter();
-};
+// [REMOVED] override at line 5712
 
 // Override getAvailablePairs to support mode-field filtering
-const _origGetAvailablePairs = getAvailablePairs;
-getAvailablePairs = function() {
-  const mode = GameState.currentMode;
-  const modeFilterModes = ['anime_gold', 'casual', 'series_tv', 'disney', 'cartoons', 'tout_melanger', 'jeux_video', 'shojo', 'isekai', 'anime_classic', 'shonen', 'seinen', 'normal'];
-
-  if (modeFilterModes.includes(mode)) {
-    let modesToMatch;
-    if (mode === 'tout_melanger') {
-      modesToMatch = null; // match all
-    } else {
-      modesToMatch = [mode];
-    }
-    return PAIRS.filter(p => {
-      if (!modesToMatch.includes(p.mode || 'normal')) return false;
-      const key = pairKey(p);
-      if (GameState.recentPairKeys.includes(key)) return false;
-      return true;
-    });
-  }
-
-  return _origGetAvailablePairs();
-};
+// [REMOVED] override at line 5730
 
 
 // ===== RANDOM NAME GENERATOR =====
@@ -6416,26 +6396,7 @@ confirmMode = function() {
 };
 
 // Fix getAvailablePairs to STRICTLY filter by mode
-const _origGetAvailablePairs2 = getAvailablePairs;
-getAvailablePairs = function() {
-  const mode = GameState.currentMode;
-
-  if (mode === 'tout_melanger') {
-    // Everything
-    return PAIRS.filter(p => {
-      const key = pairKey(p);
-      return !GameState.recentPairKeys.includes(key);
-    });
-  }
-
-  // Strict mode filtering
-  return PAIRS.filter(p => {
-    const pairMode = p.mode || 'normal';
-    if (pairMode !== mode) return false;
-    const key = pairKey(p);
-    return !GameState.recentPairKeys.includes(key);
-  });
-};
+// [REMOVED] override at line 6419
 
 
 // ===== SOCIAL PROOF (fake but fun) =====
@@ -9898,49 +9859,7 @@ function saveLastPairType(type) {
 
 // Override selectRandomPair to use rotation
 var _origSelectRandomPairRot = selectRandomPair;
-selectRandomPair = function() {
-  var available = getAvailablePairs();
-  if (available.length === 0) {
-    GameState.recentPairKeys = [];
-    localStorage.setItem("uc_recent_pairs", "[]");
-    available = getAvailablePairs();
-  }
-  if (available.length === 0) return _origSelectRandomPairRot();
-
-  // Determine target type based on rotation
-  var last = getLastPairTypes();
-  var counts = {intra: 0, inter: 0, decale: 0};
-  last.forEach(function(t) { if (counts[t] !== undefined) counts[t]++; });
-
-  // Find the least-played type
-  var types = ["intra", "inter", "decale"];
-  types.sort(function(a, b) { return counts[a] - counts[b]; });
-  var targetType = types[0];
-
-  // Don't play same type twice in a row
-  if (last.length > 0 && last[last.length - 1] === targetType) {
-    targetType = types[1] || types[0];
-  }
-
-  // Filter available pairs by target type
-  var typed = available.filter(function(p) { return p.pair_type === targetType; });
-  if (typed.length === 0) {
-    // Fallback: any type except last played
-    typed = available.filter(function(p) { return last.length === 0 || p.pair_type !== last[last.length - 1]; });
-    if (typed.length === 0) typed = available;
-  }
-
-  var pair = typed[Math.floor(Math.random() * typed.length)];
-
-  // Track
-  var key = pairKey(pair);
-  GameState.recentPairKeys.push(key);
-  if (GameState.recentPairKeys.length > 20) GameState.recentPairKeys = GameState.recentPairKeys.slice(-20);
-  try { localStorage.setItem("uc_recent_pairs", JSON.stringify(GameState.recentPairKeys)); } catch(e) {}
-  saveLastPairType(pair.pair_type || "inter");
-
-  return pair;
-};
+// [REMOVED] selectRandomPair override at line 9834
 
 // Enhanced hint display: show similarity + pair type badge
 var _origShowHint = showHintForPair;

@@ -8072,7 +8072,7 @@ async function mpMarkReady() {
 
 async function mpAdvancePhase(phase) {
   if (!mpIsHost) return;
-  await sb.from("game_state").update({phase:phase}).eq("room_id",mpRoomId);
+  await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({phase:phase})});
 }
 
 async function mpRenderVote(state) {
@@ -8097,7 +8097,7 @@ async function mpVoteFor(targetId) {
   var res = await sb.from("game_state").select("votes").eq("room_id",mpRoomId).single();
   var votes = (res.data||{}).votes || {};
   votes[mpPlayerId] = targetId;
-  await sb.from("game_state").update({votes:votes}).eq("room_id",mpRoomId);
+  await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({votes:votes})});
 }
 
 async function mpResolveVote() {
@@ -8360,7 +8360,7 @@ async function mpMrWhiteGuess() {
   var civilWord = (gs?.current_pair?.civil || "").toLowerCase();
   if (guess === civilWord) {
     showToast("Mr. White a deviné ! 👻");
-    await sb.from("game_state").update({phase: "finished", winner: "undercover"}).eq("room_id", mpRoomId);
+    await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({phase: "finished", winner: "undercover"})});
   } else {
     showToast("Mauvaise réponse !");
   }
@@ -8380,8 +8380,8 @@ mpAdvancePhase = async function(phase) {
   }
   await sb.from("game_state").update(update).eq("room_id", mpRoomId);
   // Re-read and apply locally (realtime may not fire for sender)
-  var gsRes = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
-  if (gsRes.data) handleMpGame(gsRes.data);
+  var gsResp = await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId + "&select=*", {headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+  var gsData = await gsResp.json(); if (gsData[0]) handleMpGame(gsData[0]);
 };
 
 // Continue after elimination - check win conditions
@@ -8397,17 +8397,17 @@ async function mpContinueAfterElim() {
   var civAlive = aliveEntries.filter(function(e) { var r = typeof e[1]==="object"?e[1].role:e[1]; return r==="civil"; }).length;
 
   if (ucAlive === 0) {
-    await sb.from("game_state").update({phase:"finished", winner:"civil"}).eq("room_id", mpRoomId);
+    await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({phase:"finished", winner:"civil"})});
   } else if (ucAlive >= civAlive) {
-    await sb.from("game_state").update({phase:"finished", winner:"undercover"}).eq("room_id", mpRoomId);
+    await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({phase:"finished", winner:"undercover"})});
   } else {
     // Continue to discuss
     await mpAdvancePhase("discuss");
     return; // mpAdvancePhase already handles local re-read
   }
   // Re-read for finished state
-  var gsRes3 = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
-  if (gsRes3.data) handleMpGame(gsRes3.data);
+  var gsResp3 = await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId + "&select=*", {headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+  var gsData3 = await gsResp3.json(); if (gsData3[0]) handleMpGame(gsData3[0]);
 }
 
 // Resolve vote with name tracking
@@ -8434,8 +8434,8 @@ mpResolveVote = async function() {
     eliminated_name: elimName,
     votes: {}
   }).eq("room_id", mpRoomId);
-  var gsRes2 = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
-  if (gsRes2.data) handleMpGame(gsRes2.data);
+  var gsResp2 = await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId + "&select=*", {headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+  var gsData2 = await gsResp2.json(); if (gsData2[0]) handleMpGame(gsData2[0]);
 };
 
 // Revanche - new game same room
@@ -8476,17 +8476,22 @@ mpStartGame = async function() {
     var role = roleIdx === 0 ? "undercover" : "civil";
     roles[p.player_id] = {role: role, character: role === "undercover" ? pair.undercover : pair.civil};
   });
-  await sb.from("game_state").upsert({
+  // Use raw REST to bypass PostgREST FK issues
+  var gsBody = {
     room_id: mpRoomId, phase: "reveal",
     current_pair: {civil:pair.civil, undercover:pair.undercover, civilImg:pair.civilImg, undercoverImg:pair.undercoverImg, hint:pair.hint||""},
-    roles: roles, votes: {}, eliminated: [], round: 1, total_rounds: 5,
-    discuss_end_time: 0, eliminated_player: null, eliminated_name: null, winner: null
+    roles: roles, votes: {}, eliminated: [], round: 1, total_rounds: 5
+  };
+  await fetch(SUPABASE_URL + "/rest/v1/game_state", {
+    method: "POST",
+    headers: {"apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates"},
+    body: JSON.stringify(gsBody)
   });
   await sb.from("rooms").update({status: "playing"}).eq("id", mpRoomId);
   SoundFX.reveal();
   // Manually trigger game state for host (realtime may not fire for creator)
-  var gsRes = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
-  if (gsRes.data) handleMpGame(gsRes.data);
+  var gsResp = await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId + "&select=*", {headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+  var gsData = await gsResp.json(); if (gsData[0]) handleMpGame(gsData[0]);
 };
 
 
@@ -9044,7 +9049,7 @@ async function sendReaction(emoji) {
     var gs = (await sb.from("game_state").select("reactions").eq("room_id", mpRoomId).single()).data;
     var reactions = (gs?.reactions) || {};
     reactions[mpPlayerId] = {emoji: emoji, ts: Date.now()};
-    await sb.from("game_state").update({reactions: reactions}).eq("room_id", mpRoomId);
+    await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({reactions: reactions})});
   }
 }
 

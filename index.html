@@ -7918,6 +7918,22 @@ async function getRoomPlayerIds(roomId) {
   } catch(e) { return []; }
 }
 
+
+// Raw REST helpers for game_state (bypasses all PostgREST FK issues)
+async function gsInsert(data) {
+  return fetch(SUPABASE_URL + "/rest/v1/game_state", {method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(data)});
+}
+async function gsUpdate(roomId, data) {
+  return fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + roomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(data)});
+}
+async function gsRead(roomId) {
+  var r = await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + roomId + "&select=*", {headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+  var d = await r.json(); return d[0] || null;
+}
+async function gsDelete(roomId) {
+  return fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + roomId, {method:"DELETE",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+}
+
 async function mpEnsurePlayer() {
   if (!sb) { showToast("Serveur non disponible"); return false; }
   var savedId = localStorage.getItem("mp_player_id");
@@ -8028,7 +8044,7 @@ async function mpStartGame() {
   var roles = {};
   var shuffled = players.map(function(_,i){return i}).sort(function(){return Math.random()-0.5});
   players.forEach(function(p,i) { roles[p.player_id] = shuffled.indexOf(i) === 0 ? "undercover" : "civil"; });
-  await sb.from("game_state").insert({room_id:mpRoomId, phase:"reveal", current_pair:{civil:pair.civil,undercover:pair.undercover,civilImg:pair.civilImg,undercoverImg:pair.undercoverImg,hint:pair.hint||""}, roles:roles, votes:{}, eliminated:[], round:1, total_rounds:5});
+  await gsInsert({room_id:mpRoomId, phase:"reveal", current_pair:{civil:pair.civil,undercover:pair.undercover,civilImg:pair.civilImg,undercoverImg:pair.undercoverImg,hint:pair.hint||""}, roles:roles, votes:{}, eliminated:[], round:1, total_rounds:5});
   await sb.from("rooms").update({status:"playing"}).eq("id", mpRoomId);
 }
 
@@ -8094,7 +8110,7 @@ async function mpRenderVote(state) {
 }
 
 async function mpVoteFor(targetId) {
-  var res = await sb.from("game_state").select("votes").eq("room_id",mpRoomId).single();
+  var res = {data: await gsRead(mpRoomId)};
   var votes = (res.data||{}).votes || {};
   votes[mpPlayerId] = targetId;
   await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({votes:votes})});
@@ -8102,7 +8118,7 @@ async function mpVoteFor(targetId) {
 
 async function mpResolveVote() {
   if (!mpIsHost) return;
-  var res = await sb.from("game_state").select("*").eq("room_id",mpRoomId).single();
+  var _gsRes = {data: await gsRead(mpRoomId)};
   var gs = res.data; if(!gs) return;
   var votes = gs.votes||{}, tally = {};
   Object.values(votes).forEach(function(v){tally[v]=(tally[v]||0)+1});
@@ -8117,7 +8133,7 @@ async function mpResolveVote() {
   var phase = "discuss", winner = null;
   if (ucAlive===0) {phase="result";winner="civil";}
   else if (ucAlive>=civAlive) {phase="result";winner="undercover";}
-  await sb.from("game_state").update({eliminated:elim,votes:{},phase:phase,winner:winner}).eq("room_id",mpRoomId);
+  await gsUpdate(mpRoomId, {eliminated:elim,votes:{},phase:phase,winner:winner});
 }
 
 async function mpLeaveRoom() {
@@ -8356,7 +8372,7 @@ async function mpRenderVoteSync(state) {
 async function mpMrWhiteGuess() {
   var input = document.getElementById("mw-guess-input");
   var guess = input ? input.value.trim().toLowerCase() : "";
-  var gs = (await sb.from("game_state").select("current_pair").eq("room_id", mpRoomId).single()).data;
+  var gs = (await gsRead(mpRoomId));
   var civilWord = (gs?.current_pair?.civil || "").toLowerCase();
   if (guess === civilWord) {
     showToast("Mr. White a deviné ! 👻");
@@ -8378,8 +8394,8 @@ mpAdvancePhase = async function(phase) {
   if (phase === "vote") {
     update.votes = {};
   }
-  await sb.from("game_state").update(update).eq("room_id", mpRoomId);
-  // Re-read and apply locally (realtime may not fire for sender)
+  await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(update)});
+  // Re-read and apply locally
   var gsResp = await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId + "&select=*", {headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
   var gsData = await gsResp.json(); if (gsData[0]) handleMpGame(gsData[0]);
 };
@@ -8387,7 +8403,7 @@ mpAdvancePhase = async function(phase) {
 // Continue after elimination - check win conditions
 async function mpContinueAfterElim() {
   if (!mpIsHost) return;
-  var res = await sb.from("game_state").select("*").eq("room_id", mpRoomId).single();
+  var _gsRes = {data: await gsRead(mpRoomId)};
   var gs = res.data;
   if (!gs) return;
   var roles = gs.roles || {};
@@ -8414,7 +8430,7 @@ async function mpContinueAfterElim() {
 var _origMpResolveVote = mpResolveVote;
 mpResolveVote = async function() {
   if (!mpIsHost) return;
-  var gs = (await sb.from("game_state").select("*").eq("room_id", mpRoomId).single()).data;
+  var gs = (await gsRead(mpRoomId));
   if (!gs) return;
   var votes = gs.votes || {};
   var tally = {};
@@ -8427,13 +8443,13 @@ mpResolveVote = async function() {
   var pRes = await sb.from("room_players").select("username").eq("room_id", mpRoomId).order("joined_at").eq("player_id", elimId).single();
   var elimName = pRes.data?.username || "Joueur";
   var newElim = (gs.eliminated || []).concat([elimId]);
-  await sb.from("game_state").update({
+  await gsUpdate(mpRoomId, {
     phase: "elimination",
     eliminated: newElim,
     eliminated_player: elimId,
     eliminated_name: elimName,
     votes: {}
-  }).eq("room_id", mpRoomId);
+  });
   var gsResp2 = await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId + "&select=*", {headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
   var gsData2 = await gsResp2.json(); if (gsData2[0]) handleMpGame(gsData2[0]);
 };
@@ -8444,7 +8460,7 @@ async function mpRevanche() {
   // Reset readiness
   await sb.from("room_players").update({is_ready: false}).eq("room_id", mpRoomId);
   // Delete old game state
-  await sb.from("game_state").delete().eq("room_id", mpRoomId);
+  await gsDelete(mpRoomId);
   // Reset room
   await sb.from("rooms").update({status: "waiting"}).eq("id", mpRoomId);
   showScreen("screen-mp-lobby");
@@ -9046,7 +9062,7 @@ async function sendReaction(emoji) {
   showToast(emoji, 1500);
   // Send via Supabase if in MP game
   if (sb && mpRoomId && mpPlayerId) {
-    var gs = (await sb.from("game_state").select("reactions").eq("room_id", mpRoomId).single()).data;
+    var gs = (await gsRead(mpRoomId));
     var reactions = (gs?.reactions) || {};
     reactions[mpPlayerId] = {emoji: emoji, ts: Date.now()};
     await fetch(SUPABASE_URL + "/rest/v1/game_state?room_id=eq." + mpRoomId, {method:"PATCH",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({reactions: reactions})});

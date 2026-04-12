@@ -1,5 +1,5 @@
-const CACHE = 'uc-lelox-v13';
-const ASSETS = ['./', './index.html', './images.json'];
+const CACHE = 'uc-lelox-v15';
+const ASSETS = ['./', './index.html', './images.json', './avatars.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).catch(() => {}));

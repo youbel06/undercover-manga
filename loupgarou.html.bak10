@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#05050F"/>
+<title>LELOX — Loup-Garou</title>
+<link rel="icon" href="lelox_logo.png"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:#05050F;color:#E8EEFF;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh;overflow-x:hidden}
+body{
+  background:
+    radial-gradient(1000px 600px at 30% 10%, rgba(58,141,255,.18), transparent 60%),
+    radial-gradient(900px 600px at 80% 90%, rgba(120,80,255,.15), transparent 60%),
+    linear-gradient(180deg,#05050F 0%,#0a0c1c 100%);
+  position:relative;padding-bottom:60px;
+}
+.moon{position:fixed;top:30px;right:30px;width:70px;height:70px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#fff,#cfd6ff 40%,#8b95d0);
+  box-shadow:0 0 40px rgba(200,210,255,.5),0 0 80px rgba(120,140,255,.3);
+  z-index:0;opacity:0;transform:translateY(120px);
+  animation:moonRise 2.4s cubic-bezier(.2,.7,.2,1) .2s forwards;
+  will-change:transform,opacity}
+@keyframes moonRise{to{opacity:.75;transform:translateY(0)}}
+.lg-stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.lg-stars span{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
+  box-shadow:0 0 6px #fff;opacity:.6;animation:lgTwinkle 2.6s ease-in-out infinite}
+.lg-stars span.b{background:#cfd6ff;box-shadow:0 0 8px #cfd6ff}
+@keyframes lgTwinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+/* Day/Night fade overlay */
+.daynight-fx{position:fixed;inset:0;z-index:9997;pointer-events:none;opacity:0;transition:opacity .9s ease,background .9s ease;background:rgba(5,5,15,0)}
+.daynight-fx.show{opacity:1}
+.daynight-fx.to-day{background:radial-gradient(800px 500px at 80% 10%,rgba(255,210,120,.5),transparent 60%),linear-gradient(180deg,rgba(255,200,140,.25),rgba(255,150,80,.05))}
+.daynight-fx.to-night{background:radial-gradient(700px 500px at 20% 20%,rgba(80,100,180,.45),transparent 60%),linear-gradient(180deg,rgba(20,30,60,.55),rgba(5,5,15,.2))}
+/* Role flip 3D */
+.reveal-card{perspective:1200px}
+.reveal-flip{position:relative;width:100%;min-height:340px;transform-style:preserve-3d;
+  transition:transform .9s cubic-bezier(.2,.8,.2,1);will-change:transform}
+.reveal-flip.flipped{transform:rotateY(180deg)}
+.reveal-flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;padding:20px;border-radius:18px}
+.reveal-flip .back{transform:rotateY(180deg);background:linear-gradient(135deg,rgba(58,141,255,.15),rgba(120,80,255,.15));border:1px solid rgba(108,177,255,.3)}
+.reveal-flip .front{background:linear-gradient(135deg,rgba(10,14,26,.85),rgba(20,22,40,.85));border:1px solid rgba(108,177,255,.25);cursor:pointer}
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:20px 16px}
+.screen{display:none;animation:fadeIn .3s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+h1{font-size:clamp(36px,7vw,56px);font-weight:900;letter-spacing:4px;text-align:center;
+  background:linear-gradient(90deg,#6cb1ff,#a88dff,#3a8dff);-webkit-background-clip:text;background-clip:text;color:transparent;
+  margin:20px 0 6px;text-shadow:0 0 30px rgba(108,177,255,.2)}
+h2{font-size:24px;font-weight:800;margin:20px 0 12px;color:#9ec4ff;letter-spacing:1px}
+h3{font-size:18px;font-weight:700;margin:14px 0 8px;color:#c8d4f0}
+.sub{text-align:center;color:#8ea0c4;letter-spacing:2px;text-transform:uppercase;font-size:12px;margin-bottom:24px}
+
+.logo{width:110px;height:110px;border-radius:50%;margin:20px auto;
+  background:url(lelox_logo.png) center/cover no-repeat;
+  box-shadow:0 0 40px rgba(58,141,255,.4)}
+.btn{
+  display:block;width:100%;padding:16px 20px;margin:10px 0;border:none;border-radius:14px;
+  font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer;
+  background:linear-gradient(135deg,#3a8dff,#6cb1ff);color:#fff;
+  box-shadow:0 8px 24px rgba(58,141,255,.35);
+  transition:transform .15s,box-shadow .15s;
+  text-transform:uppercase;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(58,141,255,.5)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid rgba(108,177,255,.35);color:#9ec4ff;box-shadow:none}
+.btn.ghost:hover{background:rgba(108,177,255,.08)}
+.btn.danger{background:linear-gradient(135deg,#ff3860,#ff6a8a);box-shadow:0 8px 24px rgba(255,56,96,.35)}
+.btn.success{background:linear-gradient(135deg,#22c55e,#4ade80);box-shadow:0 8px 24px rgba(34,197,94,.35)}
+.btn.small{padding:10px 14px;font-size:13px;width:auto;display:inline-block;margin:4px}
+
+.card{background:rgba(20,22,40,.6);backdrop-filter:blur(10px);border:1px solid rgba(108,177,255,.15);
+  border-radius:18px;padding:20px;margin:16px 0}
+
+.input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(108,177,255,.25);
+  background:rgba(10,14,26,.6);color:#E8EEFF;font-size:15px;margin:6px 0;font-family:inherit}
+.input:focus{outline:none;border-color:#6cb1ff;box-shadow:0 0 0 3px rgba(108,177,255,.2)}
+
+.slider-row{display:flex;align-items:center;gap:12px;margin:16px 0}
+input[type=range]{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,#3a8dff 0%,#3a8dff var(--p,50%),rgba(108,177,255,.15) var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#6cb1ff;box-shadow:0 0 10px rgba(108,177,255,.6);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#6cb1ff;border:none;box-shadow:0 0 10px rgba(108,177,255,.6);cursor:pointer}
+
+.player-row{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:6px 0;
+  background:rgba(10,14,26,.5);border-radius:10px;border:1px solid rgba(108,177,255,.1)}
+.player-row.dead{opacity:.45;text-decoration:line-through}
+.player-row .num{font-weight:900;color:#6cb1ff;width:24px}
+.player-row input{flex:1;background:transparent;border:none;color:#E8EEFF;font-size:15px;padding:4px}
+.player-row input:focus{outline:none}
+
+.role-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}
+.role-chip{padding:8px 10px;border-radius:8px;background:rgba(108,177,255,.1);border:1px solid rgba(108,177,255,.2);
+  font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.role-chip .n{font-weight:900;color:#6cb1ff}
+.role-chip.wolf{background:rgba(255,56,96,.1);border-color:rgba(255,56,96,.3)}
+.role-chip.wolf .n{color:#ff6a8a}
+
+.reveal-card{background:linear-gradient(135deg,rgba(58,141,255,.15),rgba(120,80,255,.15));
+  border:2px solid rgba(108,177,255,.4);border-radius:20px;padding:40px 24px;text-align:center;
+  min-height:320px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px}
+.reveal-card.hidden-role{background:linear-gradient(135deg,rgba(10,14,26,.8),rgba(20,22,40,.8));cursor:pointer}
+.reveal-card .emoji{font-size:80px;line-height:1}
+.reveal-card .rname{font-size:28px;font-weight:900;letter-spacing:2px}
+.reveal-card .rdesc{font-size:14px;color:#c8d4f0;line-height:1.5;max-width:320px}
+.reveal-card .tap-hint{font-size:12px;color:#8ea0c4;letter-spacing:2px;text-transform:uppercase;margin-top:10px}
+
+.phase-banner{text-align:center;padding:24px;margin:16px 0;border-radius:16px;
+  background:linear-gradient(135deg,rgba(58,141,255,.2),rgba(120,80,255,.2));
+  border:1px solid rgba(108,177,255,.3)}
+.phase-banner .icon{font-size:48px;margin-bottom:8px}
+.phase-banner .label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#9ec4ff}
+.phase-banner .title{font-size:22px;font-weight:800;margin-top:4px}
+
+.grid-pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0}
+.pick-btn{padding:12px;border-radius:10px;background:rgba(10,14,26,.6);border:1px solid rgba(108,177,255,.2);
+  color:#E8EEFF;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s}
+.pick-btn:hover{background:rgba(108,177,255,.15);border-color:#6cb1ff}
+.pick-btn.selected{background:linear-gradient(135deg,#3a8dff,#6cb1ff);border-color:#6cb1ff;box-shadow:0 0 16px rgba(108,177,255,.4)}
+.pick-btn.wolf-pick.selected{background:linear-gradient(135deg,#ff3860,#ff6a8a)}
+.pick-btn:disabled{opacity:.4;cursor:not-allowed}
+
+.log{font-size:13px;color:#9fb0d0;padding:8px 12px;background:rgba(10,14,26,.4);border-left:3px solid #6cb1ff;border-radius:6px;margin:4px 0}
+.log.dead{border-left-color:#ff3860}
+
+.back{position:fixed;top:16px;left:16px;z-index:10;padding:8px 14px;border-radius:10px;
+  background:rgba(20,22,40,.7);border:1px solid rgba(108,177,255,.25);color:#9ec4ff;
+  text-decoration:none;font-size:13px;backdrop-filter:blur(8px)}
+.back:hover{background:rgba(108,177,255,.15)}
+
+details{background:rgba(10,14,26,.5);border:1px solid rgba(108,177,255,.15);border-radius:10px;padding:12px;margin:12px 0}
+summary{cursor:pointer;font-weight:700;color:#9ec4ff}
+pre{background:#05050F;padding:12px;border-radius:8px;margin-top:10px;overflow-x:auto;font-size:11px;color:#c8d4f0;white-space:pre-wrap;word-break:break-all}
+
+.win-banner{text-align:center;padding:40px 20px;border-radius:20px;margin:20px 0}
+.win-banner.village{background:linear-gradient(135deg,rgba(34,197,94,.25),rgba(74,222,128,.15));border:2px solid rgba(74,222,128,.5)}
+.win-banner.wolves{background:linear-gradient(135deg,rgba(255,56,96,.25),rgba(255,106,138,.15));border:2px solid rgba(255,106,138,.5)}
+.win-banner.lovers{background:linear-gradient(135deg,rgba(255,105,180,.25),rgba(255,150,200,.15));border:2px solid rgba(255,150,200,.5)}
+.win-banner.jester{background:linear-gradient(135deg,rgba(251,191,36,.25),rgba(252,211,77,.15));border:2px solid rgba(252,211,77,.5)}
+.win-banner .ic{font-size:72px}
+.win-banner .ttl{font-size:32px;font-weight:900;margin-top:10px;letter-spacing:2px}
+.win-banner .msg{color:#c8d4f0;margin-top:8px}
+</style>
+</head>
+<body>
+<!-- ===== LELOX BACK BUTTON ===== -->
+<a href="index.html" id="lelox-back-btn" style="position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#6cb1ff;text-decoration:none;font-weight:800;letter-spacing:2px;font-size:12px;padding:8px 14px;border-radius:10px;border:1px solid rgba(108,177,255,.4);box-shadow:0 0 16px rgba(58,141,255,.3);text-shadow:0 0 8px rgba(58,141,255,.6);transition:transform .2s,background .2s" onmouseover="this.style.transform='scale(1.05)';this.style.background='rgba(58,141,255,.18)'" onmouseout="this.style.transform='';this.style.background='rgba(0,0,0,.65)'">← LELOX</a>
+<div class="lg-stars" id="lg-stars"></div>
+<div class="moon"></div>
+<div class="daynight-fx" id="lg-daynight-fx"></div>
+<div class="wrap">
+
+<!-- ============ HOME ============ -->
+<div id="screen-lg-home" class="screen active">
+  <div class="logo"></div>
+  <h1>LOUP-GAROU</h1>
+  <div class="sub">Village sous la lune</div>
+  <div class="card">
+    <button class="btn" onclick="LG.goSetup()">🎮 Partie locale</button>
+    <button class="btn ghost" onclick="LG.showMP()">🌐 Multijoueur en ligne</button>
+    <a href="index.html" class="btn ghost" style="text-align:center;text-decoration:none">← Retour plateforme</a>
+  </div>
+  <details>
+    <summary>Supabase SQL (pour admin)</summary>
+<pre>CREATE TABLE IF NOT EXISTS lw_rooms (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT UNIQUE NOT NULL,
+  host_id UUID,
+  status TEXT DEFAULT 'waiting',
+  phase TEXT DEFAULT 'lobby',
+  config JSONB DEFAULT '{}',
+  roles JSONB DEFAULT '{}',
+  night_count INTEGER DEFAULT 0,
+  eliminated JSONB DEFAULT '[]',
+  lovers JSONB DEFAULT '[]',
+  night_actions JSONB DEFAULT '{}',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS lw_players (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_id UUID,
+  player_id UUID,
+  username TEXT,
+  avatar_emoji TEXT DEFAULT '🐺',
+  role TEXT DEFAULT '',
+  is_alive BOOLEAN DEFAULT TRUE,
+  is_host BOOLEAN DEFAULT FALSE,
+  is_ready BOOLEAN DEFAULT FALSE,
+  joined_at TIMESTAMP DEFAULT NOW()
+);
+ALTER TABLE lw_rooms DISABLE ROW LEVEL SECURITY;
+ALTER TABLE lw_players DISABLE ROW LEVEL SECURITY;
+ALTER PUBLICATION supabase_realtime ADD TABLE lw_rooms;
+ALTER PUBLICATION supabase_realtime ADD TABLE lw_players;</pre>
+  </details>
+</div>
+
+<!-- ============ SETUP ============ -->
+<div id="screen-lg-setup" class="screen">
+  <a href="#" onclick="LG.goHome();return false" class="back">← Accueil</a>
+  <h2 style="text-align:center">Configuration</h2>
+  <div class="card">
+    <h3>Nombre de joueurs : <span id="lg-count-display">8</span></h3>
+    <div class="slider-row">
+      <span>5</span>
+      <input type="range" id="lg-count" min="5" max="20" value="8" oninput="LG.onCount()">
+      <span>20</span>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Distribution des rôles</h3>
+    <div class="role-preview" id="lg-role-preview"></div>
+  </div>
+  <div class="card">
+    <h3>Noms des joueurs</h3>
+    <div id="lg-player-inputs"></div>
+  </div>
+  <button class="btn" onclick="LG.startGame()">🎲 Commencer la partie</button>
+</div>
+
+<!-- ============ DISTRIBUTE ============ -->
+<div id="screen-lg-distribute" class="screen">
+  <h2 style="text-align:center">Distribution</h2>
+  <div class="sub" id="lg-dist-sub">Joueur 1 / X</div>
+  <div class="card">
+    <div id="lg-dist-area"></div>
+  </div>
+</div>
+
+<!-- ============ NIGHT ============ -->
+<div id="screen-lg-night" class="screen">
+  <h2 style="text-align:center">🌙 <span id="lg-night-num">Nuit 1</span></h2>
+  <div id="lg-night-area"></div>
+</div>
+
+<!-- ============ DAY ============ -->
+<div id="screen-lg-day" class="screen">
+  <h2 style="text-align:center">☀️ Jour <span id="lg-day-num">1</span></h2>
+  <div id="lg-day-area"></div>
+</div>
+
+<!-- ============ VOTE ============ -->
+<div id="screen-lg-vote" class="screen">
+  <h2 style="text-align:center">🗳️ Vote du village</h2>
+  <div id="lg-vote-area"></div>
+</div>
+
+<!-- ============ RESULT ============ -->
+<div id="screen-lg-result" class="screen">
+  <div id="lg-result-area"></div>
+</div>
+
+</div>
+
+<script>
+// ============================================================
+// LELOX Loup-Garou — MVP local complet (Multi Supabase: stub)
+// ============================================================
+
+// ---- Étoiles d'ambiance ----
+(function(){
+  var c = document.getElementById('lg-stars'); if(!c) return;
+  var N = window.innerWidth < 600 ? 40 : 80;
+  for(var i=0;i<N;i++){
+    var s = document.createElement('span');
+    if(Math.random() < 0.3) s.className = 'b';
+    s.style.left = Math.random()*100 + '%';
+    s.style.top = Math.random()*70 + '%';
+    s.style.animationDelay = (Math.random()*2.6) + 's';
+    s.style.animationDuration = (1.8 + Math.random()*2.5) + 's';
+    c.appendChild(s);
+  }
+})();
+
+// ---- Ambient drone (Web Audio) : grave la nuit, silence le jour ----
+var LGAmbient = (function(){
+  var ctx=null, osc=null, lfo=null, gain=null, lfoGain=null, started=false;
+  function ensure(){
+    if(ctx) return;
+    try{
+      ctx = new (window.AudioContext||window.webkitAudioContext)();
+      osc = ctx.createOscillator(); osc.type='sine'; osc.frequency.value=55;
+      lfo = ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.18;
+      lfoGain = ctx.createGain(); lfoGain.gain.value=10;
+      gain = ctx.createGain(); gain.gain.value=0;
+      lfo.connect(lfoGain).connect(osc.frequency);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(); lfo.start();
+    }catch(e){}
+  }
+  return {
+    startNight: function(){
+      ensure(); if(!ctx || started) return;
+      try{
+        if(ctx.state==='suspended') ctx.resume();
+        var t = ctx.currentTime;
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.linearRampToValueAtTime(0.05, t+1.6);
+        started = true;
+      }catch(e){}
+    },
+    stopNight: function(){
+      if(!ctx || !started) return;
+      try{
+        var t = ctx.currentTime;
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.linearRampToValueAtTime(0, t+1.0);
+        started = false;
+      }catch(e){}
+    }
+  };
+})();
+
+const ROLES = {
+  villageois:  {name:"Villageois",    emoji:"👨‍🌾", team:"village", desc:"Simple habitant. Ton seul pouvoir : voter avec sagesse."},
+  voyante:     {name:"Voyante",       emoji:"🔮",  team:"village", desc:"Chaque nuit, tu découvres le rôle d'un joueur."},
+  sorciere:    {name:"Sorcière",      emoji:"🧪",  team:"village", desc:"Deux potions : vie (sauver) et mort (tuer). Une seule utilisation chacune."},
+  chasseur:    {name:"Chasseur",      emoji:"🏹",  team:"village", desc:"En mourant, tu emportes un joueur avec toi."},
+  chevalier:   {name:"Chevalier",     emoji:"🛡️",  team:"village", desc:"Chaque nuit, tu protèges un joueur (pas le même 2 fois de suite)."},
+  cupidon:     {name:"Cupidon",       emoji:"💘",  team:"village", desc:"Nuit 1 : tu désignes deux amoureux. Si l'un meurt, l'autre aussi."},
+  loupgarou:   {name:"Loup-Garou",    emoji:"🐺",  team:"wolves",  desc:"Chaque nuit, tu dévores un villageois avec ta meute."},
+  loup_alpha:  {name:"Loup Alpha",    emoji:"🐺",  team:"wolves",  desc:"Chef de meute. Une fois par partie, tu peux infecter ta victime (elle devient loup)."},
+  bouffon:     {name:"Bouffon",       emoji:"🃏",  team:"solo",    desc:"Tu gagnes SEUL si le village t'élimine par vote."},
+  mercenaire:  {name:"Mercenaire",    emoji:"⚔️",  team:"solo",    desc:"Cible secrète. Si elle meurt par vote pendant les 3 premiers jours, tu gagnes seul."}
+};
+
+// Config de distribution par taille
+function buildRoleConfig(n){
+  const c = {villageois:0, loupgarou:0, voyante:0, sorciere:0, chasseur:0, chevalier:0, cupidon:0, loup_alpha:0, bouffon:0, mercenaire:0};
+  if(n <= 5){ c.loupgarou=1; c.voyante=1; c.villageois=n-2; }
+  else if(n <= 7){ c.loupgarou=1; c.voyante=1; c.sorciere=1; c.villageois=n-3; }
+  else if(n <= 10){ c.loupgarou=2; c.voyante=1; c.sorciere=1; c.chasseur=1; c.villageois=n-5; }
+  else if(n <= 15){ c.loupgarou=2; c.loup_alpha=1; c.voyante=1; c.sorciere=1; c.chasseur=1; c.chevalier=1; c.cupidon=1; c.villageois=n-8; }
+  else { const nw = n<=17?3:4; c.loupgarou=nw; c.loup_alpha=1; c.voyante=1; c.sorciere=1; c.chasseur=1; c.chevalier=1; c.cupidon=1; c.bouffon=1; c.mercenaire=1; c.villageois=n-(nw+8); }
+  if(c.villageois<0) c.villageois=0;
+  return c;
+}
+
+// État global
+const G = {
+  players: [],        // [{id, name, role, alive}]
+  config: {},
+  night: 0,
+  day: 0,
+  lovers: [],         // [id, id]
+  mercenaireTarget: null,
+  chevalierLast: null,
+  witchHeal: true,
+  witchPoison: true,
+  nightKills: [],     // ids tués la nuit courante
+  history: [],        // événements lisibles
+  distributeIdx: 0,
+  nightStep: 0,
+  nightActions: {},   // rôle -> cible
+  lastEliminated: null,
+  alphaUsed: false,
+  alphaInfectNext: false
+};
+
+const LG = {
+  // Navigation
+  show(id){
+    var prevActive = document.querySelector('.screen.active');
+    var prevId = prevActive ? prevActive.id : null;
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+    // Day/Night transition fx + ambient drone
+    try{
+      var fx = document.getElementById('lg-daynight-fx');
+      if(id === 'screen-lg-night' && prevId !== 'screen-lg-night'){
+        fx.className = 'daynight-fx to-night show';
+        setTimeout(function(){ fx.classList.remove('show'); }, 1100);
+        LGAmbient.startNight();
+      } else if(id === 'screen-lg-day' && prevId !== 'screen-lg-day'){
+        fx.className = 'daynight-fx to-day show';
+        setTimeout(function(){ fx.classList.remove('show'); }, 1100);
+        LGAmbient.stopNight();
+      } else if(id !== 'screen-lg-night'){
+        LGAmbient.stopNight();
+      }
+    }catch(e){}
+  },
+  goHome(){ this.show('screen-lg-home'); },
+  goSetup(){
+    this.show('screen-lg-setup');
+    this.onCount();
+  },
+  showMP(){
+    alert("🌐 Multijoueur en ligne\n\nBientôt disponible !\nLe schéma Supabase est prêt, l'intégration realtime arrive dans une prochaine mise à jour.\n\nEn attendant, jouez en local : c'est 100% fonctionnel.");
+  },
+
+  // Setup
+  onCount(){
+    const n = +document.getElementById('lg-count').value;
+    document.getElementById('lg-count-display').textContent = n;
+    const r = document.getElementById('lg-count');
+    r.style.setProperty('--p', ((n-5)/15*100)+'%');
+    // Preview
+    const cfg = buildRoleConfig(n);
+    const prev = document.getElementById('lg-role-preview');
+    prev.innerHTML = '';
+    Object.entries(cfg).forEach(([k,v])=>{
+      if(v<=0) return;
+      const chip = document.createElement('div');
+      const isWolf = (ROLES[k].team==='wolves');
+      chip.className = 'role-chip'+(isWolf?' wolf':'');
+      chip.innerHTML = `<span>${ROLES[k].emoji} ${ROLES[k].name}</span><span class="n">×${v}</span>`;
+      prev.appendChild(chip);
+    });
+    // Inputs
+    const ins = document.getElementById('lg-player-inputs');
+    const cur = ins.querySelectorAll('input');
+    const curVals = Array.from(cur).map(i=>i.value);
+    ins.innerHTML = '';
+    for(let i=0;i<n;i++){
+      const row = document.createElement('div');
+      row.className = 'player-row';
+      row.innerHTML = `<span class="num">${i+1}</span><input type="text" placeholder="Joueur ${i+1}" value="${curVals[i]||''}" />`;
+      ins.appendChild(row);
+    }
+  },
+
+  // Start
+  startGame(){
+    const n = +document.getElementById('lg-count').value;
+    const names = Array.from(document.querySelectorAll('#lg-player-inputs input')).map((i,idx)=>i.value.trim()||`Joueur ${idx+1}`);
+    const cfg = buildRoleConfig(n);
+    // build role list
+    const roles = [];
+    Object.entries(cfg).forEach(([k,v])=>{ for(let i=0;i<v;i++) roles.push(k); });
+    // shuffle
+    for(let i=roles.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [roles[i],roles[j]]=[roles[j],roles[i]]; }
+    // init G
+    G.players = names.map((name,i)=>({id:i, name, role:roles[i], alive:true}));
+    G.config = cfg;
+    G.night = 0; G.day = 0;
+    G.lovers = []; G.mercenaireTarget = null; G.chevalierLast = null;
+    G.witchHeal = true; G.witchPoison = true;
+    G.history = []; G.distributeIdx = 0;
+    G.alphaUsed = false; G.alphaInfectNext = false;
+    // mercenaire target: random non-mercenaire, non-wolf
+    const merc = G.players.find(p=>p.role==='mercenaire');
+    if(merc){
+      const candidates = G.players.filter(p=>p.id!==merc.id && ROLES[p.role].team!=='wolves');
+      if(candidates.length) G.mercenaireTarget = candidates[Math.floor(Math.random()*candidates.length)].id;
+    }
+    this.startDistribute();
+  },
+
+  // Distribute
+  startDistribute(){
+    G.distributeIdx = 0;
+    this.show('screen-lg-distribute');
+    this.renderDistribute();
+  },
+  renderDistribute(){
+    const idx = G.distributeIdx;
+    const p = G.players[idx];
+    const r = ROLES[p.role];
+    document.getElementById('lg-dist-sub').textContent = `Joueur ${idx+1} / ${G.players.length}`;
+    const area = document.getElementById('lg-dist-area');
+    let extra = '';
+    if(p.role==='mercenaire' && G.mercenaireTarget!=null){
+      extra = `<div class="rdesc" style="color:#ff6a8a;font-weight:700">🎯 Cible : ${G.players[G.mercenaireTarget].name}</div>`;
+    }
+    // Flip card: front (dos LELOX) → back (rôle révélé)
+    area.innerHTML = `
+      <div class="reveal-card" style="padding:0;background:transparent;border:none">
+        <div class="reveal-flip" id="lg-flip">
+          <div class="face front" onclick="LG.showRoleReveal()">
+            <div class="emoji" style="font-size:72px">🐺</div>
+            <div class="rname" style="background:linear-gradient(90deg,#6cb1ff,#a88dff,#3a8dff);-webkit-background-clip:text;background-clip:text;color:transparent">LELOX</div>
+            <div class="rdesc">${p.name}, prends le téléphone.<br/>Seul toi dois voir ton rôle.</div>
+            <div class="tap-hint">Appuie pour révéler</div>
+          </div>
+          <div class="face back">
+            <div class="emoji">${r.emoji}</div>
+            <div class="rname">${r.name}</div>
+            <div class="rdesc">${r.desc}</div>
+            ${extra}
+            <button class="btn" style="margin-top:20px;max-width:280px" onclick="LG.hideRoleConfirm()">✓ J'ai vu, masquer</button>
+          </div>
+        </div>
+      </div>`;
+  },
+  playWhoosh(){
+    try{
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      const ctx = LG._audioCtx || (LG._audioCtx = new Ctx());
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(420, now);
+      osc.frequency.exponentialRampToValueAtTime(90, now + 0.55);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.18, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+      const filt = ctx.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(1800, now);
+      filt.frequency.exponentialRampToValueAtTime(400, now + 0.6);
+      osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+      osc.start(now); osc.stop(now + 0.65);
+    }catch(e){}
+  },
+  showRoleReveal(){
+    const flip = document.getElementById('lg-flip');
+    if(flip && !flip.classList.contains('flipped')){
+      flip.classList.add('flipped');
+      LG.playWhoosh();
+    }
+  },
+  hideRoleConfirm(){
+    G.distributeIdx++;
+    if(G.distributeIdx >= G.players.length){
+      this.startNight();
+    } else {
+      this.renderDistribute();
+    }
+  },
+
+  // Night
+  startNight(){
+    G.night++;
+    G.nightKills = [];
+    G.nightActions = {};
+    G.nightStep = 0;
+    this.show('screen-lg-night');
+    document.getElementById('lg-night-num').textContent = `Nuit ${G.night}`;
+    this.nextNightStep();
+  },
+
+  nextNightStep(){
+    const steps = this.buildNightSteps();
+    if(G.nightStep >= steps.length){
+      this.resolveNight();
+      return;
+    }
+    const step = steps[G.nightStep];
+    step();
+  },
+
+  buildNightSteps(){
+    const s = [];
+    // Cupidon nuit 1
+    if(G.night===1 && this.alive('cupidon')){
+      s.push(()=>this.phaseCupidon());
+      s.push(()=>this.phaseLoversRecognize());
+    }
+    if(this.alive('voyante')) s.push(()=>this.phaseVoyante());
+    s.push(()=>this.phaseLoups());
+    if(this.alive('sorciere')) s.push(()=>this.phaseSorciere());
+    if(this.alive('chevalier')) s.push(()=>this.phaseChevalier());
+    return s;
+  },
+
+  alive(role){ return G.players.some(p=>p.alive && p.role===role); },
+  playerByRole(role){ return G.players.find(p=>p.alive && p.role===role); },
+  alivePlayers(){ return G.players.filter(p=>p.alive); },
+  aliveWolves(){ return G.players.filter(p=>p.alive && ROLES[p.role].team==='wolves'); },
+
+  phaseCupidon(){
+    const p = this.playerByRole('cupidon');
+    const area = document.getElementById('lg-night-area');
+    area.innerHTML = `
+      <div class="phase-banner"><div class="icon">💘</div><div class="label">Phase</div><div class="title">Cupidon se réveille</div></div>
+      <div class="card">
+        <h3>${p.name}, choisis deux amoureux</h3>
+        <div class="grid-pick" id="lg-cupid-pick"></div>
+        <button class="btn" id="lg-cupid-ok" disabled onclick="LG.confirmCupid()">Valider</button>
+      </div>`;
+    const grid = document.getElementById('lg-cupid-pick');
+    const sel = new Set();
+    G.alivePlayers().forEach(pp=>{
+      const b = document.createElement('button');
+      b.className = 'pick-btn';
+      b.textContent = pp.name;
+      b.onclick = ()=>{
+        if(sel.has(pp.id)){ sel.delete(pp.id); b.classList.remove('selected'); }
+        else if(sel.size<2){ sel.add(pp.id); b.classList.add('selected'); }
+        document.getElementById('lg-cupid-ok').disabled = sel.size!==2;
+      };
+      grid.appendChild(b);
+    });
+    this._cupidSel = sel;
+  },
+  confirmCupid(){
+    G.lovers = Array.from(this._cupidSel);
+    G.nightStep++;
+    this.nextNightStep();
+  },
+  phaseLoversRecognize(){
+    const [a,b] = G.lovers.map(id=>G.players[id]);
+    const area = document.getElementById('lg-night-area');
+    area.innerHTML = `
+      <div class="phase-banner"><div class="icon">💞</div><div class="label">Phase</div><div class="title">Les amoureux se reconnaissent</div></div>
+      <div class="card">
+        <p>Passez le téléphone à <b>${a.name}</b> et <b>${b.name}</b> discrètement.</p>
+        <p style="margin-top:10px">Ils sont désormais liés. Si l'un meurt, l'autre meurt de chagrin.</p>
+        <button class="btn" onclick="LG.stepNext()">Suivant</button>
+      </div>`;
+  },
+  phaseVoyante(){
+    const p = this.playerByRole('voyante');
+    const area = document.getElementById('lg-night-area');
+    area.innerHTML = `
+      <div class="phase-banner"><div class="icon">🔮</div><div class="label">Phase</div><div class="title">La Voyante se réveille</div></div>
+      <div class="card">
+        <h3>${p.name}, vois le rôle d'un joueur</h3>
+        <div class="grid-pick" id="lg-voy-pick"></div>
+        <div id="lg-voy-result"></div>
+      </div>`;
+    const grid = document.getElementById('lg-voy-pick');
+    G.alivePlayers().filter(pp=>pp.id!==p.id).forEach(pp=>{
+      const b = document.createElement('button');
+      b.className='pick-btn';
+      b.textContent = pp.name;
+      b.onclick = ()=>{
+        grid.querySelectorAll('button').forEach(x=>x.disabled=true);
+        b.classList.add('selected');
+        document.getElementById('lg-voy-result').innerHTML = `
+          <div class="reveal-card" style="margin-top:16px">
+            <div class="emoji">${ROLES[pp.role].emoji}</div>
+            <div class="rname">${ROLES[pp.role].name}</div>
+            <div class="rdesc">${pp.name} est ${ROLES[pp.role].name}</div>
+            <button class="btn" style="margin-top:14px;max-width:240px" onclick="LG.stepNext()">Continuer</button>
+          </div>`;
+      };
+      grid.appendChild(b);
+    });
+  },
+  phaseLoups(){
+    const wolves = this.aliveWolves();
+    const area = document.getElementById('lg-night-area');
+    const names = wolves.map(w=>w.name).join(', ');
+    area.innerHTML = `
+      <div class="phase-banner"><div class="icon">🐺</div><div class="label">Phase</div><div class="title">Les Loups se réveillent</div></div>
+      <div class="card">
+        <h3>Loups : ${names}</h3>
+        <p style="color:#9fb0d0;font-size:13px;margin-bottom:10px">Choisissez votre victime.</p>
+        <div class="grid-pick" id="lg-wolf-pick"></div>
+        ${this.alive('loup_alpha') && !G.alphaUsed ? `
+          <label style="display:flex;align-items:center;gap:8px;margin-top:12px;color:#ff6a8a;font-size:14px">
+            <input type="checkbox" id="lg-alpha-infect"/> 🐺 Loup Alpha infecte la victime (usage unique)
+          </label>`:''}
+        <button class="btn danger" id="lg-wolf-ok" disabled onclick="LG.confirmWolf()">Dévorer</button>
+      </div>`;
+    const grid = document.getElementById('lg-wolf-pick');
+    let sel = null;
+    G.alivePlayers().filter(pp=>ROLES[pp.role].team!=='wolves').forEach(pp=>{
+      const b = document.createElement('button');
+      b.className='pick-btn wolf-pick';
+      b.textContent=pp.name;
+      b.onclick=()=>{
+        grid.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));
+        b.classList.add('selected');
+        sel = pp.id;
+        document.getElementById('lg-wolf-ok').disabled = false;
+      };
+      grid.appendChild(b);
+    });
+    this._wolfSel = ()=>sel;
+  },
+  confirmWolf(){
+    const id = this._wolfSel();
+    const cb = document.getElementById('lg-alpha-infect');
+    if(cb && cb.checked){
+      G.alphaUsed = true;
+      G.alphaInfectNext = id;
+    }
+    G.nightActions.wolf = id;
+    G.nightStep++;
+    this.nextNightStep();
+  },
+  phaseSorciere(){
+    const p = this.playerByRole('sorciere');
+    const victim = G.nightActions.wolf;
+    const area = document.getElementById('lg-night-area');
+    area.innerHTML = `
+      <div class="phase-banner"><div class="icon">🧪</div><div class="label">Phase</div><div class="title">La Sorcière se réveille</div></div>
+      <div class="card">
+        <h3>${p.name}</h3>
+        ${victim!=null ? `<p>Les loups ont attaqué : <b style="color:#ff6a8a">${G.players[victim].name}</b></p>`:'<p>Les loups n\'ont attaqué personne.</p>'}
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+          ${G.witchHeal && victim!=null ? `<button class="btn small success" onclick="LG.witchHeal()">💚 Sauver avec potion de vie</button>`:''}
+          ${G.witchPoison ? `<button class="btn small danger" onclick="LG.witchPoisonStart()">☠️ Utiliser potion de mort</button>`:''}
+          <button class="btn small ghost" onclick="LG.witchSkip()">Passer</button>
+        </div>
+        <div id="lg-witch-poison"></div>
+      </div>`;
+  },
+  witchHeal(){ G.witchHeal=false; G.nightActions.healed = G.nightActions.wolf; G.nightActions.wolf = null; this.stepNext(); },
+  witchPoisonStart(){
+    const area = document.getElementById('lg-witch-poison');
+    area.innerHTML = `<h3 style="margin-top:16px">Tuer qui ?</h3><div class="grid-pick" id="lg-wp"></div>`;
+    const grid = document.getElementById('lg-wp');
+    G.alivePlayers().forEach(pp=>{
+      const b=document.createElement('button');
+      b.className='pick-btn wolf-pick';
+      b.textContent=pp.name;
+      b.onclick=()=>{ G.witchPoison=false; G.nightActions.poison=pp.id; this.stepNext(); };
+      grid.appendChild(b);
+    });
+  },
+  witchSkip(){ this.stepNext(); },
+
+  phaseChevalier(){
+    const p = this.playerByRole('chevalier');
+    const area = document.getElementById('lg-night-area');
+    area.innerHTML = `
+      <div class="phase-banner"><div class="icon">🛡️</div><div class="label">Phase</div><div class="title">Le Chevalier se réveille</div></div>
+      <div class="card">
+        <h3>${p.name}, protège un joueur</h3>
+        <div class="grid-pick" id="lg-knight-pick"></div>
+      </div>`;
+    const grid = document.getElementById('lg-knight-pick');
+    G.alivePlayers().forEach(pp=>{
+      const b=document.createElement('button');
+      b.className='pick-btn';
+      b.textContent = pp.name + (G.chevalierLast===pp.id?' (protégé la nuit passée)':'');
+      b.disabled = (G.chevalierLast===pp.id);
+      b.onclick=()=>{
+        G.nightActions.protected = pp.id;
+        G.chevalierLast = pp.id;
+        this.stepNext();
+      };
+      grid.appendChild(b);
+    });
+  },
+
+  stepNext(){ G.nightStep++; this.nextNightStep(); },
+
+  // Résoudre la nuit
+  resolveNight(){
+    const kills = new Set();
+    if(G.nightActions.wolf!=null && G.nightActions.wolf !== G.nightActions.protected){
+      kills.add(G.nightActions.wolf);
+    }
+    if(G.nightActions.poison!=null) kills.add(G.nightActions.poison);
+
+    // Alpha infect : si l'alpha a infecté et la victime n'a pas été sauvée
+    if(G.alphaInfectNext!=null && G.alphaInfectNext!==false && kills.has(G.alphaInfectNext)){
+      // L'infection remplace la mort : victime devient loup
+      const v = G.players[G.alphaInfectNext];
+      v.role = 'loupgarou';
+      kills.delete(G.alphaInfectNext);
+      G.history.push({type:'infect', night:G.night, id:v.id});
+    }
+    G.alphaInfectNext = false;
+
+    // Amoureux : un meurt, l'autre aussi
+    this.applyLoverDeath(kills);
+
+    // Appliquer morts
+    kills.forEach(id=>{ G.players[id].alive = false; });
+    G.nightKills = Array.from(kills);
+    G.nightKills.forEach(id=>G.history.push({type:'night-death', night:G.night, id, role:G.players[id].role}));
+
+    // Check win
+    if(this.checkWin()) return;
+    this.startDay();
+  },
+
+  applyLoverDeath(kills){
+    if(G.lovers.length!==2) return;
+    const [a,b] = G.lovers;
+    if(kills.has(a)) kills.add(b);
+    if(kills.has(b)) kills.add(a);
+  },
+
+  // Day
+  startDay(){
+    G.day++;
+    this.show('screen-lg-day');
+    document.getElementById('lg-day-num').textContent = G.day;
+    const area = document.getElementById('lg-day-area');
+    let deathsHtml = '';
+    if(G.nightKills.length===0){
+      deathsHtml = `<div class="phase-banner"><div class="icon">🌅</div><div class="label">Annonce</div><div class="title">Personne n'est mort cette nuit !</div></div>`;
+    } else {
+      deathsHtml = `<div class="phase-banner"><div class="icon">💀</div><div class="label">Morts de la nuit</div><div class="title">`+
+        G.nightKills.map(id=>`${G.players[id].name} (${ROLES[G.players[id].role].emoji} ${ROLES[G.players[id].role].name})`).join(' · ')+
+      `</div></div>`;
+    }
+    // Chasseur mort : tire
+    const deadHunter = G.nightKills.find(id=>G.players[id].role==='chasseur');
+    if(deadHunter!=null){
+      area.innerHTML = deathsHtml + `
+        <div class="card">
+          <h3>🏹 Le Chasseur ${G.players[deadHunter].name} tire une dernière balle</h3>
+          <div class="grid-pick" id="lg-hunter-pick"></div>
+        </div>`;
+      const grid = document.getElementById('lg-hunter-pick');
+      G.alivePlayers().forEach(pp=>{
+        const b=document.createElement('button');
+        b.className='pick-btn wolf-pick';
+        b.textContent=pp.name;
+        b.onclick=()=>{
+          const extra = new Set([pp.id]);
+          this.applyLoverDeath(extra);
+          extra.forEach(id=>{ G.players[id].alive=false; G.history.push({type:'hunter',day:G.day,id,role:G.players[id].role}); });
+          if(this.checkWin()) return;
+          this.renderDayVillage();
+        };
+        grid.appendChild(b);
+      });
+      return;
+    }
+    area.innerHTML = deathsHtml;
+    this.renderDayVillage();
+  },
+  renderDayVillage(){
+    const area = document.getElementById('lg-day-area');
+    let html = `<div class="card"><h3>Joueurs vivants (${this.alivePlayers().length})</h3>`;
+    G.players.forEach(p=>{
+      html += `<div class="player-row ${p.alive?'':'dead'}"><span class="num">${p.id+1}</span><span style="flex:1">${p.name}</span>${!p.alive?`<span style="color:#9fb0d0;font-size:12px">${ROLES[p.role].emoji} ${ROLES[p.role].name}</span>`:''}</div>`;
+    });
+    html += `</div>`;
+    html += `<button class="btn" onclick="LG.startVote()">🗳️ Passer au vote</button>`;
+    area.innerHTML = (area.innerHTML || '') + html;
+  },
+
+  // Vote
+  startVote(){
+    this.show('screen-lg-vote');
+    const area = document.getElementById('lg-vote-area');
+    area.innerHTML = `
+      <div class="card">
+        <h3>Qui le village élimine-t-il ?</h3>
+        <div class="grid-pick" id="lg-vote-pick"></div>
+        <button class="btn ghost" onclick="LG.voteSkip()">Aucun vote (pas de majorité)</button>
+      </div>`;
+    const grid = document.getElementById('lg-vote-pick');
+    this.alivePlayers().forEach(pp=>{
+      const b=document.createElement('button');
+      b.className='pick-btn';
+      b.textContent=pp.name;
+      b.onclick=()=>this.confirmVote(pp.id);
+      grid.appendChild(b);
+    });
+  },
+  voteSkip(){ this.startNight(); },
+  confirmVote(id){
+    const p = G.players[id];
+    G.lastEliminated = id;
+    // Bouffon gagne s'il est éliminé par vote
+    if(p.role==='bouffon'){
+      p.alive=false;
+      this.showResult('jester', `🃏 ${p.name} (Bouffon) a été éliminé par vote et gagne SEUL !`);
+      return;
+    }
+    // Mercenaire gagne si sa cible est éliminée par vote dans les 3 premiers jours
+    const merc = G.players.find(pp=>pp.alive && pp.role==='mercenaire');
+    if(merc && G.mercenaireTarget===id && G.day<=3){
+      p.alive=false;
+      this.showResult('lovers', `⚔️ ${merc.name} (Mercenaire) a vu sa cible ${p.name} éliminée. Victoire solo !`);
+      return;
+    }
+    const kills = new Set([id]);
+    this.applyLoverDeath(kills);
+    kills.forEach(k=>{ G.players[k].alive=false; G.history.push({type:'vote',day:G.day,id:k,role:G.players[k].role}); });
+
+    // Chasseur voté : tire
+    if(p.role==='chasseur'){
+      const area = document.getElementById('lg-vote-area');
+      area.innerHTML = `
+        <div class="phase-banner"><div class="icon">🏹</div><div class="label">Dernier acte</div><div class="title">${p.name} le Chasseur tire</div></div>
+        <div class="card"><div class="grid-pick" id="lg-hp2"></div></div>`;
+      const grid = document.getElementById('lg-hp2');
+      this.alivePlayers().forEach(pp=>{
+        const b=document.createElement('button');
+        b.className='pick-btn wolf-pick';
+        b.textContent=pp.name;
+        b.onclick=()=>{
+          const ex = new Set([pp.id]);
+          this.applyLoverDeath(ex);
+          ex.forEach(k=>{G.players[k].alive=false;G.history.push({type:'hunter',day:G.day,id:k,role:G.players[k].role})});
+          this.afterVote(id);
+        };
+        grid.appendChild(b);
+      });
+      return;
+    }
+    this.afterVote(id);
+  },
+  afterVote(votedId){
+    const area = document.getElementById('lg-vote-area');
+    const p = G.players[votedId];
+    area.innerHTML = `
+      <div class="phase-banner"><div class="icon">⚖️</div><div class="label">Jugement</div><div class="title">${p.name} était ${ROLES[p.role].emoji} ${ROLES[p.role].name}</div></div>
+      <button class="btn" onclick="LG.afterVoteContinue()">Continuer</button>`;
+  },
+  afterVoteContinue(){
+    if(this.checkWin()) return;
+    this.startNight();
+  },
+
+  // Win check
+  checkWin(){
+    const alive = this.alivePlayers();
+    const wolves = alive.filter(p=>ROLES[p.role].team==='wolves');
+    const villagers = alive.filter(p=>ROLES[p.role].team==='village');
+    // Amoureux seuls survivants
+    if(G.lovers.length===2){
+      const la=G.players[G.lovers[0]], lb=G.players[G.lovers[1]];
+      if(la.alive && lb.alive && alive.length===2){
+        this.showResult('lovers',`💞 ${la.name} et ${lb.name} sont les seuls survivants. Victoire des Amoureux !`);
+        return true;
+      }
+    }
+    if(wolves.length===0){
+      this.showResult('village','🏡 Tous les loups sont morts. Le village triomphe !');
+      return true;
+    }
+    if(wolves.length >= villagers.length){
+      this.showResult('wolves','🐺 Les loups ont dévoré le village. Victoire de la meute !');
+      return true;
+    }
+    return false;
+  },
+
+  showResult(team, msg){
+    this.show('screen-lg-result');
+    const area = document.getElementById('lg-result-area');
+    const titles = {village:'Village',wolves:'Loups-Garous',lovers:'Amoureux',jester:'Bouffon'};
+    const icons = {village:'🏡',wolves:'🐺',lovers:'💞',jester:'🃏'};
+    area.innerHTML = `
+      <div class="win-banner ${team}">
+        <div class="ic">${icons[team]}</div>
+        <div class="ttl">Victoire ${titles[team]}</div>
+        <div class="msg">${msg}</div>
+      </div>
+      <div class="card">
+        <h3>Rôles révélés</h3>
+        ${G.players.map(p=>`<div class="player-row ${p.alive?'':'dead'}"><span class="num">${p.id+1}</span><span style="flex:1">${p.name}</span><span style="font-size:13px;color:#9ec4ff">${ROLES[p.role].emoji} ${ROLES[p.role].name}</span></div>`).join('')}
+      </div>
+      <div class="card">
+        <h3>Historique</h3>
+        ${G.history.map(h=>{
+          const pl = G.players[h.id];
+          if(h.type==='night-death') return `<div class="log dead">🌙 Nuit ${h.night} : ${pl.name} (${ROLES[h.role].name}) est mort</div>`;
+          if(h.type==='vote') return `<div class="log dead">🗳️ Jour ${h.day} : ${pl.name} (${ROLES[h.role].name}) éliminé par vote</div>`;
+          if(h.type==='hunter') return `<div class="log dead">🏹 ${pl.name} (${ROLES[h.role].name}) abattu par le Chasseur</div>`;
+          if(h.type==='infect') return `<div class="log">🐺 Nuit ${h.night} : ${pl.name} a été infecté par le Loup Alpha</div>`;
+          return '';
+        }).join('')}
+      </div>
+      <button class="btn" onclick="LG.goHome()">🏠 Retour accueil</button>
+      <button class="btn ghost" onclick="LG.goSetup()">🔁 Nouvelle partie</button>`;
+  }
+};
+
+// Boot
+document.addEventListener('DOMContentLoaded', ()=>{
+  LG.goHome();
+});
+
+// SW
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+</body>
+</html>

@@ -2950,9 +2950,6 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
 #screen-modes>*{position:relative;z-index:1}
 #screen-modes .modes-grid>*{background:rgba(255,45,85,.07) !important;backdrop-filter:blur(14px);border:1px solid rgba(255,45,85,.25) !important;border-radius:16px;transition:transform .25s,box-shadow .25s,border-color .25s}
 #screen-modes .modes-grid>*:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(255,106,138,.6) !important;box-shadow:0 12px 36px rgba(255,45,85,.35)}
-/* Scanlines + vignette rouge */
-#screen-splash::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(to bottom, rgba(255,45,85,0.04) 0px, rgba(255,45,85,0.04) 1px, transparent 1px, transparent 3px),radial-gradient(ellipse at center, transparent 40%, rgba(120,0,20,0.45) 100%);mix-blend-mode:screen}
-#screen-splash .social-proof-local{font-size:.75rem;color:rgba(255,179,196,.7);letter-spacing:1px;text-align:center;margin-top:6px}
 </style>
 <script>
 (function(){
@@ -10457,120 +10454,6 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
   <button class="music-main-btn" id="music-main-btn" onclick="toggleRadialMenu()">🎵</button>
 </div>
-
-<!-- ===== LELOX FINAL: Narrator + XP + Profile ===== -->
-<script>
-window.Narrator = {
-  enabled: localStorage.getItem('narrator') === 'on',
-  speak(text, lang){
-    lang = lang || 'fr-FR';
-    if(!this.enabled || !window.speechSynthesis) return;
-    try {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang; u.rate = 0.95; u.pitch = 1.05;
-      const voices = speechSynthesis.getVoices();
-      const fr = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('fr'));
-      if(fr) u.voice = fr;
-      speechSynthesis.speak(u);
-    } catch(e){}
-  },
-  toggle(){
-    this.enabled = !this.enabled;
-    localStorage.setItem('narrator', this.enabled ? 'on' : 'off');
-    try { if(typeof showToast === 'function') showToast('🔊 Narrateur ' + (this.enabled ? 'activé' : 'désactivé')); } catch(e){}
-    return this.enabled;
-  }
-};
-
-window.LeloxXP = {
-  LEVELS: [
-    {name:'Novice', min:0},{name:'Apprenti', min:100},{name:'Détective', min:300},
-    {name:'Expert', min:600},{name:'Maître', min:1000},{name:'Légende', min:2000}
-  ],
-  get(){ return parseInt(localStorage.getItem('lelox_xp')||'0',10); },
-  set(v){ localStorage.setItem('lelox_xp', String(v)); },
-  levelOf(xp){ let out=this.LEVELS[0]; for(const l of this.LEVELS){ if(xp>=l.min) out=l; } return out; },
-  add(amount, reason){
-    const before = this.get();
-    const after = before + amount;
-    this.set(after);
-    const lvlBefore = this.levelOf(before).name;
-    const lvlAfter = this.levelOf(after).name;
-    try { if(typeof showToast === 'function') showToast('+'+amount+' XP' + (reason?' · '+reason:'')); } catch(e){}
-    if(lvlBefore !== lvlAfter){ this.celebrateLevelUp(lvlAfter); }
-    return after;
-  },
-  celebrateLevelUp(name){
-    try {
-      const o = document.createElement('div');
-      o.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(255,45,85,.35),rgba(0,0,0,.85));animation:fadeIn .4s';
-      o.innerHTML='<div style="text-align:center;color:#fff;font-family:inherit"><div style="font-size:3rem;margin-bottom:12px">🎉</div><div style="font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,#ff2d55,#ff6a8a);-webkit-background-clip:text;color:transparent">LEVEL UP</div><div style="font-size:1.4rem;margin-top:8px;letter-spacing:2px">'+name+'</div></div>';
-      document.body.appendChild(o);
-      setTimeout(()=>{o.style.transition='opacity .5s';o.style.opacity='0';setTimeout(()=>o.remove(),500);}, 2200);
-      if(navigator.vibrate) navigator.vibrate([30,60,30]);
-    } catch(e){}
-  }
-};
-
-window.LeloxProfile = {
-  key:'lelox_profile',
-  get(){ try { return JSON.parse(localStorage.getItem(this.key)||'{}'); } catch(e){ return {}; } },
-  save(p){ localStorage.setItem(this.key, JSON.stringify(p)); },
-  init(){
-    const p = this.get();
-    if(!p.pseudo) p.pseudo = 'Joueur';
-    if(!p.avatar) p.avatar = '🎭';
-    if(!p.stats) p.stats = {undercover:{wins:0,games:0}, loupgarou:{wins:0,games:0}};
-    this.save(p);
-    return p;
-  }
-};
-LeloxProfile.init();
-
-// Streak tracker (lightweight)
-window.LeloxStreak = {
-  get(){ return parseInt(localStorage.getItem('lelox_streak')||'0',10); },
-  bump(won){
-    const cur = this.get();
-    const next = won ? cur+1 : 0;
-    localStorage.setItem('lelox_streak', String(next));
-    if(won && next>=3) LeloxXP.add(20, 'Streak '+next+'🔥');
-    return next;
-  }
-};
-
-// Hook end-of-game: add XP when stats updated
-(function(){
-  const origUpdate = window.updateLocalStats;
-  if(typeof origUpdate === 'function'){
-    let lastGames = -1;
-    window.updateLocalStats = function(){
-      const r = origUpdate.apply(this, arguments);
-      try {
-        const stats = JSON.parse(localStorage.getItem('uc_stats')||'{}');
-        const g = stats.games||0;
-        if(lastGames>=0 && g>lastGames){ LeloxXP.add(10,'Partie jouée'); }
-        lastGames = g;
-      } catch(e){}
-      return r;
-    };
-  }
-})();
-
-// Narrator toggle button (inject into settings if visible)
-document.addEventListener('DOMContentLoaded', function(){
-  try {
-    const settings = document.getElementById('screen-settings');
-    if(settings && !document.getElementById('narrator-toggle-row')){
-      const row = document.createElement('div');
-      row.id = 'narrator-toggle-row';
-      row.className = 'settings-section';
-      row.innerHTML = '<h3>🔊 Narrateur IA</h3><div class="setting-row"><label>Voix synthétique aux moments clés</label><button class="btn btn-ghost" id="narrator-btn" onclick="const s=Narrator.toggle();document.getElementById(\'narrator-btn\').textContent=s?\'Activé\':\'Désactivé\';">'+(Narrator.enabled?'Activé':'Désactivé')+'</button></div>';
-      settings.appendChild(row);
-    }
-  } catch(e){}
-});
-</script>
 
 </body>
 </html>

@@ -342,7 +342,7 @@ footer .flinks a:hover{color:var(--red-soft)}
     <a href="#games">Jeux</a>
     <a href="#about">À propos</a>
   </nav>
-  <button class="profile" id="profileBtn" title="Profil LELOX" onclick="openLeloxProfile()">👤</button>
+  <button class="profile" title="Profil (bientôt)" onclick="alert('Profil — bientôt disponible')">👤</button>
 </header>
 
 <div class="particles" id="particles"></div>
@@ -739,91 +739,6 @@ function radialToggleMute() {
 document.addEventListener("click", function(e) {
   if (_radialOpen && !e.target.closest(".music-radial")) { toggleRadialMenu(); }
 });
-</script>
-
-<!-- ===== LELOX Profile Modal ===== -->
-<style>
-#lelox-profile-modal{position:fixed;inset:0;background:rgba(5,5,15,.88);backdrop-filter:blur(12px);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
-#lelox-profile-modal.open{display:flex}
-#lelox-profile-modal .lp-card{background:linear-gradient(145deg,#1a0818,#0a0510);border:1px solid rgba(255,45,85,.35);border-radius:20px;padding:28px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(255,45,85,.3);color:#fff}
-#lelox-profile-modal h3{font-size:1.6rem;margin:0 0 16px;background:linear-gradient(135deg,#ff2d55,#ff6a8a);-webkit-background-clip:text;color:transparent}
-#lelox-profile-modal .lp-avatar-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
-#lelox-profile-modal .lp-avatar{font-size:1.6rem;padding:8px;background:rgba(255,45,85,.08);border:1px solid rgba(255,45,85,.2);border-radius:10px;cursor:pointer;transition:all .2s}
-#lelox-profile-modal .lp-avatar.selected,#lelox-profile-modal .lp-avatar:hover{background:rgba(255,45,85,.25);border-color:#ff2d55;transform:scale(1.1)}
-#lelox-profile-modal input{width:100%;padding:10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,45,85,.3);border-radius:8px;color:#fff;font-size:1rem;margin-bottom:12px}
-#lelox-profile-modal .lp-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;font-size:.85rem}
-#lelox-profile-modal .lp-stat{background:rgba(255,45,85,.08);padding:10px;border-radius:10px;border:1px solid rgba(255,45,85,.18)}
-#lelox-profile-modal .lp-stat b{display:block;font-size:1.2rem;color:#ff6a8a}
-#lelox-profile-modal .lp-actions{display:flex;gap:10px;margin-top:14px}
-#lelox-profile-modal button.lp-btn{flex:1;padding:10px;border-radius:10px;border:none;cursor:pointer;font-weight:700;background:linear-gradient(135deg,#ff2d55,#ff4d7a);color:#fff}
-#lelox-profile-modal button.lp-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.2);color:#ccc}
-#lelox-profile-modal .lp-xpbar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin:6px 0 14px}
-#lelox-profile-modal .lp-xpbar>i{display:block;height:100%;background:linear-gradient(90deg,#ff2d55,#ff6a8a);transition:width .4s}
-</style>
-<div id="lelox-profile-modal" onclick="if(event.target.id==='lelox-profile-modal')closeLeloxProfile()">
-  <div class="lp-card">
-    <h3 id="lp-title">Profil LELOX</h3>
-    <div id="lp-levelline" style="font-size:.9rem;color:#ffb3c4;margin-bottom:4px"></div>
-    <div class="lp-xpbar"><i id="lp-xpfill"></i></div>
-    <label style="font-size:.8rem;color:#aaa">Pseudo</label>
-    <input id="lp-pseudo" maxlength="16" placeholder="Ton pseudo">
-    <label style="font-size:.8rem;color:#aaa">Avatar</label>
-    <div class="lp-avatar-grid" id="lp-avatars"></div>
-    <div class="lp-stats" id="lp-stats"></div>
-    <div class="lp-actions">
-      <button class="lp-btn ghost" onclick="closeLeloxProfile()">Fermer</button>
-      <button class="lp-btn" onclick="saveLeloxProfile()">Enregistrer</button>
-    </div>
-    <div style="margin-top:14px;font-size:.75rem;color:#888;text-align:center">🔒 Auth Supabase — bientôt</div>
-  </div>
-</div>
-<script>
-window.LeloxProfile = window.LeloxProfile || {
-  key:'lelox_profile',
-  get(){ try { return JSON.parse(localStorage.getItem(this.key)||'{}'); } catch(e){ return {}; } },
-  save(p){ localStorage.setItem(this.key, JSON.stringify(p)); },
-  init(){ const p=this.get(); if(!p.pseudo) p.pseudo='Joueur'; if(!p.avatar) p.avatar='🎭'; if(!p.stats) p.stats={undercover:{wins:0,games:0},loupgarou:{wins:0,games:0}}; this.save(p); return p; }
-};
-window.LeloxXP = window.LeloxXP || {
-  LEVELS:[{name:'Novice',min:0},{name:'Apprenti',min:100},{name:'Détective',min:300},{name:'Expert',min:600},{name:'Maître',min:1000},{name:'Légende',min:2000}],
-  get(){ return parseInt(localStorage.getItem('lelox_xp')||'0',10); },
-  levelOf(xp){ let out=this.LEVELS[0]; for(const l of this.LEVELS){ if(xp>=l.min) out=l; } return out; }
-};
-LeloxProfile.init();
-const LP_AVATARS = ['🎭','🦊','🐺','🐉','👾','🥷','🧙','🧛','🦸','🕵️'];
-let _lpSelectedAvatar = null;
-function openLeloxProfile(){
-  const p = LeloxProfile.get();
-  _lpSelectedAvatar = p.avatar || '🎭';
-  document.getElementById('lp-pseudo').value = p.pseudo || '';
-  const grid = document.getElementById('lp-avatars');
-  grid.innerHTML = LP_AVATARS.map(a => '<div class="lp-avatar'+(a===_lpSelectedAvatar?' selected':'')+'" data-a="'+a+'" onclick="selectLpAvatar(\''+a+'\')">'+a+'</div>').join('');
-  const xp = LeloxXP.get();
-  const lvl = LeloxXP.levelOf(xp);
-  const idx = LeloxXP.LEVELS.indexOf(lvl);
-  const nxt = LeloxXP.LEVELS[idx+1];
-  const pct = nxt ? Math.min(100,((xp-lvl.min)/(nxt.min-lvl.min))*100) : 100;
-  document.getElementById('lp-levelline').textContent = lvl.name + ' · ' + xp + ' XP' + (nxt?' (prochain: '+nxt.name+' à '+nxt.min+')':' · MAX');
-  document.getElementById('lp-xpfill').style.width = pct + '%';
-  const u = (p.stats&&p.stats.undercover)||{wins:0,games:0};
-  const lg = (p.stats&&p.stats.loupgarou)||{wins:0,games:0};
-  document.getElementById('lp-stats').innerHTML =
-    '<div class="lp-stat"><b>'+u.wins+'/'+u.games+'</b>Undercover</div>'+
-    '<div class="lp-stat"><b>'+lg.wins+'/'+lg.games+'</b>Loup-Garou</div>';
-  document.getElementById('lelox-profile-modal').classList.add('open');
-}
-function selectLpAvatar(a){ _lpSelectedAvatar = a; document.querySelectorAll('.lp-avatar').forEach(el=>el.classList.toggle('selected', el.dataset.a===a)); }
-function closeLeloxProfile(){ document.getElementById('lelox-profile-modal').classList.remove('open'); }
-function saveLeloxProfile(){
-  const p = LeloxProfile.get();
-  p.pseudo = (document.getElementById('lp-pseudo').value||'Joueur').slice(0,16);
-  p.avatar = _lpSelectedAvatar || '🎭';
-  LeloxProfile.save(p);
-  document.getElementById('profileBtn').textContent = p.avatar;
-  closeLeloxProfile();
-}
-// Apply avatar on load
-(function(){ const p = LeloxProfile.get(); const b = document.getElementById('profileBtn'); if(b && p.avatar) b.textContent = p.avatar; })();
 </script>
 
 </body>

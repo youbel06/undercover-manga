@@ -231,9 +231,7 @@ def main():
     output = template.replace("__PAIRS_DATA_JSON__", meta_str)
     output = output.replace("__MODE_INDEX_JSON__", mode_index_str)
 
-    # NOTE: index.html is now the LELOX portal (manually authored).
-    # The Undercover game is built to undercover.html.
-    output_path = os.path.join(os.path.dirname(__file__), "undercover.html")
+    output_path = os.path.join(os.path.dirname(__file__), "index.html")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(output)
 

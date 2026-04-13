@@ -254,11 +254,23 @@ var LGMusic = {
     var btn=document.getElementById('lg-music-btn'); if(btn) btn.classList.toggle('playing', this.audio && !this.audio.paused && !this.stopped);
   }
 };
-/* Auto-start on first interaction */
+/* Auto-start on first interaction — robust */
 (function(){
-  function s(){ try{ LGMusic.init(); if(!LGMusic.stopped && LGMusic.audio && (LGMusic.audio.paused||!LGMusic.audio.src)) LGMusic.play(); }catch(e){} }
-  document.addEventListener('click', s, {once:true});
-  document.addEventListener('touchstart', s, {once:true});
+  function autoStart() {
+    var p = window.MusicPlayer || window.LGMusicPlayer || window.LGMusic;
+    if (!p) return;
+    try { if (p.init) p.init(); } catch(e){}
+    var firstRun = !p.audio || !p.audio.src;
+    var canResume = p.audio && p.audio.paused && !p.userStopped && !p.stopped;
+    if (firstRun || canResume) {
+      var r = p.play && p.play();
+      if (r && r.catch) r.catch(function(){});
+    }
+  }
+  ['click','touchstart','keydown','pointerdown'].forEach(function(e){
+    document.addEventListener(e, autoStart, { once: false, capture: true });
+  });
+  window.addEventListener('load', function(){ setTimeout(autoStart, 800); });
 })();
 </script>
 

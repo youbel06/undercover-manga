@@ -1455,8 +1455,10 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 
 /* ===== SPLASH SCREEN ===== */
 #screen-splash {
-  justify-content: center;
-  gap: 40px;
+  justify-content: flex-start;
+  gap: 18px;
+  padding-top: 80px;
+  padding-bottom: 120px;
   background: radial-gradient(ellipse at 50% 30%, #1a1a3e 0%, var(--bg-primary) 70%);
 }
 
@@ -4823,6 +4825,15 @@ function revealPlayerRole(playerIndex) {
 
   // Store currently revealing player
   overlay.dataset.playerIndex = playerIndex;
+
+  // Narrator AI — annonce discrète du rôle
+  try {
+    if (window.Narrator && Narrator.enabled) {
+      var roleTxt = player.role === 'undercover' ? "l'undercover"
+                   : (player.role === 'mrwhite' ? "Mister White" : "un civil");
+      Narrator.speak((player.name || 'Joueur') + ", tu es " + roleTxt);
+    }
+  } catch(e){}
 }
 
 function dismissCard() {
@@ -4841,6 +4852,7 @@ function dismissCard() {
 
 function startDiscussion() {
   SoundFX.click();
+  try { if (window.Narrator && Narrator.enabled) Narrator.speak("La discussion commence. Manche " + GameState.currentRound); } catch(e){}
 
   document.getElementById('discuss-round-info').textContent = 'Manche ' + GameState.currentRound + ' / ' + GameState.totalRounds;
 
@@ -4942,6 +4954,7 @@ function updateTimerDisplay(totalSeconds, circumference) {
 
 function startVote() {
   SoundFX.suspense();
+  try { if (window.Narrator && Narrator.enabled) Narrator.speak("Il est temps de voter"); } catch(e){}
   GameState.stopTimer();
 
   GameState.votes = {};
@@ -5366,6 +5379,16 @@ function showFinalScreen() {
       mvpName = name;
     }
   });
+
+  // Narrator AI — révélation finale
+  try {
+    if (window.Narrator && Narrator.enabled) {
+      var uc = (GameState.players||[]).filter(function(p){return p && p.role==='undercover';}).map(function(p){return p.name;});
+      var msg = "Fin de la partie. Le champion est " + (mvpName || 'personne') + ".";
+      if (uc.length) msg += " L'undercover était " + uc.join(', ') + ".";
+      Narrator.speak(msg);
+    }
+  } catch(e){}
 
   document.getElementById('mvp-name').textContent = mvpName || 'Personne';
   document.getElementById('mvp-score').textContent = maxScore + ' points';
@@ -10534,6 +10557,27 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   } catch(e){}
 });
+</script>
+
+<script>
+/* Auto-start music — robust */
+(function(){
+  function autoStart() {
+    var p = window.MusicPlayer || window.LGMusicPlayer || window.LGMusic;
+    if (!p) return;
+    try { if (p.init) p.init(); } catch(e){}
+    var firstRun = !p.audio || !p.audio.src;
+    var canResume = p.audio && p.audio.paused && !p.userStopped && !p.stopped;
+    if (firstRun || canResume) {
+      var r = p.play && p.play();
+      if (r && r.catch) r.catch(function(){});
+    }
+  }
+  ['click','touchstart','keydown','pointerdown'].forEach(function(e){
+    document.addEventListener(e, autoStart, { once: false, capture: true });
+  });
+  window.addEventListener('load', function(){ setTimeout(autoStart, 800); });
+})();
 </script>
 
 </body>

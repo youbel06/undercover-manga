@@ -690,19 +690,23 @@ var MusicPlayer = {
   _ui: function() { updateRadialUI(); }
 };
 
-/* Auto-start music on first user interaction (stopped flag persists user choice) */
+/* Auto-start music — robust */
 (function(){
-  function startMusic(){
-    try{
-      MusicPlayer.init();
-      if(!MusicPlayer.stopped && MusicPlayer.audio && (MusicPlayer.audio.paused || !MusicPlayer.audio.src)){
-        MusicPlayer.play();
-      }
-    }catch(e){}
+  function autoStart() {
+    var p = window.MusicPlayer || window.LGMusicPlayer || window.LGMusic;
+    if (!p) return;
+    try { if (p.init) p.init(); } catch(e){}
+    var firstRun = !p.audio || !p.audio.src;
+    var canResume = p.audio && p.audio.paused && !p.userStopped && !p.stopped;
+    if (firstRun || canResume) {
+      var r = p.play && p.play();
+      if (r && r.catch) r.catch(function(){});
+    }
   }
-  document.addEventListener('click', startMusic, { once:true });
-  document.addEventListener('touchstart', startMusic, { once:true });
-  document.addEventListener('keydown', startMusic, { once:true });
+  ['click','touchstart','keydown','pointerdown'].forEach(function(e){
+    document.addEventListener(e, autoStart, { once: false, capture: true });
+  });
+  window.addEventListener('load', function(){ setTimeout(autoStart, 800); });
 })();
 
 var _radialOpen = false;

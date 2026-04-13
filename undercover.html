@@ -2916,8 +2916,61 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 </head>
 <body>
 
-<!-- ===== LELOX BACK BUTTON ===== -->
-<a href="index.html" id="lelox-back-btn" style="position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#ff6a8a;text-decoration:none;font-weight:800;letter-spacing:2px;font-size:12px;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,106,138,.4);box-shadow:0 0 16px rgba(255,56,96,.3);text-shadow:0 0 8px rgba(255,56,96,.6);transition:transform .2s,background .2s" onmouseover="this.style.transform='scale(1.05)';this.style.background='rgba(255,56,96,.18)'" onmouseout="this.style.transform='';this.style.background='rgba(0,0,0,.65)'">← LELOX</a>
+<!-- ===== LELOX TOP NAVBAR ===== -->
+<style>
+#lelox-navbar{position:fixed;top:0;left:0;right:0;height:calc(48px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);z-index:9999;display:flex;align-items:center;justify-content:space-between;padding-left:14px;padding-right:14px;background:rgba(5,5,15,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,106,138,.25);box-shadow:0 2px 16px rgba(0,0,0,.4)}
+#lelox-navbar a.nv-back{display:inline-flex;align-items:center;gap:6px;color:#ff6a8a;text-decoration:none;font-weight:800;letter-spacing:2px;font-size:12px;padding:6px 10px;border-radius:8px;text-shadow:0 0 8px rgba(255,56,96,.55);transition:background .2s}
+#lelox-navbar a.nv-back:hover{background:rgba(255,56,96,.15)}
+#lelox-navbar .nv-title{font-weight:800;letter-spacing:5px;font-size:14px;color:#fff;text-transform:uppercase;text-shadow:0 0 12px rgba(255,56,96,.5)}
+#lelox-navbar button.nv-gear{background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;padding:6px 10px;border-radius:8px;transition:background .2s}
+#lelox-navbar button.nv-gear:hover{background:rgba(255,255,255,.08)}
+body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
+.splash-settings-btn{display:none !important}
+</style>
+<nav id="lelox-navbar" role="navigation" aria-label="Navigation principale">
+  <a href="index.html" class="nv-back" aria-label="Retour plateforme LELOX">&larr; LELOX</a>
+  <div class="nv-title">Undercover</div>
+  <button class="nv-gear" onclick="showScreen('screen-settings')" aria-label="Paramètres">⚙️</button>
+</nav>
+
+<!-- ===== AAA SPLASH / MODES OVERRIDES ===== -->
+<style>
+#screen-splash{background:radial-gradient(ellipse at 50% 30%, #2a0814 0%, #0a0510 60%, #05050f 100%) !important;position:relative;overflow:hidden}
+#screen-splash::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle, rgba(255,45,85,0.12) 1px, transparent 1px);background-size:30px 30px;opacity:.6;pointer-events:none;z-index:0}
+#screen-splash>*{position:relative;z-index:1}
+#screen-splash .splash-title{color:transparent !important;background:linear-gradient(135deg,#ff2d55,#ff6a8a 50%,#ff2d55) !important;-webkit-background-clip:text !important;background-clip:text !important;-webkit-text-fill-color:transparent !important;filter:drop-shadow(0 0 18px rgba(255,45,85,.7)) drop-shadow(0 0 36px rgba(255,45,85,.4)) !important;text-shadow:none !important}
+#screen-splash .splash-subtitle{color:#ffb3c4 !important;letter-spacing:3px;text-transform:uppercase;font-weight:600}
+#screen-splash .btn-primary{background:linear-gradient(135deg,#ff2d55,#ff4d7a) !important;box-shadow:0 0 24px rgba(255,45,85,.55),0 8px 24px rgba(255,45,85,.35) !important;border:1px solid rgba(255,106,138,.6) !important}
+#screen-splash .btn-primary:hover{box-shadow:0 0 36px rgba(255,45,85,.8),0 12px 32px rgba(255,45,85,.5) !important}
+.uc-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.uc-particles span{position:absolute;width:3px;height:3px;border-radius:50%;background:#ff2d55;box-shadow:0 0 8px #ff2d55,0 0 16px #ff2d55;opacity:.7;animation:ucFloat 6s linear infinite}
+@keyframes ucFloat{0%{transform:translateY(110vh) scale(.3);opacity:0}10%{opacity:.7}90%{opacity:.5}100%{transform:translateY(-10vh) scale(1);opacity:0}}
+#screen-modes{background:radial-gradient(ellipse at 50% 20%, #1a0618 0%, #05050f 70%) !important;position:relative}
+#screen-modes::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle, rgba(255,45,85,0.15) 1px, transparent 1px);background-size:30px 30px;pointer-events:none;z-index:0;opacity:.7}
+#screen-modes>*{position:relative;z-index:1}
+#screen-modes .modes-grid>*{background:rgba(255,45,85,.07) !important;backdrop-filter:blur(14px);border:1px solid rgba(255,45,85,.25) !important;border-radius:16px;transition:transform .25s,box-shadow .25s,border-color .25s}
+#screen-modes .modes-grid>*:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(255,106,138,.6) !important;box-shadow:0 12px 36px rgba(255,45,85,.35)}
+</style>
+<script>
+(function(){
+  function spawnParticles(){
+    var host=document.getElementById('screen-splash'); if(!host) return;
+    if(host.querySelector('.uc-particles')) return;
+    var wrap=document.createElement('div'); wrap.className='uc-particles';
+    var N=window.innerWidth<600?16:26;
+    for(var i=0;i<N;i++){
+      var s=document.createElement('span');
+      s.style.left=(Math.random()*100)+'%';
+      s.style.animationDelay=(Math.random()*6)+'s';
+      s.style.animationDuration=(4+Math.random()*4)+'s';
+      wrap.appendChild(s);
+    }
+    host.appendChild(wrap);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', spawnParticles);
+  else spawnParticles();
+})();
+</script>
 
 
 <!-- ===== ROUND PROGRESS BAR ===== -->
@@ -10167,6 +10220,21 @@ document.addEventListener('DOMContentLoaded', function() {
     settingsBtn.addEventListener('long-press', function() { openMusicModal(); });
   }
 });
+
+/* Auto-start music on first user interaction */
+(function(){
+  function startMusic(){
+    try{
+      MusicPlayer.init();
+      if(!MusicPlayer.stopped && MusicPlayer.audio && (MusicPlayer.audio.paused || !MusicPlayer.audio.src)){
+        MusicPlayer.play();
+      }
+    }catch(e){}
+  }
+  document.addEventListener('click', startMusic, { once:true });
+  document.addEventListener('touchstart', startMusic, { once:true });
+  document.addEventListener('keydown', startMusic, { once:true });
+})();
 
 // Auto-play on first interaction (if not stopped)
 document.addEventListener('click', function() {

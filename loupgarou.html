@@ -35,7 +35,7 @@ body{
 .daynight-fx.to-night{background:radial-gradient(700px 500px at 20% 20%,rgba(80,100,180,.45),transparent 60%),linear-gradient(180deg,rgba(20,30,60,.55),rgba(5,5,15,.2))}
 /* Role flip 3D */
 .reveal-card{perspective:1200px}
-.reveal-flip{position:relative;width:100%;min-height:300px;transform-style:preserve-3d;
+.reveal-flip{position:relative;width:100%;min-height:340px;transform-style:preserve-3d;
   transition:transform .9s cubic-bezier(.2,.8,.2,1);will-change:transform}
 .reveal-flip.flipped{transform:rotateY(180deg)}
 .reveal-flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
@@ -463,33 +463,61 @@ const LG = {
   renderDistribute(){
     const idx = G.distributeIdx;
     const p = G.players[idx];
-    document.getElementById('lg-dist-sub').textContent = `Joueur ${idx+1} / ${G.players.length}`;
-    const area = document.getElementById('lg-dist-area');
-    // hidden state: passe le téléphone
-    area.innerHTML = `
-      <div class="reveal-card hidden-role" onclick="LG.showRoleReveal()">
-        <div class="emoji">📱</div>
-        <div class="rname">${p.name}</div>
-        <div class="rdesc">Prends le téléphone. Seul toi doit voir ton rôle.</div>
-        <div class="tap-hint">Appuie pour voir</div>
-      </div>`;
-  },
-  showRoleReveal(){
-    const p = G.players[G.distributeIdx];
     const r = ROLES[p.role];
+    document.getElementById('lg-dist-sub').textContent = `Joueur ${idx+1} / ${G.players.length}`;
     const area = document.getElementById('lg-dist-area');
     let extra = '';
     if(p.role==='mercenaire' && G.mercenaireTarget!=null){
       extra = `<div class="rdesc" style="color:#ff6a8a;font-weight:700">🎯 Cible : ${G.players[G.mercenaireTarget].name}</div>`;
     }
+    // Flip card: front (dos LELOX) → back (rôle révélé)
     area.innerHTML = `
-      <div class="reveal-card">
-        <div class="emoji">${r.emoji}</div>
-        <div class="rname">${r.name}</div>
-        <div class="rdesc">${r.desc}</div>
-        ${extra}
-        <button class="btn" style="margin-top:20px;max-width:280px" onclick="LG.hideRoleConfirm()">✓ J'ai vu, masquer</button>
+      <div class="reveal-card" style="padding:0;background:transparent;border:none">
+        <div class="reveal-flip" id="lg-flip">
+          <div class="face front" onclick="LG.showRoleReveal()">
+            <div class="emoji" style="font-size:72px">🐺</div>
+            <div class="rname" style="background:linear-gradient(90deg,#6cb1ff,#a88dff,#3a8dff);-webkit-background-clip:text;background-clip:text;color:transparent">LELOX</div>
+            <div class="rdesc">${p.name}, prends le téléphone.<br/>Seul toi dois voir ton rôle.</div>
+            <div class="tap-hint">Appuie pour révéler</div>
+          </div>
+          <div class="face back">
+            <div class="emoji">${r.emoji}</div>
+            <div class="rname">${r.name}</div>
+            <div class="rdesc">${r.desc}</div>
+            ${extra}
+            <button class="btn" style="margin-top:20px;max-width:280px" onclick="LG.hideRoleConfirm()">✓ J'ai vu, masquer</button>
+          </div>
+        </div>
       </div>`;
+  },
+  playWhoosh(){
+    try{
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      const ctx = LG._audioCtx || (LG._audioCtx = new Ctx());
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(420, now);
+      osc.frequency.exponentialRampToValueAtTime(90, now + 0.55);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.18, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+      const filt = ctx.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(1800, now);
+      filt.frequency.exponentialRampToValueAtTime(400, now + 0.6);
+      osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+      osc.start(now); osc.stop(now + 0.65);
+    }catch(e){}
+  },
+  showRoleReveal(){
+    const flip = document.getElementById('lg-flip');
+    if(flip && !flip.classList.contains('flipped')){
+      flip.classList.add('flipped');
+      LG.playWhoosh();
+    }
   },
   hideRoleConfirm(){
     G.distributeIdx++;

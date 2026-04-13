@@ -1957,6 +1957,31 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
   background: var(--bg-card-hover);
 }
 
+.sfx-theme-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.sfx-theme-buttons button {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-glass);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+.sfx-theme-buttons button:hover:not(.active) {
+  background: var(--bg-card-hover);
+}
+.sfx-theme-buttons button.active {
+  background: var(--accent-gold);
+  color: white;
+  border-color: var(--accent-gold);
+}
+
 .btn-start-game {
   margin-top: 16px;
   margin-bottom: 32px;
@@ -3081,6 +3106,15 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
         <label class="settings-label">Mode Aveugle (noms cachés)</label>
         <button class="btn btn-ghost" id="blind-toggle" onclick="toggleBlindMode()">Désactivé</button>
       </div>
+      <div class="settings-group" style="margin-top:12px;">
+        <label class="settings-label">🎵 Thème sonore</label>
+        <div class="sfx-theme-buttons">
+          <button type="button" data-theme="arcade">Arcade</button>
+          <button type="button" data-theme="anime">Anime</button>
+          <button type="button" data-theme="minimal">Minimal</button>
+          <button type="button" data-theme="casino">Casino</button>
+        </div>
+      </div>
     </div>
 
     <div class="settings-section">
@@ -3793,6 +3827,277 @@ const SoundFX = (() => {
       } catch(e) {}
     }
   };
+})();
+
+// ===== SFX THEMES (Web Audio API, 4 thèmes) =====
+var currentSFXTheme = localStorage.getItem('sfx_theme') || 'anime';
+
+const SFX_THEMES = (function(){
+  function _ctx() {
+    if (!window._sfxThemeCtx) {
+      window._sfxThemeCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (window._sfxThemeCtx.state === 'suspended') window._sfxThemeCtx.resume();
+    return window._sfxThemeCtx;
+  }
+  function _mv(){ return (typeof MusicEngine !== 'undefined' ? MusicEngine.sfxVolume : 0.8); }
+  function _note(type, freq, start, dur, vol, attack){
+    const c = _ctx();
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    const a = attack || 0.01;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(vol * _mv(), start + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(start); osc.stop(start + dur + 0.02);
+    return { osc, g };
+  }
+  function _noiseBuffer(dur){
+    const c = _ctx();
+    const buf = c.createBuffer(1, Math.max(1, Math.floor(c.sampleRate * dur)), c.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+
+  const arcade = {
+    reveal(){
+      const c = _ctx(), t = c.currentTime;
+      [523, 659, 784, 1047].forEach((f, i) => _note('square', f, t + i * 0.07, 0.15, 0.14));
+    },
+    vote(){
+      const c = _ctx(), t = c.currentTime;
+      _note('square', 1000, t, 0.06, 0.16);
+    },
+    eliminate(){
+      const c = _ctx(), t = c.currentTime;
+      const osc = c.createOscillator(), g = c.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, t);
+      osc.frequency.exponentialRampToValueAtTime(220, t + 0.5);
+      osc.frequency.exponentialRampToValueAtTime(110, t + 1.0);
+      g.gain.setValueAtTime(0.18 * _mv(), t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+      osc.connect(g); g.connect(c.destination);
+      osc.start(t); osc.stop(t + 1.02);
+    },
+    victory(){
+      const c = _ctx(), t = c.currentTime;
+      [523, 659, 784, 1047].forEach((f, i) => _note('square', f, t + i * 0.12, 0.2, 0.16));
+    },
+    levelUp(){
+      const c = _ctx(), t = c.currentTime;
+      const osc = c.createOscillator(), g = c.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, t);
+      osc.frequency.exponentialRampToValueAtTime(880, t + 0.15);
+      osc.frequency.exponentialRampToValueAtTime(1320, t + 0.3);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.16 * _mv(), t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+      osc.connect(g); g.connect(c.destination);
+      osc.start(t); osc.stop(t + 0.32);
+    }
+  };
+
+  const anime = {
+    reveal(){
+      const c = _ctx(), t = c.currentTime;
+      const delay = c.createDelay(); delay.delayTime.value = 0.18;
+      const fb = c.createGain(); fb.gain.value = 0.25;
+      const wet = c.createGain(); wet.gain.value = 0.25 * _mv();
+      delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(c.destination);
+      [329, 415, 523, 659].forEach((f, i) => {
+        const start = t + i * 0.15;
+        const osc = c.createOscillator(), g = c.createGain();
+        osc.type = 'sine'; osc.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.linearRampToValueAtTime(0.14 * _mv(), start + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+        osc.connect(g); g.connect(c.destination); g.connect(delay);
+        osc.start(start); osc.stop(start + 0.38);
+      });
+    },
+    vote(){
+      const c = _ctx(), t = c.currentTime;
+      const src = c.createBufferSource(); src.buffer = _noiseBuffer(0.25);
+      const hp = c.createBiquadFilter(); hp.type = 'highpass';
+      hp.frequency.setValueAtTime(200, t);
+      hp.frequency.exponentialRampToValueAtTime(2000, t + 0.2);
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.18 * _mv(), t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      src.connect(hp); hp.connect(g); g.connect(c.destination);
+      src.start(t); src.stop(t + 0.25);
+    },
+    eliminate(){
+      const c = _ctx(), t = c.currentTime;
+      const delay = c.createDelay(); delay.delayTime.value = 0.3;
+      const fb = c.createGain(); fb.gain.value = 0.45;
+      const wet = c.createGain(); wet.gain.value = 0.4 * _mv();
+      delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(c.destination);
+      const osc = c.createOscillator(), g = c.createGain();
+      osc.type = 'sine'; osc.frequency.value = 110;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.22 * _mv(), t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+      osc.connect(g); g.connect(c.destination); g.connect(delay);
+      osc.start(t); osc.stop(t + 1.22);
+    },
+    victory(){
+      const c = _ctx(), t = c.currentTime;
+      const delay = c.createDelay(); delay.delayTime.value = 0.22;
+      const fb = c.createGain(); fb.gain.value = 0.35;
+      const wet = c.createGain(); wet.gain.value = 0.3 * _mv();
+      delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(c.destination);
+      [523, 659, 784, 1047].forEach((f, i) => {
+        const start = t + i * 0.18;
+        const osc = c.createOscillator(), g = c.createGain();
+        osc.type = 'triangle'; osc.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.linearRampToValueAtTime(0.18 * _mv(), start + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+        osc.connect(g); g.connect(c.destination); g.connect(delay);
+        osc.start(start); osc.stop(start + 0.52);
+      });
+    },
+    levelUp(){
+      const c = _ctx(), t = c.currentTime;
+      const osc = c.createOscillator(), g = c.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(220, t);
+      osc.frequency.exponentialRampToValueAtTime(880, t + 0.6);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.2 * _mv(), t + 0.5);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.62);
+      osc.connect(g); g.connect(c.destination);
+      osc.start(t); osc.stop(t + 0.64);
+    }
+  };
+
+  const minimal = {
+    reveal(){
+      const c = _ctx(), t = c.currentTime;
+      _note('sine', 1600, t, 0.25, 0.14, 0.005);
+      _note('sine', 3200, t, 0.25, 0.06, 0.005);
+    },
+    vote(){
+      const c = _ctx(), t = c.currentTime;
+      _note('sine', 2000, t, 0.03, 0.14);
+    },
+    eliminate(){
+      const c = _ctx(), t = c.currentTime;
+      const osc = c.createOscillator(), g = c.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200, t);
+      osc.frequency.exponentialRampToValueAtTime(80, t + 0.8);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.18 * _mv(), t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+      osc.connect(g); g.connect(c.destination);
+      osc.start(t); osc.stop(t + 0.82);
+    },
+    victory(){
+      const c = _ctx(), t = c.currentTime;
+      [784, 1047].forEach((f, i) => _note('sine', f, t + i * 0.2, 0.4, 0.16, 0.02));
+    },
+    levelUp(){
+      const c = _ctx(), t = c.currentTime;
+      _note('triangle', 880, t, 0.12, 0.16);
+      _note('triangle', 1320, t + 0.1, 0.15, 0.16);
+    }
+  };
+
+  const casino = {
+    reveal(){
+      const c = _ctx(), t = c.currentTime;
+      // Rolling filtered noise sweep
+      const src = c.createBufferSource(); src.buffer = _noiseBuffer(0.4);
+      const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 8;
+      bp.frequency.setValueAtTime(200, t);
+      bp.frequency.exponentialRampToValueAtTime(1500, t + 0.35);
+      const g1 = c.createGain();
+      g1.gain.setValueAtTime(0.22 * _mv(), t);
+      g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+      src.connect(bp); bp.connect(g1); g1.connect(c.destination);
+      src.start(t); src.stop(t + 0.42);
+      // Cymbal crash
+      const src2 = c.createBufferSource(); src2.buffer = _noiseBuffer(0.4);
+      const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 4000;
+      const g2 = c.createGain();
+      g2.gain.setValueAtTime(0.0001, t + 0.3);
+      g2.gain.linearRampToValueAtTime(0.18 * _mv(), t + 0.31);
+      g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+      src2.connect(hp); hp.connect(g2); g2.connect(c.destination);
+      src2.start(t + 0.3); src2.stop(t + 0.72);
+    },
+    vote(){
+      const c = _ctx(), t = c.currentTime;
+      [800, 900, 1000].forEach((f, i) => _note('sawtooth', f, t + i * 0.05, 0.06, 0.14));
+    },
+    eliminate(){
+      const c = _ctx(), t = c.currentTime;
+      const bends = [[440, 330], [330, 247], [247, 165]];
+      [440, 330, 220].forEach((f, i) => {
+        const start = t + i * 0.15;
+        const osc = c.createOscillator(), g = c.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(bends[i][0], start);
+        osc.frequency.exponentialRampToValueAtTime(bends[i][1], start + 0.25);
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.linearRampToValueAtTime(0.16 * _mv(), start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + 0.28);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(start); osc.stop(start + 0.3);
+      });
+    },
+    victory(){
+      const c = _ctx(), t = c.currentTime;
+      [523, 659, 784, 1047, 1319].forEach((f, i) => _note('sawtooth', f, t + i * 0.08, 0.18, 0.14));
+      // Coins noise burst
+      const src = c.createBufferSource(); src.buffer = _noiseBuffer(0.5);
+      const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3000;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.12 * _mv(), t + 0.4);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+      src.connect(hp); hp.connect(g); g.connect(c.destination);
+      src.start(t + 0.4); src.stop(t + 0.92);
+    },
+    levelUp(){
+      const c = _ctx(), t = c.currentTime;
+      [523, 659, 784].forEach((f, i) => {
+        const start = t + i * 0.1;
+        const osc = c.createOscillator(), g = c.createGain();
+        const lfo = c.createOscillator(), lfoGain = c.createGain();
+        osc.type = 'square'; osc.frequency.value = f;
+        lfo.frequency.value = 8; lfoGain.gain.value = 12;
+        lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.linearRampToValueAtTime(0.14 * _mv(), start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
+        osc.connect(g); g.connect(c.destination);
+        lfo.start(start); lfo.stop(start + 0.24);
+        osc.start(start); osc.stop(start + 0.24);
+      });
+    }
+  };
+
+  return { arcade, anime, minimal, casino };
+})();
+
+// Override SoundFX delegates pour respecter le thème choisi
+(function(){
+  ['reveal','vote','eliminate','victory','levelUp'].forEach(function(name){
+    SoundFX[name] = function(){
+      try {
+        var theme = SFX_THEMES[currentSFXTheme] || SFX_THEMES.anime;
+        if (theme && typeof theme[name] === 'function') theme[name]();
+      } catch(e) {}
+    };
+  });
 })();
 
 
@@ -10040,8 +10345,29 @@ showScreen = function(id) {
       var show = ["normal","shonen","seinen","anime_classic","anime_gold","tout_melanger"].indexOf(mode) >= 0;
       filter.parentElement.style.display = show ? "" : "none";
     }
+    try { initSFXThemeUI(); } catch(e) {}
   }
 };
+
+// ===== SFX Theme selector UI =====
+function initSFXThemeUI(){
+  document.querySelectorAll('.sfx-theme-buttons button').forEach(function(b){
+    b.classList.toggle('active', b.dataset.theme === currentSFXTheme);
+  });
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.sfx-theme-buttons button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      currentSFXTheme = btn.dataset.theme;
+      localStorage.setItem('sfx_theme', currentSFXTheme);
+      document.querySelectorAll('.sfx-theme-buttons button').forEach(function(b){
+        b.classList.toggle('active', b === btn);
+      });
+      try { SoundFX.reveal(); } catch(e) {}
+    });
+  });
+  try { initSFXThemeUI(); } catch(e) {}
+});
 
 </script>
 

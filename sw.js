@@ -1,4 +1,4 @@
-const CACHE = 'uc-lelox-v22';
+const CACHE = 'uc-lelox-v23';
 const ASSETS = [
   './',
   'index.html',

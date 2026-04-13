@@ -19,7 +19,29 @@ body{
 .moon{position:fixed;top:30px;right:30px;width:70px;height:70px;border-radius:50%;
   background:radial-gradient(circle at 30% 30%,#fff,#cfd6ff 40%,#8b95d0);
   box-shadow:0 0 40px rgba(200,210,255,.5),0 0 80px rgba(120,140,255,.3);
-  z-index:0;opacity:.7}
+  z-index:0;opacity:0;transform:translateY(120px);
+  animation:moonRise 2.4s cubic-bezier(.2,.7,.2,1) .2s forwards;
+  will-change:transform,opacity}
+@keyframes moonRise{to{opacity:.75;transform:translateY(0)}}
+.lg-stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.lg-stars span{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
+  box-shadow:0 0 6px #fff;opacity:.6;animation:lgTwinkle 2.6s ease-in-out infinite}
+.lg-stars span.b{background:#cfd6ff;box-shadow:0 0 8px #cfd6ff}
+@keyframes lgTwinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+/* Day/Night fade overlay */
+.daynight-fx{position:fixed;inset:0;z-index:9997;pointer-events:none;opacity:0;transition:opacity .9s ease,background .9s ease;background:rgba(5,5,15,0)}
+.daynight-fx.show{opacity:1}
+.daynight-fx.to-day{background:radial-gradient(800px 500px at 80% 10%,rgba(255,210,120,.5),transparent 60%),linear-gradient(180deg,rgba(255,200,140,.25),rgba(255,150,80,.05))}
+.daynight-fx.to-night{background:radial-gradient(700px 500px at 20% 20%,rgba(80,100,180,.45),transparent 60%),linear-gradient(180deg,rgba(20,30,60,.55),rgba(5,5,15,.2))}
+/* Role flip 3D */
+.reveal-card{perspective:1200px}
+.reveal-flip{position:relative;width:100%;min-height:300px;transform-style:preserve-3d;
+  transition:transform .9s cubic-bezier(.2,.8,.2,1);will-change:transform}
+.reveal-flip.flipped{transform:rotateY(180deg)}
+.reveal-flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;padding:20px;border-radius:18px}
+.reveal-flip .back{transform:rotateY(180deg);background:linear-gradient(135deg,rgba(58,141,255,.15),rgba(120,80,255,.15));border:1px solid rgba(108,177,255,.3)}
+.reveal-flip .front{background:linear-gradient(135deg,rgba(10,14,26,.85),rgba(20,22,40,.85));border:1px solid rgba(108,177,255,.25);cursor:pointer}
 .wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:20px 16px}
 .screen{display:none;animation:fadeIn .3s ease}
 .screen.active{display:block}
@@ -126,7 +148,11 @@ pre{background:#05050F;padding:12px;border-radius:8px;margin-top:10px;overflow-x
 </style>
 </head>
 <body>
+<!-- ===== LELOX BACK BUTTON ===== -->
+<a href="index.html" id="lelox-back-btn" style="position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#6cb1ff;text-decoration:none;font-weight:800;letter-spacing:2px;font-size:12px;padding:8px 14px;border-radius:10px;border:1px solid rgba(108,177,255,.4);box-shadow:0 0 16px rgba(58,141,255,.3);text-shadow:0 0 8px rgba(58,141,255,.6);transition:transform .2s,background .2s" onmouseover="this.style.transform='scale(1.05)';this.style.background='rgba(58,141,255,.18)'" onmouseout="this.style.transform='';this.style.background='rgba(0,0,0,.65)'">← LELOX</a>
+<div class="lg-stars" id="lg-stars"></div>
 <div class="moon"></div>
+<div class="daynight-fx" id="lg-daynight-fx"></div>
 <div class="wrap">
 
 <!-- ============ HOME ============ -->
@@ -237,6 +263,60 @@ ALTER PUBLICATION supabase_realtime ADD TABLE lw_players;</pre>
 // LELOX Loup-Garou — MVP local complet (Multi Supabase: stub)
 // ============================================================
 
+// ---- Étoiles d'ambiance ----
+(function(){
+  var c = document.getElementById('lg-stars'); if(!c) return;
+  var N = window.innerWidth < 600 ? 40 : 80;
+  for(var i=0;i<N;i++){
+    var s = document.createElement('span');
+    if(Math.random() < 0.3) s.className = 'b';
+    s.style.left = Math.random()*100 + '%';
+    s.style.top = Math.random()*70 + '%';
+    s.style.animationDelay = (Math.random()*2.6) + 's';
+    s.style.animationDuration = (1.8 + Math.random()*2.5) + 's';
+    c.appendChild(s);
+  }
+})();
+
+// ---- Ambient drone (Web Audio) : grave la nuit, silence le jour ----
+var LGAmbient = (function(){
+  var ctx=null, osc=null, lfo=null, gain=null, lfoGain=null, started=false;
+  function ensure(){
+    if(ctx) return;
+    try{
+      ctx = new (window.AudioContext||window.webkitAudioContext)();
+      osc = ctx.createOscillator(); osc.type='sine'; osc.frequency.value=55;
+      lfo = ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.18;
+      lfoGain = ctx.createGain(); lfoGain.gain.value=10;
+      gain = ctx.createGain(); gain.gain.value=0;
+      lfo.connect(lfoGain).connect(osc.frequency);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(); lfo.start();
+    }catch(e){}
+  }
+  return {
+    startNight: function(){
+      ensure(); if(!ctx || started) return;
+      try{
+        if(ctx.state==='suspended') ctx.resume();
+        var t = ctx.currentTime;
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.linearRampToValueAtTime(0.05, t+1.6);
+        started = true;
+      }catch(e){}
+    },
+    stopNight: function(){
+      if(!ctx || !started) return;
+      try{
+        var t = ctx.currentTime;
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.linearRampToValueAtTime(0, t+1.0);
+        started = false;
+      }catch(e){}
+    }
+  };
+})();
+
 const ROLES = {
   villageois:  {name:"Villageois",    emoji:"👨‍🌾", team:"village", desc:"Simple habitant. Ton seul pouvoir : voter avec sagesse."},
   voyante:     {name:"Voyante",       emoji:"🔮",  team:"village", desc:"Chaque nuit, tu découvres le rôle d'un joueur."},
@@ -286,9 +366,26 @@ const G = {
 const LG = {
   // Navigation
   show(id){
+    var prevActive = document.querySelector('.screen.active');
+    var prevId = prevActive ? prevActive.id : null;
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     window.scrollTo(0,0);
+    // Day/Night transition fx + ambient drone
+    try{
+      var fx = document.getElementById('lg-daynight-fx');
+      if(id === 'screen-lg-night' && prevId !== 'screen-lg-night'){
+        fx.className = 'daynight-fx to-night show';
+        setTimeout(function(){ fx.classList.remove('show'); }, 1100);
+        LGAmbient.startNight();
+      } else if(id === 'screen-lg-day' && prevId !== 'screen-lg-day'){
+        fx.className = 'daynight-fx to-day show';
+        setTimeout(function(){ fx.classList.remove('show'); }, 1100);
+        LGAmbient.stopNight();
+      } else if(id !== 'screen-lg-night'){
+        LGAmbient.stopNight();
+      }
+    }catch(e){}
   },
   goHome(){ this.show('screen-lg-home'); },
   goSetup(){

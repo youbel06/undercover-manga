@@ -1,4 +1,4 @@
-const CACHE = 'uc-lelox-v23';
+const CACHE = 'uc-lelox-v24';
 const ASSETS = [
   './',
   'index.html',
@@ -6,7 +6,8 @@ const ASSETS = [
   'loupgarou.html',
   'lelox_logo.png',
   'lelox_banner2.png',
-  'lelox_banner3.png'
+  'lelox_banner3.png',
+  'lelox_banner4.jpg'
 ];
 
 self.addEventListener('install', e => {

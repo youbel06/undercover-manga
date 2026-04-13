@@ -3473,6 +3473,17 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 const PAIRS = __PAIRS_DATA_JSON__;
 const PAIRS_BY_MODE = __MODE_INDEX_JSON__;
 
+// Map UI mode ids -> database mode ids (keeps pairs_database stable while UI evolves)
+const MODE_ALIASES = {
+  'series_disney': 'disney',
+  'series_netflix': 'series_tv',
+  'classique_pur': 'casual',
+  'or_anime': 'anime_gold',
+  'classic': 'anime_classic',
+  'series_mix': '__AGGREGATE__' // handled specially below
+};
+const SERIES_MIX_MODES = ['series_tv','disney','cartoons','shonen','seinen','shojo','isekai','anime_classic','anime_gold'];
+
 // ===== IMAGE LOADER (lazy load from images.json) =====
 const ImageLoader = {
   _cache: {},
@@ -3585,14 +3596,43 @@ const SoundFX = (() => {
     },
 
     reveal() {
+      // Arpeggio 261 -> 329 -> 392 Hz over ~0.6s with attack 20ms / release 150ms
       try {
         const c = getCtx();
         const t = c.currentTime;
-        createOsc('sine', 220, t, 1.2, 0.12);
-        createOsc('sine', 330, t + 0.1, 1.0, 0.1);
-        createOsc('sine', 440, t + 0.2, 0.8, 0.08);
-        createOsc('triangle', 550, t + 0.3, 0.7, 0.06);
-        createOsc('sine', 660, t + 0.5, 0.5, 0.05);
+        const notes = [261.63, 329.63, 392.00];
+        const mv = (typeof MusicEngine !== 'undefined' ? MusicEngine.sfxVolume : 0.8);
+        notes.forEach((f, i) => {
+          const start = t + i * 0.18;
+          const osc = c.createOscillator();
+          const g = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          g.gain.setValueAtTime(0.0001, start);
+          g.gain.linearRampToValueAtTime(0.16 * mv, start + 0.02); // attack 20ms
+          g.gain.linearRampToValueAtTime(0.12 * mv, start + 0.08);
+          g.gain.linearRampToValueAtTime(0.0001, start + 0.23);     // release 150ms
+          osc.connect(g); g.connect(c.destination);
+          osc.start(start);
+          osc.stop(start + 0.28);
+        });
+      } catch(e) {}
+    },
+
+    vote() {
+      // Short 800Hz sine blip, 100ms rapid decay
+      try {
+        const c = getCtx();
+        const t = c.currentTime;
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 800;
+        const mv = (typeof MusicEngine !== 'undefined' ? MusicEngine.sfxVolume : 0.8);
+        g.gain.setValueAtTime(0.2 * mv, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(t); osc.stop(t + 0.12);
       } catch(e) {}
     },
 
@@ -3607,25 +3647,122 @@ const SoundFX = (() => {
     },
 
     eliminate() {
+      // Sweep 400 -> 200 Hz over 0.8s with short feedback delay as reverb
       try {
         const c = getCtx();
         const t = c.currentTime;
-        createOsc('sawtooth', 200, t, 0.3, 0.15);
-        createOsc('sawtooth', 150, t + 0.1, 0.3, 0.12);
-        createOsc('square', 100, t + 0.2, 0.5, 0.1);
-        createOsc('sine', 60, t + 0.3, 0.8, 0.12);
+        const mv = (typeof MusicEngine !== 'undefined' ? MusicEngine.sfxVolume : 0.8);
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(400, t);
+        osc.frequency.exponentialRampToValueAtTime(200, t + 0.8);
+        g.gain.setValueAtTime(0.18 * mv, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+        // Feedback delay reverb
+        const delay = c.createDelay();
+        delay.delayTime.value = 0.12;
+        const fb = c.createGain();
+        fb.gain.value = 0.35;
+        const wet = c.createGain();
+        wet.gain.value = 0.35 * mv;
+        osc.connect(g);
+        g.connect(c.destination);
+        g.connect(delay);
+        delay.connect(fb);
+        fb.connect(delay);
+        delay.connect(wet);
+        wet.connect(c.destination);
+        osc.start(t); osc.stop(t + 0.85);
       } catch(e) {}
     },
 
     victory() {
+      // 4 notes C E G C' staggered 150ms, ~1s total
       try {
         const c = getCtx();
         const t = c.currentTime;
-        const notes = [523, 587, 659, 698, 784, 880, 988, 1047];
-        notes.forEach((freq, i) => {
-          createOsc('sine', freq, t + i * 0.12, 0.4, 0.1);
-          createOsc('triangle', freq * 1.5, t + i * 0.12, 0.3, 0.04);
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        const mv = (typeof MusicEngine !== 'undefined' ? MusicEngine.sfxVolume : 0.8);
+        notes.forEach((f, i) => {
+          const start = t + i * 0.15;
+          const osc = c.createOscillator();
+          const g = c.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = f;
+          g.gain.setValueAtTime(0.0001, start);
+          g.gain.linearRampToValueAtTime(0.18 * mv, start + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.001, start + 0.45);
+          osc.connect(g); g.connect(c.destination);
+          osc.start(start); osc.stop(start + 0.5);
         });
+      } catch(e) {}
+    },
+
+    levelUp() {
+      // 440, 554, 659, 880 Hz, 0.8s
+      try {
+        const c = getCtx();
+        const t = c.currentTime;
+        const notes = [440, 554.37, 659.25, 880];
+        const mv = (typeof MusicEngine !== 'undefined' ? MusicEngine.sfxVolume : 0.8);
+        notes.forEach((f, i) => {
+          const start = t + i * 0.18;
+          const osc = c.createOscillator();
+          const g = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          g.gain.setValueAtTime(0.0001, start);
+          g.gain.linearRampToValueAtTime(0.16 * mv, start + 0.03);
+          g.gain.exponentialRampToValueAtTime(0.001, start + 0.22);
+          osc.connect(g); g.connect(c.destination);
+          osc.start(start); osc.stop(start + 0.25);
+        });
+      } catch(e) {}
+    },
+
+    purchase() {
+      // 1200Hz sine, bell envelope, 0.3s
+      try {
+        const c = getCtx();
+        const t = c.currentTime;
+        const mv = (typeof MusicEngine !== 'undefined' ? MusicEngine.sfxVolume : 0.8);
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 1200;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.22 * mv, t + 0.01);   // instant attack
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);   // bell decay
+        osc.connect(g); g.connect(c.destination);
+        osc.start(t); osc.stop(t + 0.32);
+        // Overtone shimmer
+        const o2 = c.createOscillator();
+        const g2 = c.createGain();
+        o2.type = 'sine';
+        o2.frequency.value = 2400;
+        g2.gain.setValueAtTime(0.0001, t);
+        g2.gain.linearRampToValueAtTime(0.08 * mv, t + 0.01);
+        g2.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        o2.connect(g2); g2.connect(c.destination);
+        o2.start(t); o2.stop(t + 0.28);
+      } catch(e) {}
+    },
+
+    timerTick() {
+      // Short 600Hz sine, 50ms. Intended use: play each second when timer < 10s
+      try {
+        const c = getCtx();
+        const t = c.currentTime;
+        const mv = (typeof MusicEngine !== 'undefined' ? MusicEngine.sfxVolume : 0.8);
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 600;
+        g.gain.setValueAtTime(0.15 * mv, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(t); osc.stop(t + 0.06);
       } catch(e) {}
     },
 
@@ -4019,11 +4156,22 @@ function releaseWakeLock() {
 // ===== PAIR SELECTION =====
 
 function getAvailablePairs() {
-    var mode = GameState.currentMode || 'normal';
-    var indices = PAIRS_BY_MODE[mode];
-    if (!indices || indices.length === 0) {
-        console.warn('[PAIRS] Mode inconnu:', mode);
-        indices = PAIRS_BY_MODE['normal'] || [];
+    var uiMode = GameState.currentMode || 'normal';
+    var dbMode = MODE_ALIASES[uiMode] || uiMode;
+    var indices;
+    if (dbMode === '__AGGREGATE__' || uiMode === 'tout_melanger' || uiMode === 'mixte_total') {
+        var seen = {};
+        indices = [];
+        var src = (dbMode === '__AGGREGATE__') ? SERIES_MIX_MODES : Object.keys(PAIRS_BY_MODE);
+        src.forEach(function(m){
+            (PAIRS_BY_MODE[m]||[]).forEach(function(i){ if(!seen[i]){seen[i]=1; indices.push(i);} });
+        });
+    } else {
+        indices = PAIRS_BY_MODE[dbMode];
+        if (!indices || indices.length === 0) {
+            console.warn('[PAIRS] Mode vide:', uiMode, '->', dbMode, '— fallback normal');
+            indices = PAIRS_BY_MODE['normal'] || [];
+        }
     }
     var recent = GameState.recentPairKeys || [];
     var available = indices.map(function(i){return PAIRS[i];})
@@ -4032,7 +4180,7 @@ function getAvailablePairs() {
         GameState.recentPairKeys = [];
         available = indices.map(function(i){return PAIRS[i];});
     }
-    console.log('[PAIRS] mode='+mode+', available='+available.length);
+    console.log('[PAIRS] uiMode='+uiMode+' dbMode='+dbMode+' available='+available.length);
     return available;
 }
 
@@ -4052,11 +4200,12 @@ function selectRandomPair() {
     GameState.recentPairKeys = [];
     localStorage.setItem('uc_recent_pairs', '[]');
     // Retry with mode filter (not universe filter)
-    var mode = GameState.currentMode;
-    if (mode === 'tout_melanger') {
+    var uiMode = GameState.currentMode;
+    var dbMode = (typeof MODE_ALIASES !== 'undefined' && MODE_ALIASES[uiMode]) || uiMode;
+    if (uiMode === 'tout_melanger' || uiMode === 'mixte_total' || dbMode === '__AGGREGATE__') {
       available = PAIRS.slice();
     } else {
-      available = PAIRS.filter(function(p) { return (p.mode || 'normal') === mode; });
+      available = PAIRS.filter(function(p) { return (p.mode || 'normal') === dbMode; });
     }
     if (available.length === 0) available = PAIRS.slice();
   }
@@ -9610,6 +9759,8 @@ var MusicPlayer = {
     {name: "Anime Chill", url: "https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3"},
     {name: "Night Vibes", url: "https://cdn.pixabay.com/audio/2022/02/22/audio_d1718ab41b.mp3"},
     {name: "Sakura Rain", url: "https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3"},
+    {name: "Cozy Rain", url: "https://cdn.pixabay.com/audio/2022/11/22/audio_febc508520.mp3"},
+    {name: "Tokyo Dreams", url: "https://cdn.pixabay.com/audio/2022/08/23/audio_d16737dc28.mp3"},
   ],
   idx: 0,
   vol: 0.3,

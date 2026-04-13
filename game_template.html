@@ -3471,6 +3471,7 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 
 // ===== GAME DATA (replaced by build script) =====
 const PAIRS = __PAIRS_DATA_JSON__;
+const PAIRS_BY_MODE = __MODE_INDEX_JSON__;
 
 // ===== IMAGE LOADER (lazy load from images.json) =====
 const ImageLoader = {
@@ -4018,32 +4019,21 @@ function releaseWakeLock() {
 // ===== PAIR SELECTION =====
 
 function getAvailablePairs() {
-  var mode = GameState.currentMode || 'normal';
-  var recent = GameState.recentPairKeys || [];
-
-  if (mode === 'tout_melanger' || mode === 'mixte_total') {
-    var all = PAIRS.filter(function(p) {
-      return recent.indexOf(pairKey(p)) === -1;
-    });
-    if (all.length < 5) { GameState.recentPairKeys = []; return PAIRS.slice(); }
-    return all;
-  }
-
-  var filtered = PAIRS.filter(function(p) {
-    return (p.mode || 'normal') === mode && recent.indexOf(pairKey(p)) === -1;
-  });
-
-  if (filtered.length < 5) {
-    GameState.recentPairKeys = [];
-    filtered = PAIRS.filter(function(p) { return (p.mode || 'normal') === mode; });
-  }
-
-  if (filtered.length === 0) {
-    console.error('[MODE] No pairs for mode:', mode);
-    return PAIRS.slice();
-  }
-
-  return filtered;
+    var mode = GameState.currentMode || 'normal';
+    var indices = PAIRS_BY_MODE[mode];
+    if (!indices || indices.length === 0) {
+        console.warn('[PAIRS] Mode inconnu:', mode);
+        indices = PAIRS_BY_MODE['normal'] || [];
+    }
+    var recent = GameState.recentPairKeys || [];
+    var available = indices.map(function(i){return PAIRS[i];})
+        .filter(function(p){return recent.indexOf(p.civil+'|'+p.undercover) === -1;});
+    if (available.length < 3) {
+        GameState.recentPairKeys = [];
+        available = indices.map(function(i){return PAIRS[i];});
+    }
+    console.log('[PAIRS] mode='+mode+', available='+available.length);
+    return available;
 }
 
 

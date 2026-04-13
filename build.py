@@ -197,6 +197,20 @@ def main():
     meta_str = json.dumps(pairs_meta, ensure_ascii=False)
     images_str = json.dumps(images_map, ensure_ascii=False)
 
+    # Build static mode index: mode -> [indices into PAIRS]
+    mode_index = {}
+    for i, p in enumerate(pairs_meta):
+        m = p.get("mode") or "normal"
+        mode_index.setdefault(m, []).append(i)
+    # Also add a 'tout_melanger'/'mixte_total' aggregation = all indices
+    all_idx = list(range(len(pairs_meta)))
+    mode_index.setdefault("tout_melanger", []).extend(
+        i for i in all_idx if i not in mode_index.get("tout_melanger", [])
+    )
+    mode_index["mixte_total"] = list(all_idx)
+    mode_index_str = json.dumps(mode_index, ensure_ascii=False)
+    print(f"Mode index: {{ {', '.join(f'{k}:{len(v)}' for k,v in mode_index.items())} }}")
+
     # Count stats
     ok_count = sum(1 for v in char_images.values() if not v.startswith("data:image/svg"))
     ph_count = sum(1 for v in char_images.values() if v.startswith("data:image/svg"))
@@ -215,6 +229,7 @@ def main():
         template = f.read()
 
     output = template.replace("__PAIRS_DATA_JSON__", meta_str)
+    output = output.replace("__MODE_INDEX_JSON__", mode_index_str)
 
     output_path = os.path.join(os.path.dirname(__file__), "index.html")
     with open(output_path, "w", encoding="utf-8") as f:

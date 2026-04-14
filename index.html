@@ -206,6 +206,11 @@ body::after{
 }
 .card.red .card-particles span{background:#ff3860;box-shadow:0 0 8px #ff3860}
 .card.blue .card-particles span{background:#3a8dff;box-shadow:0 0 8px #3a8dff}
+.card.menteur-card .card-particles span{background:#9B59FF;box-shadow:0 0 8px #9B59FF}
+.card.menteur-card{background:linear-gradient(145deg,rgba(20,5,40,.6),rgba(40,10,60,.4));border-color:rgba(155,89,255,.3)}
+.card.menteur-card:hover{box-shadow:0 20px 60px rgba(155,89,255,0.4),0 0 0 1px rgba(155,89,255,0.4)}
+.card.menteur-card h3{background:linear-gradient(90deg,#9B59FF,#FF6B9D);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.card.menteur-card .play{color:#FF6B9D}
 @keyframes cardP{0%{transform:translateY(120%) scale(.5);opacity:0}20%{opacity:1}100%{transform:translateY(-30%) scale(1);opacity:0}}
 .card-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .card-stars span{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff;animation:twinkle 2s ease-in-out infinite}
@@ -533,6 +538,19 @@ html[data-mode="mobile"] .hero-overlay{
           <li>5 à 20 joueurs</li>
           <li>Phases jour/nuit animées</li>
           <li>Mode local (multi bientôt)</li>
+        </ul>
+        <span class="play">Jouer →</span>
+      </a>
+      <a href="fibbage.html" class="card menteur-card game-card" data-href="fibbage.html" style="--card-accent:#9B59FF;--card-accent2:#FF6B9D">
+        <div class="card-particles" data-color="purple"></div>
+        <div class="card-badge" style="background:rgba(155,89,255,0.2);color:#c084fc;border:1px solid rgba(155,89,255,0.4)">🎭 Nouveau</div>
+        <h3>Menteur</h3>
+        <p>Bluff, tromperie et fous rires. Invente une fausse réponse et trompe tes amis. Qui sera le meilleur menteur ?</p>
+        <ul>
+          <li>150 questions, 6 catégories</li>
+          <li>2 à 8 joueurs</li>
+          <li>Mode local & multijoueur</li>
+          <li>Présence temps réel + QR</li>
         </ul>
         <span class="play">Jouer →</span>
       </a>

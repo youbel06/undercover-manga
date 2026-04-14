@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05050F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LELOX">
+<link rel="manifest" href="manifest.json">
+<title>LELOX — Menteur</title>
+<link rel="icon" href="lelox_logo.png">
+<script>
+(function(){try{
+  var saved=localStorage.getItem('lelox_display_mode');
+  var isM=window.innerWidth<768||/iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+  document.documentElement.setAttribute('data-mode', saved||(isM?'mobile':'desktop'));
+  var th=localStorage.getItem('lelox_theme');
+  if(th && ['ocean','purple','mono'].indexOf(th)>=0) document.documentElement.setAttribute('data-theme', th);
+}catch(e){}})();
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --accent:#9B59FF; --accent2:#FF6B9D; --bg:#05050F; --card:#0D0D1F; --text:#fff;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh;overflow-x:hidden}
+body{
+  background:
+    radial-gradient(900px 600px at 20% 15%, rgba(155,89,255,.22), transparent 60%),
+    radial-gradient(800px 600px at 80% 85%, rgba(255,107,157,.18), transparent 60%),
+    linear-gradient(180deg,#05050F 0%, #0a0518 100%);
+  position:relative; padding-bottom:60px;
+}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 1px,transparent 1px,transparent 3px);opacity:.35;mix-blend-mode:overlay}
+
+/* Particules fond */
+.fb-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.fb-particle{position:absolute;width:4px;height:4px;border-radius:50%;opacity:.55;animation:fbFloat 16s linear infinite;will-change:transform,opacity}
+.fb-particle.purple{background:#9B59FF;box-shadow:0 0 12px #9B59FF}
+.fb-particle.pink{background:#FF6B9D;box-shadow:0 0 12px #FF6B9D}
+.fb-particle.white{background:#fff;box-shadow:0 0 8px #fff;width:2px;height:2px}
+@keyframes fbFloat{
+  0%{transform:translateY(110vh) translateX(0) scale(.8);opacity:0}
+  10%{opacity:.6}
+  90%{opacity:.5}
+  100%{transform:translateY(-10vh) translateX(40px) scale(1.1);opacity:0}
+}
+
+/* Navbar LELOX */
+.fb-nav{position:fixed;top:0;left:0;right:0;height:calc(48px + var(--safe-t));padding-top:var(--safe-t);z-index:9999;display:flex;align-items:center;justify-content:space-between;padding-left:14px;padding-right:14px;background:rgba(5,5,15,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(155,89,255,.25);box-shadow:0 2px 16px rgba(0,0,0,.4)}
+.fb-nav a.nv-back{display:inline-flex;align-items:center;gap:6px;color:#c084fc;text-decoration:none;font-weight:800;letter-spacing:2px;font-size:12px;padding:6px 10px;border-radius:8px;text-shadow:0 0 8px rgba(155,89,255,.55);transition:background .2s}
+.fb-nav a.nv-back:hover{background:rgba(155,89,255,.15)}
+.fb-nav .nv-title{font-weight:900;letter-spacing:5px;font-size:14px;color:#fff;text-transform:uppercase;text-shadow:0 0 12px rgba(155,89,255,.6)}
+.fb-nav .nv-rules{background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;padding:6px 10px;border-radius:8px}
+.fb-nav .nv-rules:hover{background:rgba(255,255,255,.08)}
+
+/* Wrap */
+.wrap{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:80px 16px 30px}
+.screen{display:none;animation:fbFade .3s ease}
+.screen.active{display:block}
+@keyframes fbFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Titres */
+h1.fb-title{font-size:clamp(40px,9vw,72px);font-weight:900;letter-spacing:6px;text-align:center;margin:14px 0 4px;background:linear-gradient(90deg,#9B59FF,#FF6B9D,#9B59FF);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:fbTitleShine 4s ease-in-out infinite;text-shadow:0 0 30px rgba(155,89,255,.3)}
+@keyframes fbTitleShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+h2.fb-h{font-size:24px;font-weight:800;text-align:center;margin:14px 0 12px;color:#c084fc;letter-spacing:2px}
+h3.fb-h{font-size:18px;font-weight:700;color:#e9d5ff;margin:14px 0 8px}
+.sub{text-align:center;color:#9ec4ff;letter-spacing:2px;text-transform:uppercase;font-size:12px;margin-bottom:24px}
+
+.card{background:linear-gradient(145deg,rgba(20,15,40,.85),rgba(13,13,31,.85));border:1px solid rgba(155,89,255,.25);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+
+/* Boutons */
+.btn{display:block;width:100%;padding:16px 20px;margin:10px 0;border:none;border-radius:14px;font-size:15px;font-weight:800;letter-spacing:2px;cursor:pointer;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#9B59FF,#6B3FCC);box-shadow:0 8px 24px rgba(155,89,255,.4);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(155,89,255,.55)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.ghost{background:transparent;border:1px solid rgba(155,89,255,.4);color:#c084fc;box-shadow:none}
+.btn.ghost:hover{background:rgba(155,89,255,.12);box-shadow:none}
+.btn.pink{background:linear-gradient(135deg,#FF6B9D,#cc5079);box-shadow:0 8px 24px rgba(255,107,157,.4)}
+.btn.small{padding:10px 14px;font-size:12px;letter-spacing:1px}
+.back{display:inline-block;color:#c084fc;text-decoration:none;font-size:13px;letter-spacing:1px;padding:8px 0;font-weight:700}
+.back:hover{color:#fff}
+
+/* Inputs */
+.fb-input{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(155,89,255,.35);background:rgba(10,5,24,.6);color:#fff;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s}
+.fb-input:focus{border-color:#9B59FF;box-shadow:0 0 0 3px rgba(155,89,255,.18)}
+.fb-input.code{text-align:center;letter-spacing:8px;font-weight:900;text-transform:uppercase;font-size:22px}
+.fb-textarea{width:100%;min-height:90px;padding:14px;border-radius:12px;border:1px solid rgba(155,89,255,.35);background:rgba(10,5,24,.6);color:#fff;font-size:16px;outline:none;resize:vertical;font-family:inherit;line-height:1.4}
+.fb-textarea:focus{border-color:#9B59FF;box-shadow:0 0 0 3px rgba(155,89,255,.18)}
+.char-count{font-size:11px;color:#9ec4ff;text-align:right;margin-top:4px;letter-spacing:.5px}
+
+/* Avatars grid */
+.fb-avatars{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+.fb-avatar{font-size:28px;padding:10px;border-radius:12px;border:2px solid rgba(155,89,255,.15);background:rgba(10,5,24,.5);cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+.fb-avatar:hover{transform:scale(1.08)}
+.fb-avatar.sel{border-color:#9B59FF;background:rgba(155,89,255,.22);box-shadow:0 0 14px rgba(155,89,255,.4)}
+
+/* Player rows */
+.fb-player-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(155,89,255,.06);border:1px solid rgba(155,89,255,.18);margin:6px 0;animation:fbSlideIn .35s ease}
+@keyframes fbSlideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+.fb-ava{font-size:26px}
+.fb-nm{flex:1;font-weight:700;color:#fff}
+.fb-badge{background:linear-gradient(135deg,#ffb347,#ff7e5f);color:#1a0f00;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.fb-badge.deco{background:linear-gradient(135deg,#ff3860,#7a1220);color:#fff}
+.fb-badge.score{background:linear-gradient(135deg,#9B59FF,#6B3FCC);color:#fff}
+.fb-player-row.deco{opacity:.55;border-color:rgba(255,56,96,.3)}
+.fb-player-row.deco .fb-ava{filter:grayscale(1)}
+.fb-player-row.done{border-color:rgba(76,175,80,.4);background:rgba(76,175,80,.06)}
+.fb-player-row.done::after{content:"✓";color:#4CAF50;font-weight:900;margin-left:6px}
+
+/* Question display */
+.fb-question{font-size:clamp(20px,4vw,28px);font-weight:800;line-height:1.4;text-align:center;padding:18px;border-radius:14px;background:linear-gradient(135deg,rgba(155,89,255,.18),rgba(255,107,157,.12));border:1px solid rgba(155,89,255,.3);margin:14px 0;text-shadow:0 0 16px rgba(155,89,255,.3)}
+.fb-cat{display:inline-block;padding:4px 10px;border-radius:20px;background:rgba(155,89,255,.18);font-size:11px;font-weight:700;letter-spacing:1px;color:#c084fc;margin-bottom:8px;text-transform:uppercase}
+
+/* Vote answer cards */
+.fb-answer-grid{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.fb-answer{padding:14px 16px;border-radius:14px;border:2px solid rgba(155,89,255,.2);background:rgba(13,13,31,.7);cursor:pointer;transition:all .18s;font-weight:600;font-size:15px;line-height:1.4;text-align:left;color:#fff;position:relative}
+.fb-answer:hover:not(.disabled):not(.sel){border-color:#9B59FF;transform:translateY(-2px);background:rgba(155,89,255,.15)}
+.fb-answer.sel{border-color:#FF6B9D;background:rgba(255,107,157,.15);box-shadow:0 0 18px rgba(255,107,157,.35)}
+.fb-answer.disabled{opacity:.45;cursor:not-allowed}
+.fb-answer.true{border-color:#4CAF50;background:rgba(76,175,80,.18);box-shadow:0 0 18px rgba(76,175,80,.4)}
+.fb-answer.fake{border-color:rgba(255,107,157,.4)}
+.fb-answer-meta{display:block;font-size:11px;color:#9ec4ff;margin-top:6px;font-weight:500;letter-spacing:.5px}
+
+/* Timer SVG */
+.fb-timer{display:flex;justify-content:center;margin:6px 0 12px}
+
+/* Wait state */
+.fb-wait{text-align:center;padding:36px 20px;color:#c084fc;font-style:italic;font-size:15px;animation:fbPulse 2s ease-in-out infinite}
+@keyframes fbPulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+/* Score chart */
+.fb-scores{display:flex;flex-direction:column;gap:10px}
+.fb-score-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(155,89,255,.08);border:1px solid rgba(155,89,255,.18);transition:transform .25s}
+.fb-score-row.podium-1{background:linear-gradient(135deg,rgba(255,215,0,.22),rgba(255,107,157,.12));border-color:rgba(255,215,0,.45)}
+.fb-score-row.podium-2{background:rgba(192,192,192,.12);border-color:rgba(192,192,192,.4)}
+.fb-score-row.podium-3{background:rgba(205,127,50,.12);border-color:rgba(205,127,50,.4)}
+.fb-score-row .pos{font-size:18px;font-weight:900;width:30px;color:#c084fc}
+.fb-score-row .pos.gold{color:#FFD700}
+.fb-score-row .pos.silver{color:#C0C0C0}
+.fb-score-row .pos.bronze{color:#CD7F32}
+.fb-score-row .ava{font-size:24px}
+.fb-score-row .nm{flex:1;font-weight:700}
+.fb-score-row .pts{font-weight:900;color:#FF6B9D;font-size:18px}
+.fb-score-row .delta{font-size:11px;color:#4CAF50;margin-left:4px}
+
+/* Modal */
+.fb-modal{position:fixed;inset:0;z-index:10000;background:rgba(5,5,15,.9);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.fb-modal.open{display:flex}
+.fb-modal-inner{background:linear-gradient(180deg,rgba(20,15,40,.98),rgba(10,5,24,.98));border:1px solid rgba(155,89,255,.4);border-radius:18px;max-width:560px;width:100%;padding:26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.fb-modal-inner h2{margin-top:0;color:#c084fc}
+.fb-modal-inner h4{color:#9ec4ff;margin:14px 0 6px;letter-spacing:1px}
+.fb-modal-inner p,.fb-modal-inner ul,.fb-modal-inner li{color:#e9d5ff;line-height:1.6}
+.fb-modal-inner ul{padding-left:20px}
+.fb-modal-close{position:absolute;top:10px;right:14px;background:none;border:0;color:#c8d4f0;font-size:28px;cursor:pointer;line-height:1}
+
+/* QR */
+#fb-qr-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:10px}
+#fb-qr-wrap img{border-radius:12px;background:#05050F;padding:8px;box-shadow:0 0 24px rgba(155,89,255,.25)}
+
+/* Confetti */
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* Toast */
+.fb-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(30,15,60,.96);color:#fff;padding:12px 22px;border-radius:14px;z-index:10001;box-shadow:0 6px 24px rgba(0,0,0,.55);font-weight:700;border:1px solid rgba(155,89,255,.45);max-width:90vw;animation:fbToastIn .3s ease}
+@keyframes fbToastIn{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+
+/* Local mode pass-phone overlay */
+.fb-pass{text-align:center;padding:40px 20px}
+.fb-pass-name{font-size:clamp(28px,8vw,48px);font-weight:900;letter-spacing:4px;margin:14px 0;background:linear-gradient(135deg,#9B59FF,#FF6B9D);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.fb-pass-instr{font-size:14px;color:#c084fc;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<nav class="fb-nav">
+  <a href="index.html" class="nv-back">&larr; LELOX</a>
+  <div class="nv-title">🤥 Menteur</div>
+  <button class="nv-rules" onclick="FB.openRules()" aria-label="Règles">📖</button>
+</nav>
+
+<div class="fb-particles" id="fb-particles"></div>
+
+<div class="wrap">
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <h1 class="fb-title">MENTEUR</h1>
+  <div class="sub">Bluff, tromperie et fous rires</div>
+  <div class="card">
+    <button class="btn" onclick="FB.goMpHub()">🌐 Jouer en ligne</button>
+    <button class="btn pink" onclick="FB.goLocalSetup()">📱 Jouer en local</button>
+    <button class="btn ghost" onclick="FB.openRules()">📖 Règles du jeu</button>
+  </div>
+</div>
+
+<!-- MP HUB -->
+<div id="screen-mp-hub" class="screen">
+  <a href="#" onclick="FB.show('screen-home');return false" class="back">← Accueil</a>
+  <h2 class="fb-h">🌐 Multijoueur en ligne</h2>
+  <div class="card">
+    <p style="text-align:center;color:#c084fc;margin-bottom:12px">Chaque joueur sur son téléphone.<br>2 à 8 joueurs.</p>
+    <button class="btn" onclick="FB.openCreate()">Créer une partie</button>
+    <button class="btn ghost" onclick="FB.openJoin()">Rejoindre une partie</button>
+  </div>
+</div>
+
+<!-- MP CREATE -->
+<div id="screen-mp-create" class="screen">
+  <a href="#" onclick="FB.goMpHub();return false" class="back">← Retour</a>
+  <h2 class="fb-h">Créer une partie</h2>
+  <div class="card">
+    <label style="font-size:13px;color:#c084fc">Pseudo</label>
+    <input id="fb-create-pseudo" maxlength="16" placeholder="Ton pseudo" class="fb-input">
+    <label style="margin-top:14px;display:block;font-size:13px;color:#c084fc">Avatar <span id="fb-create-avatar-sel" style="margin-left:6px;font-size:22px"></span></label>
+    <div class="fb-avatars" id="fb-create-avatars"></div>
+    <button class="btn" onclick="FB.createRoom()" style="margin-top:14px">CRÉER LA PARTIE</button>
+  </div>
+</div>
+
+<!-- MP JOIN -->
+<div id="screen-mp-join" class="screen">
+  <a href="#" onclick="FB.goMpHub();return false" class="back">← Retour</a>
+  <h2 class="fb-h">Rejoindre une partie</h2>
+  <div class="card">
+    <label style="font-size:13px;color:#c084fc">Code de la salle</label>
+    <input id="fb-join-code" maxlength="6" placeholder="ABCDEF" class="fb-input code" oninput="this.value=this.value.toUpperCase()">
+    <label style="margin-top:14px;display:block;font-size:13px;color:#c084fc">Pseudo</label>
+    <input id="fb-join-pseudo" maxlength="16" placeholder="Ton pseudo" class="fb-input">
+    <label style="margin-top:14px;display:block;font-size:13px;color:#c084fc">Avatar <span id="fb-join-avatar-sel" style="margin-left:6px;font-size:22px"></span></label>
+    <div class="fb-avatars" id="fb-join-avatars"></div>
+    <button class="btn" onclick="FB.joinRoom()" style="margin-top:14px">REJOINDRE</button>
+  </div>
+</div>
+
+<!-- MP LOBBY -->
+<div id="screen-mp-lobby" class="screen">
+  <h2 class="fb-h">Salle d'attente</h2>
+  <div class="card">
+    <div style="text-align:center">
+      <div style="font-size:11px;color:#9ec4ff;letter-spacing:3px">CODE DE LA SALLE</div>
+      <div style="font-size:36px;font-weight:900;letter-spacing:8px;margin:6px 0;background:linear-gradient(90deg,#9B59FF,#FF6B9D);-webkit-background-clip:text;background-clip:text;color:transparent" id="fb-lobby-code">------</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px">
+        <button class="btn ghost small" onclick="FB.copyCode()" style="width:auto;margin:0">📋 Code</button>
+        <button class="btn ghost small" onclick="FB.copyLink()" style="width:auto;margin:0">🔗 Lien</button>
+      </div>
+      <div id="fb-qr-wrap"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 class="fb-h">Joueurs (<span id="fb-lobby-count">0</span>)</h3>
+    <div id="fb-lobby-players"></div>
+  </div>
+  <button class="btn" id="fb-start-btn" onclick="FB.startGame()" disabled>LANCER LA PARTIE</button>
+  <button class="btn ghost" onclick="FB.leaveLobby()">QUITTER</button>
+</div>
+
+<!-- WRITING (saisir fausse réponse) -->
+<div id="screen-writing" class="screen">
+  <div class="card">
+    <div style="text-align:center"><span class="fb-cat" id="fb-w-cat">Catégorie</span></div>
+    <div class="fb-question" id="fb-w-question"></div>
+    <div class="fb-timer"><span id="fb-w-timer-svg"></span></div>
+    <h3 class="fb-h" style="text-align:center">🤥 Invente une fausse réponse !</h3>
+    <p style="text-align:center;color:#c084fc;font-size:13px">Elle doit sembler vraie pour tromper les autres...</p>
+    <textarea id="fb-w-text" class="fb-textarea" maxlength="80" placeholder="Ta fausse réponse..."></textarea>
+    <div class="char-count"><span id="fb-w-count">0</span>/80</div>
+    <button class="btn" id="fb-w-submit" onclick="FB.submitAnswer()">SOUMETTRE</button>
+    <div id="fb-w-status" style="text-align:center;color:#9ec4ff;font-size:13px;margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- VOTING -->
+<div id="screen-voting" class="screen">
+  <div class="card">
+    <div style="text-align:center"><span class="fb-cat" id="fb-v-cat">Catégorie</span></div>
+    <div class="fb-question" id="fb-v-question"></div>
+    <div class="fb-timer"><span id="fb-v-timer-svg"></span></div>
+    <h3 class="fb-h" style="text-align:center">🔍 Quelle est la VRAIE réponse ?</h3>
+    <div class="fb-answer-grid" id="fb-v-answers"></div>
+    <div id="fb-v-status" style="text-align:center;color:#9ec4ff;font-size:13px;margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- REVEAL -->
+<div id="screen-reveal" class="screen">
+  <div class="card">
+    <div id="fb-r-area"></div>
+  </div>
+</div>
+
+<!-- SCORES -->
+<div id="screen-scores" class="screen">
+  <div class="card">
+    <h2 class="fb-h" style="text-align:center" id="fb-s-title">📊 Scores</h2>
+    <div class="fb-scores" id="fb-s-list"></div>
+    <div id="fb-s-host-actions" style="display:none;margin-top:14px">
+      <button class="btn" onclick="FB.nextRound()" id="fb-s-next-btn">MANCHE SUIVANTE</button>
+    </div>
+    <div id="fb-s-wait" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<!-- END -->
+<div id="screen-end" class="screen">
+  <div class="card">
+    <div id="fb-end-area"></div>
+  </div>
+</div>
+
+<!-- LOCAL SETUP -->
+<div id="screen-local-setup" class="screen">
+  <a href="#" onclick="FB.show('screen-home');return false" class="back">← Accueil</a>
+  <h2 class="fb-h">📱 Mode local</h2>
+  <div class="card">
+    <p style="color:#c084fc;font-size:13px;text-align:center">Tous les joueurs sur le même téléphone.<br>2 à 8 joueurs.</p>
+    <h3 class="fb-h">Nombre de joueurs : <span id="fb-l-count-display">3</span></h3>
+    <div style="display:flex;gap:6px;align-items:center;margin:8px 0">
+      <button class="btn ghost small" onclick="FB.localChangeCount(-1)" style="width:auto">−</button>
+      <input type="range" id="fb-l-count" min="2" max="8" value="3" oninput="FB.localOnCount()" style="flex:1">
+      <button class="btn ghost small" onclick="FB.localChangeCount(1)" style="width:auto">+</button>
+    </div>
+    <h3 class="fb-h">Manches : <span id="fb-l-rounds-display">5</span></h3>
+    <div style="display:flex;gap:6px;align-items:center;margin:8px 0">
+      <button class="btn ghost small" onclick="FB.localChangeRounds(-1)" style="width:auto">−</button>
+      <input type="range" id="fb-l-rounds" min="3" max="10" value="5" oninput="FB.localOnRounds()" style="flex:1">
+      <button class="btn ghost small" onclick="FB.localChangeRounds(1)" style="width:auto">+</button>
+    </div>
+    <h3 class="fb-h">Noms des joueurs</h3>
+    <div id="fb-l-names"></div>
+  </div>
+  <button class="btn" onclick="FB.localStart()">COMMENCER</button>
+</div>
+
+<!-- LOCAL PASS / WRITING -->
+<div id="screen-local-writing" class="screen">
+  <div class="card">
+    <div class="fb-pass" id="fb-l-pass-area">
+      <div class="fb-pass-instr">Passe le téléphone à</div>
+      <div class="fb-pass-name" id="fb-l-pass-name"></div>
+      <button class="btn" onclick="FB.localShowQuestion()">JE SUIS PRÊT</button>
+    </div>
+    <div id="fb-l-write-area" style="display:none">
+      <div style="text-align:center"><span class="fb-cat" id="fb-l-cat">Catégorie</span></div>
+      <div class="fb-question" id="fb-l-question"></div>
+      <h3 class="fb-h" style="text-align:center">🤥 <span id="fb-l-write-name"></span>, invente une fausse réponse</h3>
+      <textarea id="fb-l-text" class="fb-textarea" maxlength="80" placeholder="Ta fausse réponse..."></textarea>
+      <div class="char-count"><span id="fb-l-count-text">0</span>/80</div>
+      <button class="btn" onclick="FB.localSubmitAnswer()">VALIDER</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOCAL VOTING -->
+<div id="screen-local-voting" class="screen">
+  <div class="card">
+    <div class="fb-pass" id="fb-l-vote-pass">
+      <div class="fb-pass-instr">Passe le téléphone à</div>
+      <div class="fb-pass-name" id="fb-l-vote-pass-name"></div>
+      <button class="btn" onclick="FB.localShowVote()">JE SUIS PRÊT</button>
+    </div>
+    <div id="fb-l-vote-area" style="display:none">
+      <div style="text-align:center"><span class="fb-cat" id="fb-l-v-cat">Catégorie</span></div>
+      <div class="fb-question" id="fb-l-v-question"></div>
+      <h3 class="fb-h" style="text-align:center">🔍 <span id="fb-l-vote-name"></span>, trouve la VRAIE réponse</h3>
+      <div class="fb-answer-grid" id="fb-l-v-answers"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- RULES MODAL -->
+<div id="fb-rules-modal" class="fb-modal" onclick="if(event.target===this)FB.closeRules()">
+  <div class="fb-modal-inner">
+    <button class="fb-modal-close" onclick="FB.closeRules()">×</button>
+    <h2>📖 Règles du Menteur</h2>
+    <h4>🎯 Objectif</h4>
+    <p>Inventer la fausse réponse la plus crédible pour tromper les autres joueurs, et trouver la VRAIE réponse au milieu des bluffs.</p>
+    <h4>📋 Déroulement</h4>
+    <ul>
+      <li><b>1.</b> Une question est posée à tous les joueurs</li>
+      <li><b>2.</b> Chacun écrit sa <b>fausse réponse</b> en secret</li>
+      <li><b>3.</b> Toutes les réponses (vraies + fausses) sont mélangées</li>
+      <li><b>4.</b> Vote : trouve la <b>vraie</b> réponse</li>
+      <li><b>5.</b> Révélation et points</li>
+    </ul>
+    <h4>🏆 Système de points</h4>
+    <ul>
+      <li>+1000 pts : trouver la vraie réponse</li>
+      <li>+500 pts : par joueur trompé par ta fausse réponse</li>
+      <li>+200 pts : premier à trouver la vraie</li>
+      <li>+300 pts bonus : tu trompes tout le monde</li>
+    </ul>
+    <h4>💡 Conseils</h4>
+    <ul>
+      <li>Écris dans le même style que la vraie réponse</li>
+      <li>Reste plausible — pas trop fou</li>
+      <li>Évite l'humour évident, ça te trahira</li>
+    </ul>
+    <button class="btn" onclick="FB.closeRules()" style="margin-top:18px">Fermer</button>
+  </div>
+</div>
+
+<script>window.QUESTIONS = [{"id": "cg001", "question": "Quelle est la vraie signification du mot 'Petrichor' ?", "answer": "L'odeur de la pluie sur la terre sèche", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Du grec petra (pierre) et ichor (fluide des dieux)"}, {"id": "cg002", "question": "Combien de cœurs possède une pieuvre ?", "answer": "3 cœurs", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Un cœur systémique et deux cœurs branchiaux"}, {"id": "cg003", "question": "Quel pays a inventé les frites ?", "answer": "La Belgique", "category": "Culture Générale", "difficulty": "easy", "fun_fact": "Les soldats américains de la WWI les ont découvertes en Belgique"}, {"id": "cg004", "question": "Quelle est la seule lettre absente du tableau périodique ?", "answer": "La lettre J", "category": "Culture Générale", "difficulty": "hard", "fun_fact": "Toutes les autres apparaissent dans au moins un symbole"}, {"id": "cg005", "question": "Combien de muscles utilise-t-on pour sourire ?", "answer": "12 muscles", "category": "Culture Générale", "difficulty": "easy", "fun_fact": "Vs 11 muscles pour froncer les sourcils"}, {"id": "cg006", "question": "Quelle est la vitesse d'un éternuement ?", "answer": "Environ 160 km/h", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Les gouttelettes peuvent parcourir jusqu'à 8 mètres"}, {"id": "cg007", "question": "Combien de fois par jour rit un adulte en moyenne ?", "answer": "17 fois", "category": "Culture Générale", "difficulty": "easy", "fun_fact": "Un enfant rit en moyenne 300 fois par jour"}, {"id": "cg008", "question": "Quelle est la durée de vie d'un globule rouge ?", "answer": "120 jours", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Le corps en produit 2 millions par seconde"}, {"id": "cg009", "question": "Quel est l'animal terrestre le plus rapide ?", "answer": "Le guépard (110 km/h)", "category": "Culture Générale", "difficulty": "easy", "fun_fact": "Il atteint 100 km/h en 3 secondes"}, {"id": "cg010", "question": "Combien de langues sont parlées dans le monde ?", "answer": "Environ 7000", "category": "Culture Générale", "difficulty": "hard", "fun_fact": "50% de l'humanité parle seulement 23 langues"}, {"id": "cg011", "question": "Quelle est la profondeur maximale de l'océan ?", "answer": "11034 mètres (fosse des Mariannes)", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Plus profond que l'Everest est haut"}, {"id": "cg012", "question": "Combien d'os a un nouveau-né ?", "answer": "270 os", "category": "Culture Générale", "difficulty": "hard", "fun_fact": "Les adultes en ont 206 — certains fusionnent"}, {"id": "cg013", "question": "Quelle planète a une journée plus longue que son année ?", "answer": "Vénus", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Journée: 243 jours terrestres, année: 225"}, {"id": "cg014", "question": "Quel fruit contient le plus de vitamine C ?", "answer": "La goyave", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Le kiwi contient 2x plus de vitamine C que l'orange"}, {"id": "cg015", "question": "Combien de dents a un adulte humain ?", "answer": "32 dents", "category": "Culture Générale", "difficulty": "easy", "fun_fact": "En comptant les dents de sagesse"}, {"id": "cg016", "question": "Quelle est la capitale de l'Australie ?", "answer": "Canberra", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Pas Sydney comme on le pense souvent"}, {"id": "cg017", "question": "Combien de pays compte officiellement l'ONU ?", "answer": "193 pays", "category": "Culture Générale", "difficulty": "hard", "fun_fact": "Le dernier admis est le Sud Soudan en 2011"}, {"id": "cg018", "question": "Quel est le plus grand désert du monde ?", "answer": "L'Antarctique", "category": "Culture Générale", "difficulty": "hard", "fun_fact": "Un désert se définit par les précipitations, pas la chaleur"}, {"id": "cg019", "question": "Quelle est la couleur officielle du deuil en Chine ?", "answer": "Le blanc", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Le rouge symbolise le bonheur en Chine"}, {"id": "cg020", "question": "Quel est l'organe humain qui se régénère le plus vite ?", "answer": "Le foie", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Il peut repousser à partir de 25% de son volume"}, {"id": "cg021", "question": "Combien de touches a un piano standard ?", "answer": "88 touches", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "52 blanches et 36 noires"}, {"id": "cg022", "question": "Quel pays consomme le plus de chocolat par habitant ?", "answer": "La Suisse (~9 kg/an)", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Devant l'Allemagne et l'Irlande"}, {"id": "cg023", "question": "Combien de continents y a-t-il ?", "answer": "7 continents", "category": "Culture Générale", "difficulty": "easy", "fun_fact": "Selon le modèle nord-américain — 5 ou 6 selon d'autres"}, {"id": "cg024", "question": "Quel est l'instrument le plus difficile à maîtriser ?", "answer": "Le violon (selon la plupart des experts)", "category": "Culture Générale", "difficulty": "hard", "fun_fact": "Devant le hautbois, la harpe, l'orgue"}, {"id": "cg025", "question": "Combien d'éléments contient le tableau périodique ?", "answer": "118 éléments", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "Le dernier découvert est l'oganesson en 2002"}, {"id": "cg026", "question": "Quelle est la longueur de la Grande Muraille de Chine ?", "answer": "21196 km", "category": "Culture Générale", "difficulty": "hard", "fun_fact": "Avec ses ramifications — la partie principale fait environ 8850 km"}, {"id": "cg027", "question": "Combien de cellules nerveuses a un cerveau humain ?", "answer": "Environ 86 milliards", "category": "Culture Générale", "difficulty": "hard", "fun_fact": "On a longtemps cru qu'il y en avait 100 milliards"}, {"id": "cg028", "question": "Quel est le pays le plus peuplé du monde ?", "answer": "L'Inde", "category": "Culture Générale", "difficulty": "easy", "fun_fact": "L'Inde a dépassé la Chine en 2023"}, {"id": "cg029", "question": "Quelle est la durée moyenne d'un rêve ?", "answer": "De 5 à 20 minutes", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "On fait 4 à 6 rêves par nuit en phase REM"}, {"id": "cg030", "question": "Combien d'années dure la lumière du Soleil pour atteindre la Terre ?", "answer": "8 minutes 20 secondes", "category": "Culture Générale", "difficulty": "medium", "fun_fact": "On voit le Soleil tel qu'il était il y a 8 minutes"}, {"id": "sc001", "question": "Combien de temps un humain reste conscient dans l'espace sans combinaison ?", "answer": "Environ 15 secondes", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "La mort surviendrait en 1-2 minutes"}, {"id": "sc002", "question": "Quelle est la température au centre de la Terre ?", "answer": "Environ 6000°C", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "Même température que la surface du Soleil"}, {"id": "sc003", "question": "Combien de bactéries vivent sur le corps humain ?", "answer": "Environ 38 000 milliards", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Presque autant que de cellules humaines"}, {"id": "sc004", "question": "Quel métal est liquide à température ambiante (hormis le mercure) ?", "answer": "Le gallium (fond à 29°C)", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Il fond dans la main"}, {"id": "sc005", "question": "Quelle est la chose la plus froide de l'univers connu ?", "answer": "La nébuleuse du Boomerang (-272°C)", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Plus froid que le fond diffus cosmologique"}, {"id": "sc006", "question": "Combien de fois la lumière fait-elle le tour de la Terre par seconde ?", "answer": "7,5 fois", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "299792 km/s contre 40075 km de circonférence"}, {"id": "sc007", "question": "Quel animal ne dort jamais comme nous ?", "answer": "Le dauphin (un hémisphère à la fois)", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Cela leur permet de remonter respirer"}, {"id": "sc008", "question": "À quelle vitesse pousse un ongle humain par mois ?", "answer": "Environ 3,5 mm", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "Plus vite l'été et sur la main dominante"}, {"id": "sc009", "question": "Quelle couleur l'œil humain perçoit-il le mieux ?", "answer": "Le vert-jaune (555 nm)", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "D'où les gilets de sécurité jaune-vert"}, {"id": "sc010", "question": "Combien de tonnes de météorites tombent sur Terre par jour ?", "answer": "Environ 50 tonnes", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "La plupart en poussière dans l'atmosphère"}, {"id": "sc011", "question": "Quelle est la pression au fond de la fosse des Mariannes ?", "answer": "Plus de 1000 atmosphères", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Soit 8 tonnes par centimètre carré"}, {"id": "sc012", "question": "De quoi sont faites les empreintes digitales ?", "answer": "De crêtes papillaires de la peau", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "Elles se forment in utero entre la 10e et 19e semaine"}, {"id": "sc013", "question": "Quelle est la durée d'un jour sur Mercure ?", "answer": "176 jours terrestres", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Plus long que son année (88 jours)"}, {"id": "sc014", "question": "Combien d'eau y a-t-il dans le corps humain ?", "answer": "Environ 60%", "category": "Sciences Bizarres", "difficulty": "easy", "fun_fact": "Le cerveau contient 73% d'eau"}, {"id": "sc015", "question": "Quel est l'animal le plus venimeux au monde ?", "answer": "La méduse-boîte", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "Son venin peut tuer un humain en 3 minutes"}, {"id": "sc016", "question": "Combien y a-t-il de planètes naines dans le système solaire ?", "answer": "5 reconnues officiellement", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Pluton, Cérès, Eris, Hauméa, Makémaké"}, {"id": "sc017", "question": "Quelle est la durée de vie d'une libellule ?", "answer": "Environ 6 mois (forme adulte: 4 semaines)", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "Elle passe la majeure partie de sa vie en larve"}, {"id": "sc018", "question": "Quel pourcentage de notre ADN partage-t-on avec une banane ?", "answer": "Environ 60%", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "Et 98,8% avec un chimpanzé"}, {"id": "sc019", "question": "Combien de fois bat un cœur humain en une vie ?", "answer": "Environ 2,5 milliards de fois", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Sur une espérance de vie de 80 ans"}, {"id": "sc020", "question": "Quelle est la vitesse du son dans l'eau ?", "answer": "Environ 1500 m/s", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "4,5x plus vite que dans l'air"}, {"id": "sc021", "question": "Combien d'espèces vivantes ont été identifiées ?", "answer": "Environ 1,5 million", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Estimation totale: 8,7 millions"}, {"id": "sc022", "question": "Quelle planète a les vents les plus rapides ?", "answer": "Neptune (jusqu'à 2100 km/h)", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Plus rapide que la vitesse du son"}, {"id": "sc023", "question": "Quelle est la masse de la Voie Lactée ?", "answer": "Environ 1500 milliards de masses solaires", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "En comptant la matière noire"}, {"id": "sc024", "question": "Combien de globules rouges produit-on par seconde ?", "answer": "Environ 2 millions", "category": "Sciences Bizarres", "difficulty": "hard", "fun_fact": "Soit 173 milliards par jour"}, {"id": "sc025", "question": "À quelle température l'eau bout-elle au sommet de l'Everest ?", "answer": "Environ 70°C", "category": "Sciences Bizarres", "difficulty": "medium", "fun_fact": "À cause de la basse pression atmosphérique"}, {"id": "hi001", "question": "Quelle guerre a duré seulement 38 minutes ?", "answer": "La guerre Anglo-Zanzibar (1896)", "category": "Histoire Improbable", "difficulty": "hard", "fun_fact": "Zanzibar capitula à 9h40"}, {"id": "hi002", "question": "Quel président américain a obtenu un brevet ?", "answer": "Abraham Lincoln", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "Brevet No. 6469 en 1849, pour soulever des bateaux échoués"}, {"id": "hi003", "question": "Combien d'années a duré la construction de la cathédrale de Cologne ?", "answer": "632 ans", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "De 1248 à 1880"}, {"id": "hi004", "question": "Dans quelle ville est-il interdit de mourir ?", "answer": "Longyearbyen (Norvège)", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "Le sol gelé empêche la décomposition"}, {"id": "hi005", "question": "Quel empire a duré le plus longtemps ?", "answer": "L'Empire byzantin (1123 ans)", "category": "Histoire Improbable", "difficulty": "hard", "fun_fact": "De 330 à 1453"}, {"id": "hi006", "question": "Combien de fois le Brésil a-t-il gagné la Coupe du Monde ?", "answer": "5 fois", "category": "Histoire Improbable", "difficulty": "easy", "fun_fact": "1958, 1962, 1970, 1994, 2002"}, {"id": "hi007", "question": "Combien de personnes ont marché sur la Lune ?", "answer": "12 personnes", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "De 1969 à 1972, missions Apollo 11 à 17"}, {"id": "hi008", "question": "Quel animal a tué le plus d'humains dans l'histoire ?", "answer": "Le moustique", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "Plus de 50% de l'humanité l'a payé de sa vie"}, {"id": "hi009", "question": "En quelle année a eu lieu la première Coupe du Monde ?", "answer": "1930", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "En Uruguay, gagnée par les Uruguayens"}, {"id": "hi010", "question": "Quel pharaon a régné le plus longtemps ?", "answer": "Pépi II (94 ans)", "category": "Histoire Improbable", "difficulty": "hard", "fun_fact": "Couronné à l'âge de 6 ans"}, {"id": "hi011", "question": "Quel pays a inventé les feux d'artifice ?", "answer": "La Chine", "category": "Histoire Improbable", "difficulty": "easy", "fun_fact": "Vers le VIIe siècle pendant la dynastie Tang"}, {"id": "hi012", "question": "Combien de républiques françaises y a-t-il eu ?", "answer": "5 républiques", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "La Ve République date de 1958"}, {"id": "hi013", "question": "Quel monument a été construit en 7 ans ?", "answer": "La Tour Eiffel (de 1887 à 1889)", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "En réalité 2 ans, 2 mois et 5 jours"}, {"id": "hi014", "question": "Quel pays a été le premier à accorder le droit de vote aux femmes ?", "answer": "La Nouvelle-Zélande (1893)", "category": "Histoire Improbable", "difficulty": "hard", "fun_fact": "La France: 1944"}, {"id": "hi015", "question": "Quel est le plus vieux royaume encore existant ?", "answer": "Le Japon (660 av. J.-C.)", "category": "Histoire Improbable", "difficulty": "hard", "fun_fact": "Selon la tradition, fondé par l'empereur Jinmu"}, {"id": "hi016", "question": "Combien d'années Cléopâtre a-t-elle vécu après les pyramides de Gizeh ?", "answer": "Plus de 2000 ans après", "category": "Histoire Improbable", "difficulty": "hard", "fun_fact": "Cléopâtre est plus proche de nous que des pyramides"}, {"id": "hi017", "question": "Quelle ville antique a été détruite par le Vésuve ?", "answer": "Pompéi", "category": "Histoire Improbable", "difficulty": "easy", "fun_fact": "Le 24 août 79 ap. J.-C."}, {"id": "hi018", "question": "Combien de fois Napoléon a-t-il été en exil ?", "answer": "2 fois", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "Île d'Elbe en 1814 puis Sainte-Hélène en 1815"}, {"id": "hi019", "question": "Quelle est la plus ancienne université du monde ?", "answer": "L'Université Al Quaraouiyine (859, Maroc)", "category": "Histoire Improbable", "difficulty": "hard", "fun_fact": "Toujours en activité aujourd'hui"}, {"id": "hi020", "question": "Quel inventeur a déposé plus de 1000 brevets ?", "answer": "Thomas Edison (1093)", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "Le record est tenu par Shunpei Yamazaki avec plus de 11000"}, {"id": "hi021", "question": "En quelle année est tombé le mur de Berlin ?", "answer": "1989", "category": "Histoire Improbable", "difficulty": "easy", "fun_fact": "Le 9 novembre, après 28 ans"}, {"id": "hi022", "question": "Combien d'ans dura la guerre de Cent Ans ?", "answer": "116 ans", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "De 1337 à 1453"}, {"id": "hi023", "question": "Quel président américain a été assassiné en 1865 ?", "answer": "Abraham Lincoln", "category": "Histoire Improbable", "difficulty": "easy", "fun_fact": "Au théâtre Ford à Washington"}, {"id": "hi024", "question": "Quel est le plus vieux livre imprimé encore conservé ?", "answer": "Le Sutra du Diamant (868)", "category": "Histoire Improbable", "difficulty": "hard", "fun_fact": "Imprimé en Chine, conservé au British Museum"}, {"id": "hi025", "question": "En quelle année l'humain a-t-il atteint le pôle Sud ?", "answer": "1911 (Amundsen)", "category": "Histoire Improbable", "difficulty": "medium", "fun_fact": "Roald Amundsen battit Robert Scott de 5 semaines"}, {"id": "ac001", "question": "Combien d'épisodes a One Piece au total ?", "answer": "Plus de 1100 épisodes", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "Une des séries animées les plus longues"}, {"id": "ac002", "question": "Quel est le vrai nom de L dans Death Note ?", "answer": "L Lawliet", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "Révélé dans le guide officiel"}, {"id": "ac003", "question": "Quel village est le foyer de Naruto ?", "answer": "Konoha (le village caché des feuilles)", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "Inspiré du Japon féodal"}, {"id": "ac004", "question": "Quel est le jeu vidéo le plus vendu ?", "answer": "Minecraft (~300 millions)", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "Devant Tetris et GTA V"}, {"id": "ac005", "question": "Quel film d'animation est le plus rentable ?", "answer": "Le Roi Lion (2019)", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "1,66 milliard $ au box-office"}, {"id": "ac006", "question": "Combien de saisons a Dragon Ball Z ?", "answer": "9 saisons", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "291 épisodes entre 1989 et 1996"}, {"id": "ac007", "question": "Quel Pokémon est le plus lourd ?", "answer": "Primal Groudon (999 kg)", "category": "Anime & Culture Pop", "difficulty": "hard", "fun_fact": "Cosmoem aussi pèse 999 kg malgré sa petite taille"}, {"id": "ac008", "question": "Dans quel anime apparaît le 'Kamehameha' ?", "answer": "Dragon Ball", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "Nommé d'après le roi hawaïen Kamehameha I"}, {"id": "ac009", "question": "Quel est le manga le plus vendu de l'histoire ?", "answer": "One Piece (>500 millions)", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "Devant Golgo 13 et Dragon Ball"}, {"id": "ac010", "question": "Quel studio a produit Le Voyage de Chihiro ?", "answer": "Studio Ghibli", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "Réalisé par Hayao Miyazaki en 2001"}, {"id": "ac011", "question": "Combien de Pokémon existe-t-il dans la dernière génération ?", "answer": "Plus de 1000", "category": "Anime & Culture Pop", "difficulty": "hard", "fun_fact": "Génération 9 (Scarlet/Violet) a passé le cap"}, {"id": "ac012", "question": "Quel est le premier anime diffusé à la télé française ?", "answer": "Goldorak (1978)", "category": "Anime & Culture Pop", "difficulty": "hard", "fun_fact": "Sur Antenne 2 — un succès colossal"}, {"id": "ac013", "question": "Quel personnage de Marvel a été créé en 1962 ?", "answer": "Spider-Man", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "Par Stan Lee et Steve Ditko"}, {"id": "ac014", "question": "Quel est le film de super-héros le plus rentable ?", "answer": "Avengers: Endgame (2,79 mds $)", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "Détrôné par Avatar 2 globalement, mais toujours roi du genre"}, {"id": "ac015", "question": "Quel acteur a interprété le plus de fois James Bond ?", "answer": "Roger Moore (7 films)", "category": "Anime & Culture Pop", "difficulty": "hard", "fun_fact": "Devant Sean Connery (6) et Daniel Craig (5)"}, {"id": "ac016", "question": "Dans quel anime apparaît l'attaque 'Bankai' ?", "answer": "Bleach", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "Forme libérée des Zanpakuto"}, {"id": "ac017", "question": "Quel est le rôle principal de Mark Hamill dans Star Wars ?", "answer": "Luke Skywalker", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "Il a aussi interprété le Joker (voix)"}, {"id": "ac018", "question": "Quel anime tourne autour d'un cahier de la mort ?", "answer": "Death Note", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "37 épisodes diffusés en 2006-2007"}, {"id": "ac019", "question": "Quel est l'acteur principal du Seigneur des Anneaux (Frodon) ?", "answer": "Elijah Wood", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "Il avait 19 ans au début du tournage"}, {"id": "ac020", "question": "Quelle série Netflix a battu tous les records en 2021 ?", "answer": "Squid Game", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "142 millions de foyers en 4 semaines"}, {"id": "ac021", "question": "Qui a créé le manga Dragon Ball ?", "answer": "Akira Toriyama", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "Il a aussi créé Dr. Slump"}, {"id": "ac022", "question": "Quel jeu vidéo a inventé le concept du Battle Royale ?", "answer": "PUBG (2017) — popularisé par Fortnite", "category": "Anime & Culture Pop", "difficulty": "medium", "fun_fact": "Inspiré du film japonais Battle Royale"}, {"id": "ac023", "question": "Combien d'opus principaux compte la saga Final Fantasy ?", "answer": "16 opus principaux", "category": "Anime & Culture Pop", "difficulty": "hard", "fun_fact": "Sans compter les spin-offs et MMO"}, {"id": "ac024", "question": "Quel est le personnage principal de Hunter x Hunter ?", "answer": "Gon Freecss", "category": "Anime & Culture Pop", "difficulty": "easy", "fun_fact": "Il cherche son père Ging"}, {"id": "ac025", "question": "Quel film Pixar a coûté le plus cher à produire ?", "answer": "Toy Story 4 (200 millions $)", "category": "Anime & Culture Pop", "difficulty": "hard", "fun_fact": "Devant Cars 3 et Coco"}, {"id": "jv001", "question": "Quel jeu a le plus de speedrunners actifs ?", "answer": "Super Mario 64", "category": "Jeux Vidéo", "difficulty": "medium", "fun_fact": "Suivi de Minecraft et Hollow Knight"}, {"id": "jv002", "question": "Combien de planètes y a-t-il dans No Man's Sky ?", "answer": "18 quintillions", "category": "Jeux Vidéo", "difficulty": "hard", "fun_fact": "Générées procéduralement"}, {"id": "jv003", "question": "Quel est le jeu le plus cher à développer ?", "answer": "Star Citizen (>700 M$)", "category": "Jeux Vidéo", "difficulty": "hard", "fun_fact": "En développement depuis 2012"}, {"id": "jv004", "question": "Combien de jeux Mario sont sortis ?", "answer": "Plus de 200 jeux", "category": "Jeux Vidéo", "difficulty": "hard", "fun_fact": "Plus que tout autre personnage de jeu vidéo"}, {"id": "jv005", "question": "Quel est le personnage de jeu vidéo le plus reconnu ?", "answer": "Mario", "category": "Jeux Vidéo", "difficulty": "easy", "fun_fact": "Plus reconnu que Mickey selon certaines études"}, {"id": "jv006", "question": "En quelle année est sorti le premier Pokémon ?", "answer": "1996", "category": "Jeux Vidéo", "difficulty": "medium", "fun_fact": "Versions Rouge et Verte au Japon"}, {"id": "jv007", "question": "Quel jeu a popularisé le Battle Royale ?", "answer": "Fortnite (2017)", "category": "Jeux Vidéo", "difficulty": "easy", "fun_fact": "Inspiré par PUBG sorti la même année"}, {"id": "jv008", "question": "Combien de pixels a une Game Boy classique ?", "answer": "160 x 144 pixels", "category": "Jeux Vidéo", "difficulty": "hard", "fun_fact": "En 4 nuances de gris... vert"}, {"id": "jv009", "question": "Quel est le jeu le plus joué sur Twitch ?", "answer": "League of Legends", "category": "Jeux Vidéo", "difficulty": "medium", "fun_fact": "Régulièrement en tête depuis 2014"}, {"id": "jv010", "question": "Quel jeu Nintendo est le plus vendu ?", "answer": "Mario Kart 8 Deluxe (~57 millions)", "category": "Jeux Vidéo", "difficulty": "medium", "fun_fact": "Sur Nintendo Switch"}, {"id": "jv011", "question": "Quel est le studio derrière The Witcher ?", "answer": "CD Projekt Red", "category": "Jeux Vidéo", "difficulty": "easy", "fun_fact": "Studio polonais fondé en 2002"}, {"id": "jv012", "question": "Quel jeu a inventé le concept de Souls-like ?", "answer": "Demon's Souls (2009)", "category": "Jeux Vidéo", "difficulty": "medium", "fun_fact": "De FromSoftware, suivi de Dark Souls en 2011"}, {"id": "jv013", "question": "Combien de notes différentes utilise Guitar Hero ?", "answer": "5 notes (vert, rouge, jaune, bleu, orange)", "category": "Jeux Vidéo", "difficulty": "medium", "fun_fact": "6 sur la guitare avec le bouton spécial"}, {"id": "jv014", "question": "Quel est le hit MMO de Blizzard sorti en 2004 ?", "answer": "World of Warcraft", "category": "Jeux Vidéo", "difficulty": "easy", "fun_fact": "Plus de 12 millions d'abonnés à son pic"}, {"id": "jv015", "question": "Quel jeu a battu le record du plus de joueurs en simultané sur Steam ?", "answer": "Counter-Strike 2 / PUBG selon les périodes", "category": "Jeux Vidéo", "difficulty": "hard", "fun_fact": "PUBG a atteint 3,2 millions en 2018"}, {"id": "jv016", "question": "Quel est le créateur de Mario ?", "answer": "Shigeru Miyamoto", "category": "Jeux Vidéo", "difficulty": "medium", "fun_fact": "Aussi créateur de Zelda et Donkey Kong"}, {"id": "jv017", "question": "Combien de plateformes ont été lancées par Sony pour la PlayStation ?", "answer": "5 (PS1, PS2, PS3, PS4, PS5)", "category": "Jeux Vidéo", "difficulty": "easy", "fun_fact": "Sans compter les portables PSP et PS Vita"}, {"id": "jv018", "question": "Quel jeu indé vendu à plus de 30 millions a été créé par 2 personnes ?", "answer": "Stardew Valley", "category": "Jeux Vidéo", "difficulty": "hard", "fun_fact": "Créé seul par Eric Barone en 4 ans"}, {"id": "jv019", "question": "Quel est le jeu d'Atari le plus iconique ?", "answer": "Pong (1972)", "category": "Jeux Vidéo", "difficulty": "medium", "fun_fact": "L'un des premiers jeux vidéo commerciaux"}, {"id": "jv020", "question": "Quel jeu a popularisé le genre rogue-like ?", "answer": "Rogue (1980)", "category": "Jeux Vidéo", "difficulty": "hard", "fun_fact": "Inspiré de Donjons & Dragons"}, {"id": "af001", "question": "Quelle est la probabilité d'être frappé par la foudre ?", "answer": "1 sur 15 000 dans une vie", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Certaines personnes ont été frappées 7 fois"}, {"id": "af002", "question": "Combien de pizzas mangent les Américains par seconde ?", "answer": "Environ 350", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "3 milliards par an aux USA"}, {"id": "af003", "question": "Que font 72% des conducteurs en voiture ?", "answer": "Chanter", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Devant téléphoner et manger"}, {"id": "af004", "question": "Combien de selfies sont pris par jour dans le monde ?", "answer": "Environ 93 millions", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Plus d'un million par seconde aux heures de pointe"}, {"id": "af005", "question": "Quel animal peut survivre sans tête plusieurs semaines ?", "answer": "Le cafard", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Il meurt finalement de faim"}, {"id": "af006", "question": "Combien de fois cligne-t-on des yeux par jour ?", "answer": "15 000 à 20 000 fois", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "On passe ~10% du temps éveillé les yeux fermés"}, {"id": "af007", "question": "Quel est le record du plus long baiser ?", "answer": "58 heures 35 minutes", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Record en Thaïlande, 2013"}, {"id": "af008", "question": "Combien de canettes de soda ouvre-t-on dans le monde par seconde ?", "answer": "Environ 9000", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Coca-Cola en représente une grande part"}, {"id": "af009", "question": "Quelle est la durée de la vie d'une mouche domestique ?", "answer": "Environ 28 jours", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Mais elle peut pondre 500 œufs par cycle"}, {"id": "af010", "question": "Combien de fois va-t-on aux toilettes en moyenne par an ?", "answer": "Environ 2500 fois", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Soit 7 fois par jour en moyenne"}, {"id": "af011", "question": "Quel est le record du plus grand château de cartes ?", "answer": "7,86 mètres de haut", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Construit en 2007 par Bryan Berg avec 218792 cartes"}, {"id": "af012", "question": "Combien de spaghettis y a-t-il dans 1 kg ?", "answer": "Environ 800 spaghettis", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Selon le calibre de la pâte"}, {"id": "af013", "question": "Quelle est la moyenne d'âge pour avoir son premier baiser ?", "answer": "Environ 15 ans", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Variable selon les cultures"}, {"id": "af014", "question": "Combien de livres sont publiés chaque année dans le monde ?", "answer": "Plus de 2 millions", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Soit environ 4 livres par minute"}, {"id": "af015", "question": "Quel est le sport le plus regardé au monde ?", "answer": "Le football", "category": "Absurde & Fun", "difficulty": "easy", "fun_fact": "3,5 milliards de fans"}, {"id": "af016", "question": "Combien de personnes utilisent Internet ?", "answer": "Environ 5,5 milliards", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Soit ~67% de la population mondiale"}, {"id": "af017", "question": "Quel est le plat le plus consommé au monde ?", "answer": "Le riz", "category": "Absurde & Fun", "difficulty": "easy", "fun_fact": "Aliment de base pour la moitié de l'humanité"}, {"id": "af018", "question": "Combien de morceaux de Lego sont produits chaque seconde ?", "answer": "Environ 36000", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Soit plus d'un trillion produits depuis 1949"}, {"id": "af019", "question": "Combien de tasses de café sont bues par jour dans le monde ?", "answer": "Environ 2,25 milliards", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Café = deuxième matière la plus échangée après le pétrole"}, {"id": "af020", "question": "Quelle est la chanson la plus écoutée sur Spotify ?", "answer": "Blinding Lights (The Weeknd)", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Plus de 4 milliards d'écoutes"}, {"id": "af021", "question": "Combien de mots un humain prononce-t-il par jour en moyenne ?", "answer": "Environ 16000 mots", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Selon une étude de l'université d'Arizona"}, {"id": "af022", "question": "Combien de fois pète un humain par jour en moyenne ?", "answer": "Environ 14 fois", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Pour un volume total de 0,5 à 2 litres"}, {"id": "af023", "question": "Quelle est la valeur du plus gros billet jamais imprimé ?", "answer": "100 000 dollars (USA, 1934)", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Utilisé uniquement entre banques fédérales"}, {"id": "af024", "question": "Combien de paires de chaussures possède une femme en moyenne ?", "answer": "Environ 19 paires", "category": "Absurde & Fun", "difficulty": "medium", "fun_fact": "Contre 12 pour les hommes"}, {"id": "af025", "question": "Quelle est la durée du plus long film jamais réalisé ?", "answer": "857 heures (Logistics, 2012)", "category": "Absurde & Fun", "difficulty": "hard", "fun_fact": "Soit 35 jours et demi non-stop"}];</script>
+
+<!-- Supabase + FB engine -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ============================================================
+   FB — LELOX MENTEUR (Fibbage) Local + Multi
+   ============================================================ */
+(function(){
+
+const SUPA_URL='https://frrluakugoabzmkndriv.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZycmx1YWt1Z29hYnpta25kcml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MzA2ODEsImV4cCI6MjA5MTUwNjY4MX0.AMVDA104Otfx6LPTxgCUEyk0M5OaG6jszW8G_Nucgmc';
+const AVATARS=['🤥','🦊','🎭','🐺','🐉','👾','🥷','🧙','🧛','🦸','🕵️','🤡'];
+const POINTS={FOUND_TRUTH:1000, FOOLED_PLAYER:500, FIRST_TO_FIND:200, EVERYONE_FOOLED:300};
+const WRITE_TIME=60, VOTE_TIME=30, MIN_PLAYERS=2, MAX_ROUNDS_DEFAULT=5;
+
+function $$(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function uid(p){ return (p||'p_')+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
+function code6(){ var s='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r=''; for(var i=0;i<6;i++) r+=s[Math.floor(Math.random()*s.length)]; return r; }
+function shuffle(arr){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function normalize(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'').trim(); }
+function tooClose(a,b){ var na=normalize(a), nb=normalize(b); if(!na||!nb) return false; if(na===nb) return true; if(na.length>=4 && nb.indexOf(na)>=0) return true; if(nb.length>=4 && na.indexOf(nb)>=0) return true; return false; }
+function toast(msg, ms){ var t=document.createElement('div'); t.className='fb-toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(function(){t.remove();}, 320); }, ms||2200); }
+function vibrate(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+
+/* ===== Web Audio sons ===== */
+var _audioCtx=null;
+function audioCtx(){ if(_audioCtx) return _audioCtx; try{ _audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} return _audioCtx; }
+function playDrumRoll(durationMs, onEnd){
+  var ctx=audioCtx(); if(!ctx) return onEnd&&onEnd();
+  var interval=150, start=Date.now();
+  function hit(){
+    var buf=ctx.createBuffer(1, Math.floor(ctx.sampleRate*0.04), ctx.sampleRate);
+    var d=buf.getChannelData(0);
+    for(var i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/400);
+    var src=ctx.createBufferSource(), g=ctx.createGain();
+    g.gain.value=0.18; src.buffer=buf; src.connect(g); g.connect(ctx.destination); src.start();
+    var elapsed=Date.now()-start;
+    interval=Math.max(35, 150-(elapsed/durationMs)*120);
+    if(elapsed<durationMs) setTimeout(hit, interval);
+    else { playCrash(ctx); if(onEnd) onEnd(); }
+  }
+  hit();
+}
+function playCrash(ctx){
+  ctx=ctx||audioCtx(); if(!ctx) return;
+  var osc=ctx.createOscillator(), g=ctx.createGain();
+  osc.type='sawtooth'; osc.frequency.value=400;
+  g.gain.setValueAtTime(0.3, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+1);
+  osc.connect(g); g.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime+1);
+}
+function playPoints(big){
+  var ctx=audioCtx(); if(!ctx) return;
+  var freqs=big?[523,659,784,1047]:[440,554];
+  freqs.forEach(function(f,i){
+    var osc=ctx.createOscillator(), g=ctx.createGain();
+    osc.frequency.value=f; osc.type='sine';
+    var t=ctx.currentTime+i*0.1;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.18,t+0.05); g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+    osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t+0.4);
+  });
+}
+function playWahWah(){
+  var ctx=audioCtx(); if(!ctx) return;
+  var osc=ctx.createOscillator(), g=ctx.createGain();
+  osc.type='sawtooth';
+  osc.frequency.setValueAtTime(420, ctx.currentTime);
+  osc.frequency.linearRampToValueAtTime(200, ctx.currentTime+0.3);
+  osc.frequency.linearRampToValueAtTime(300, ctx.currentTime+0.55);
+  osc.frequency.linearRampToValueAtTime(150, ctx.currentTime+0.85);
+  g.gain.setValueAtTime(0.25, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+1);
+  osc.connect(g); g.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime+1);
+}
+
+/* ===== Confetti ===== */
+function launchConfetti(count){
+  count=count||80;
+  var colors=['#9B59FF','#FF6B9D','#00B4FF','#FFD700','#FF2D55'];
+  for(var i=0;i<count;i++){
+    var el=document.createElement('div');
+    var size=Math.random()*10+5;
+    el.style.cssText='position:fixed;width:'+size+'px;height:'+(size*0.4+2)+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';left:'+(Math.random()*100)+'vw;top:-20px;border-radius:'+(Math.random()>0.5?'50%':'2px')+';animation:confettiFall '+(Math.random()*2+2)+'s linear '+(Math.random()*2)+'s forwards;z-index:9999;pointer-events:none;transform:rotate('+(Math.random()*360)+'deg)';
+    document.body.appendChild(el);
+    el.addEventListener('animationend', function(){ this.remove(); });
+  }
+}
+
+/* ===== Timer SVG ===== */
+function createTimerSVG(idPrefix, size){
+  size=size||80;
+  return '<svg viewBox="0 0 100 100" style="width:'+size+'px;height:'+size+'px">'
+    +'<circle cx="50" cy="50" r="42" fill="rgba(0,0,0,0.4)" stroke="rgba(255,255,255,0.08)" stroke-width="7"/>'
+    +'<circle cx="50" cy="50" r="42" fill="none" stroke-width="7" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="0" id="'+idPrefix+'-progress" style="transform:rotate(-90deg);transform-origin:50px 50px;transition:stroke-dashoffset 1s linear,stroke .5s;stroke:#9B59FF"/>'
+    +'<text x="50" y="58" text-anchor="middle" fill="white" font-size="26" font-weight="900" id="'+idPrefix+'-value">--</text>'
+    +'</svg>';
+}
+function updateTimer(idPrefix, seconds, total){
+  var pr=$$(idPrefix+'-progress'), val=$$(idPrefix+'-value');
+  if(!pr||!val) return;
+  var ratio=Math.max(0, seconds/total);
+  pr.style.strokeDashoffset = 264*(1-ratio);
+  val.textContent = Math.max(0, seconds);
+  pr.style.stroke = ratio>0.6 ? '#4CAF50' : ratio>0.3 ? '#FFB347' : '#FF2D55';
+  if(seconds<=5 && seconds>0) vibrate(40);
+}
+var _timer=null;
+function startTimer(idPrefix, total, onEnd){
+  stopTimer();
+  var s=total;
+  $$(idPrefix+'-value') && updateTimer(idPrefix, s, total);
+  _timer=setInterval(function(){
+    s--;
+    updateTimer(idPrefix, s, total);
+    if(s<=0){ stopTimer(); if(onEnd) onEnd(); }
+  }, 1000);
+}
+function stopTimer(){ if(_timer){ clearInterval(_timer); _timer=null; } }
+
+/* ===== Particles bg ===== */
+(function(){
+  var c=$$('fb-particles'); if(!c) return;
+  var N=window.innerWidth<600?16:32, classes=['purple','pink','white'];
+  for(var i=0;i<N;i++){
+    var p=document.createElement('div');
+    p.className='fb-particle '+classes[Math.floor(Math.random()*classes.length)];
+    p.style.left=Math.random()*100+'vw';
+    p.style.animationDelay=(Math.random()*16)+'s';
+    p.style.animationDuration=(12+Math.random()*10)+'s';
+    c.appendChild(p);
+  }
+})();
+
+/* ============================================================
+   FB engine
+   ============================================================ */
+const FB={
+  client:null, channel:null, presenceChannel:null,
+  room:null, roomId:null, code:null, me:null, lastPhase:null,
+  onlineIds:new Set(), _advancing:false, _autoSubmitTimer:null,
+  shuffledAnswerOrder:[],
+
+  init(){
+    if(this.client) return true;
+    if(!window.supabase || !window.supabase.createClient){ alert('Supabase indisponible.'); return false; }
+    this.client = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+    var saved=null;
+    try{ saved=JSON.parse(localStorage.getItem('fb_me')||'null'); }catch(e){}
+    if(!saved || !saved.id){ saved={id:uid(), pseudo:'', avatar:AVATARS[0]}; }
+    this.me=saved; this._save();
+    return true;
+  },
+  _save(){ try{ localStorage.setItem('fb_me', JSON.stringify(this.me)); }catch(e){} },
+
+  show(id){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    var el=$$(id); if(el){ el.classList.add('active'); window.scrollTo(0,0); }
+  },
+  goMpHub(){ if(!this.init()) return; this._cleanOld(); this.show('screen-mp-hub'); },
+  goLocalSetup(){ this.show('screen-local-setup'); LocalFB.setup(); },
+
+  openCreate(){ var i=$$('fb-create-pseudo'); if(i) i.value=this.me.pseudo||''; this._renderAvatars('fb-create-avatars','fb-create-avatar-sel'); this.show('screen-mp-create'); },
+  openJoin(){ var i=$$('fb-join-pseudo'); if(i) i.value=this.me.pseudo||''; this._renderAvatars('fb-join-avatars','fb-join-avatar-sel'); this.show('screen-mp-join'); },
+  openRules(){ $$('fb-rules-modal').classList.add('open'); },
+  closeRules(){ $$('fb-rules-modal').classList.remove('open'); },
+
+  _renderAvatars(gridId, selId){
+    var self=this, grid=$$(gridId); if(!grid) return; grid.innerHTML='';
+    AVATARS.forEach(function(a){
+      var b=document.createElement('button');
+      b.type='button'; b.className='fb-avatar'+(a===self.me.avatar?' sel':''); b.textContent=a;
+      b.onclick=function(){ self.me.avatar=a; self._save(); grid.querySelectorAll('.fb-avatar').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); var s=$$(selId); if(s) s.textContent=a; };
+      grid.appendChild(b);
+    });
+    var s=$$(selId); if(s) s.textContent=this.me.avatar;
+  },
+
+  async _cleanOld(){
+    try{
+      var cutoff=new Date(Date.now()-24*60*60*1000).toISOString();
+      await this.client.from('fb_rooms').delete().lt('created_at',cutoff).eq('status','waiting');
+    }catch(e){}
+  },
+
+  async createRoom(){
+    var p=($$('fb-create-pseudo').value||'').trim().slice(0,16);
+    if(!p||p.length<2){ alert('Pseudo (2 caractères min)'); return; }
+    this.me.pseudo=p; this._save();
+    var c=code6();
+    var player={id:this.me.id, pseudo:p, avatar:this.me.avatar, host:true, alive:true};
+    try{
+      var r=await this.client.from('fb_rooms').insert({code:c,host_id:this.me.id,status:'waiting',phase:'lobby',round:0,max_rounds:8,players:[player],scores:{}}).select().single();
+      if(r.error){ alert('Erreur création: '+r.error.message+'\n\nAs-tu exécuté le SQL fb_rooms ?'); return; }
+      this.room=r.data; this.roomId=r.data.id; this.code=c; this.lastPhase='lobby';
+      await this._subscribe(); this.show('screen-mp-lobby'); this.renderLobby();
+    }catch(e){ alert('Erreur: '+e.message); }
+  },
+
+  async joinRoom(){
+    var p=($$('fb-join-pseudo').value||'').trim().slice(0,16);
+    var c=($$('fb-join-code').value||'').trim().toUpperCase();
+    if(!p||p.length<2){ alert('Pseudo requis'); return; }
+    if(!/^[A-Z0-9]{6}$/.test(c)){ alert('Code invalide'); return; }
+    this.me.pseudo=p; this._save();
+    try{
+      var r=await this.client.from('fb_rooms').select('*').eq('code',c).maybeSingle();
+      if(r.error||!r.data){ alert('Salle introuvable'); return; }
+      var pls=(r.data.players||[]).slice();
+      if(!pls.some(function(x){return x.id===FB.me.id;})){
+        if(r.data.status!=='waiting'){
+          // spectateur
+          alert('Partie en cours — tu rejoins comme spectateur');
+          pls.push({id:this.me.id,pseudo:p,avatar:this.me.avatar,host:false,alive:true,spectator:true});
+        } else {
+          pls.push({id:this.me.id,pseudo:p,avatar:this.me.avatar,host:false,alive:true});
+        }
+      }
+      var u=await this.client.from('fb_rooms').update({players:pls,updated_at:new Date().toISOString()}).eq('id',r.data.id).select().single();
+      if(u.error){ alert('Erreur: '+u.error.message); return; }
+      this.room=u.data; this.roomId=u.data.id; this.code=c; this.lastPhase=u.data.phase;
+      await this._subscribe(); this._enterPhase(u.data.phase);
+    }catch(e){ alert('Erreur: '+e.message); }
+  },
+
+  async _subscribe(){
+    if(this.channel){ try{ await this.client.removeChannel(this.channel); }catch(e){} this.channel=null; }
+    var self=this;
+    this.channel=this.client.channel('fb:'+this.code)
+      .on('postgres_changes', {event:'*',schema:'public',table:'fb_rooms',filter:'id=eq.'+this.roomId}, function(payload){
+        if(payload.new) self._onRoom(payload.new);
+      }).subscribe();
+    this._trackPresence();
+  },
+  async _trackPresence(){
+    if(this.presenceChannel){ try{ await this.client.removeChannel(this.presenceChannel); }catch(e){} this.presenceChannel=null; }
+    var self=this;
+    var ch=this.client.channel('fbp:'+this.code, {config:{presence:{key:this.me.id}}});
+    ch.on('presence',{event:'sync'}, function(){
+      var st=ch.presenceState(); self.onlineIds=new Set(Object.keys(st||{}));
+      self._onPresenceChange();
+    });
+    ch.subscribe(async function(s){ if(s==='SUBSCRIBED'){ try{ await ch.track({pseudo:self.me.pseudo, avatar:self.me.avatar, t:Date.now()}); }catch(e){} } });
+    this.presenceChannel=ch;
+  },
+  _isOnline(id){ return this.onlineIds.has(id); },
+  _isHost(){ return this.room && this.room.host_id===this.me.id; },
+  _meP(){ return (this.room.players||[]).find(function(x){return x.id===FB.me.id;}); },
+
+  _onRoom(r){
+    this.room=r;
+    if(r.phase!==this.lastPhase){ this.lastPhase=r.phase; this._enterPhase(r.phase); }
+    else { this._rerender(); }
+    if(this._isHost()){
+      // Auto-advance: write→vote when all answered
+      if(r.phase==='write' && !this._advancing) this._maybeAdvanceToVote();
+      if(r.phase==='vote' && !this._advancing) this._maybeAdvanceToReveal();
+    }
+  },
+  _onPresenceChange(){
+    if(!this.room) return;
+    this._rerender();
+    // Host transfer si host offline
+    if(this.room.host_id && !this._isOnline(this.room.host_id)){
+      this._maybePromoteHost();
+    }
+    // Auto-skip joueurs déconnectés
+    if(this._isHost()) this._autoSubmitDeco();
+  },
+  async _maybePromoteHost(){
+    if(!this.room) return;
+    var pls=(this.room.players||[]);
+    var cand=pls.filter(function(p){return p.id!==FB.room.host_id && FB._isOnline(p.id);}).map(function(p){return p.id;}).sort();
+    if(!cand.length) return;
+    var next=cand[0];
+    if(next!==this.me.id) return;
+    var oldId=this.room.host_id;
+    var newPls=pls.map(function(p){return p.id===next?Object.assign({},p,{host:true}):Object.assign({},p,{host:false});});
+    var r=await this.client.from('fb_rooms').update({host_id:next,players:newPls,updated_at:new Date().toISOString()}).eq('id',this.roomId).eq('host_id',oldId).select();
+    if(r&&r.data&&r.data.length) toast('Tu es le nouvel hôte');
+  },
+  _autoSubmitDeco(){
+    if(!this.room||this.room.phase!=='write') return;
+    var act=this.room.answers||{};
+    var pls=(this.room.players||[]).filter(function(p){return !p.spectator;});
+    var pending=pls.filter(function(p){return !act[p.id];});
+    var allOffline=pending.length>0 && pending.every(function(p){return !FB._isOnline(p.id);});
+    if(allOffline){
+      // Soumet "..." pour les offline, déclenche advance
+      var newAct=Object.assign({},act);
+      pending.forEach(function(p){ newAct[p.id]={text:'...', authorId:p.id, at:Date.now(), auto:true}; });
+      this.client.from('fb_rooms').update({answers:newAct,updated_at:new Date().toISOString()}).eq('id',this.roomId);
+    }
+  },
+  _rerender(){
+    var p=this.room.phase;
+    if(p==='lobby') this.renderLobby();
+    else if(p==='write') this.renderWriting();
+    else if(p==='vote') this.renderVoting();
+    else if(p==='reveal') this.renderReveal();
+    else if(p==='scores') this.renderScores();
+    else if(p==='end') this.renderEnd();
+  },
+  _enterPhase(p){
+    vibrate([200]);
+    if(p==='lobby'){ this.show('screen-mp-lobby'); this.renderLobby(); }
+    else if(p==='write'){ this.show('screen-writing'); this.renderWriting(); this._startWriteTimer(); }
+    else if(p==='vote'){ this.show('screen-voting'); this.renderVoting(); this._startVoteTimer(); }
+    else if(p==='reveal'){ this.show('screen-reveal'); this.renderReveal(); }
+    else if(p==='scores'){ this.show('screen-scores'); this.renderScores(); }
+    else if(p==='end'){ this.show('screen-end'); this.renderEnd(); }
+  },
+
+  /* ===== LOBBY ===== */
+  renderLobby(){
+    var r=this.room; if(!r) return;
+    $$('fb-lobby-code').textContent=r.code;
+    var list=$$('fb-lobby-players'); list.innerHTML='';
+    (r.players||[]).forEach(function(p){
+      var d=document.createElement('div');
+      var online=FB._isOnline(p.id);
+      d.className='fb-player-row'+(online?'':' deco');
+      d.innerHTML='<span class="fb-ava">'+p.avatar+'</span><span class="fb-nm">'+esc(p.pseudo)+'</span>'+(p.host?'<span class="fb-badge">Hôte</span>':'')+(online?'':'<span class="fb-badge deco">⚡ Déco</span>');
+      list.appendChild(d);
+    });
+    var n=(r.players||[]).length; $$('fb-lobby-count').textContent=n;
+    var host=this._isHost();
+    var btn=$$('fb-start-btn');
+    btn.disabled=!(host && n>=MIN_PLAYERS);
+    btn.textContent = host ? (n<MIN_PLAYERS?'Attente ('+n+'/'+MIN_PLAYERS+')':'LANCER LA PARTIE') : "En attente de l'hôte...";
+    this._renderQR();
+  },
+  _inviteLink(){ return location.origin+location.pathname.replace(/[^/]*$/, 'fibbage.html')+'?join='+encodeURIComponent(this.code); },
+  _renderQR(){
+    var w=$$('fb-qr-wrap'); if(!w) return;
+    if(!this.code){ w.innerHTML=''; return; }
+    if(w.dataset.code===this.code) return;
+    w.dataset.code=this.code;
+    var url='https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&bgcolor=05050F&color=9B59FF&data='+encodeURIComponent(this._inviteLink());
+    w.innerHTML='<img width="180" height="180" alt="QR" src="'+url+'"><div style="font-size:11px;color:#9ec4ff;letter-spacing:1px">SCANNE POUR REJOINDRE</div>';
+  },
+  async copyCode(){ try{ await navigator.clipboard.writeText(this.code); toast('Code copié'); }catch(e){} },
+  async copyLink(){ try{ await navigator.clipboard.writeText(this._inviteLink()); toast('Lien copié'); }catch(e){} },
+  async leaveLobby(){
+    if(!this.room) return this.show('screen-home');
+    var pls=(this.room.players||[]).filter(function(x){return x.id!==FB.me.id;});
+    try{
+      if(pls.length===0){ await this.client.from('fb_rooms').delete().eq('id',this.roomId); }
+      else if(this._isHost()){ pls[0].host=true; await this.client.from('fb_rooms').update({players:pls,host_id:pls[0].id,updated_at:new Date().toISOString()}).eq('id',this.roomId); }
+      else { await this.client.from('fb_rooms').update({players:pls,updated_at:new Date().toISOString()}).eq('id',this.roomId); }
+    }catch(e){}
+    if(this.channel){ try{ await this.client.removeChannel(this.channel); }catch(e){} this.channel=null; }
+    if(this.presenceChannel){ try{ await this.client.removeChannel(this.presenceChannel); }catch(e){} this.presenceChannel=null; }
+    this.room=null; this.roomId=null; this.code=null; this.lastPhase=null; this.onlineIds=new Set();
+    this.show('screen-home');
+  },
+
+  /* ===== START GAME ===== */
+  async startGame(){
+    if(!this._isHost()) return;
+    if((this.room.players||[]).length<MIN_PLAYERS){ alert('2 joueurs min'); return; }
+    var q=this._pickQuestion();
+    if(!q){ alert('Erreur questions'); return; }
+    var scores={};
+    (this.room.players||[]).forEach(function(p){ scores[p.id]=0; });
+    await this.client.from('fb_rooms').update({status:'playing',phase:'write',round:1,current_question:q,answers:{},votes:{},scores:scores,used_questions:[q.id],updated_at:new Date().toISOString()}).eq('id',this.roomId);
+  },
+  _pickQuestion(){
+    var used=(this.room && this.room.used_questions)||[];
+    var pool=window.QUESTIONS.filter(function(q){return used.indexOf(q.id)<0;});
+    if(pool.length===0){ pool=window.QUESTIONS.slice(); used=[]; }
+    var q=pool[Math.floor(Math.random()*pool.length)];
+    return {id:q.id,question:q.question,answer:q.answer,category:q.category,difficulty:q.difficulty,fun_fact:q.fun_fact};
+  },
+
+  /* ===== WRITE PHASE ===== */
+  renderWriting(){
+    var r=this.room, q=r.current_question||{}, me=this._meP();
+    $$('fb-w-cat').textContent=q.category||'';
+    $$('fb-w-question').textContent=q.question||'';
+    var my=(r.answers||{})[this.me.id];
+    var ta=$$('fb-w-text'), btn=$$('fb-w-submit'), st=$$('fb-w-status');
+    if(my){
+      ta.value=my.text; ta.disabled=true; btn.disabled=true; btn.textContent='✓ Envoyé';
+      var tot=(r.players||[]).filter(function(p){return !p.spectator;}).length;
+      var done=Object.keys(r.answers||{}).length;
+      st.textContent='Réponses : '+done+'/'+tot+' — en attente...';
+    } else {
+      ta.disabled=false; btn.disabled=false; btn.textContent='SOUMETTRE';
+      st.textContent='';
+      ta.oninput=function(){ $$('fb-w-count').textContent=ta.value.length; };
+      $$('fb-w-count').textContent=ta.value.length;
+      // Display timer if not running
+      if(!$$('fb-w-progress')){ $$('fb-w-timer-svg').innerHTML=createTimerSVG('fb-w'); }
+    }
+  },
+  _startWriteTimer(){
+    if(this._isHost() || true){ // tous les clients affichent le timer; le host est autorité
+      $$('fb-w-timer-svg').innerHTML=createTimerSVG('fb-w');
+      var self=this;
+      startTimer('fb-w', WRITE_TIME, function(){
+        // auto-submit '...' si pas envoyé
+        var my=(self.room.answers||{})[self.me.id];
+        if(!my){ self._submitText('...'); }
+      });
+    }
+  },
+  async submitAnswer(){
+    var ta=$$('fb-w-text'); var txt=(ta.value||'').trim().slice(0,80);
+    if(!txt){ toast('Écris une réponse'); return; }
+    var trueAns=(this.room.current_question||{}).answer||'';
+    if(tooClose(txt, trueAns)){ toast('Trop proche de la vraie réponse 😏', 2400); ta.style.borderColor='#FF6B9D'; setTimeout(function(){ta.style.borderColor='';},1500); return; }
+    await this._submitText(txt);
+  },
+  async _submitText(txt){
+    if(!this.room) return;
+    var ans=Object.assign({},this.room.answers||{});
+    ans[this.me.id]={text:txt, authorId:this.me.id, at:Date.now()};
+    try{ await this.client.from('fb_rooms').update({answers:ans,updated_at:new Date().toISOString()}).eq('id',this.roomId); }catch(e){}
+  },
+  async _maybeAdvanceToVote(){
+    if(this._advancing) return;
+    var pls=(this.room.players||[]).filter(function(p){return !p.spectator;});
+    var ans=this.room.answers||{};
+    var allIn=pls.every(function(p){return !!ans[p.id];});
+    if(!allIn) return;
+    this._advancing=true;
+    setTimeout(async ()=>{
+      FB._advancing=false;
+      if(!FB.room||FB.room.phase!=='write') return;
+      stopTimer();
+      await FB.client.from('fb_rooms').update({phase:'vote',votes:{},updated_at:new Date().toISOString()}).eq('id',FB.roomId);
+    }, 800);
+  },
+
+  /* ===== VOTE PHASE ===== */
+  renderVoting(){
+    var r=this.room, q=r.current_question||{}, me=this._meP();
+    $$('fb-v-cat').textContent=q.category||'';
+    $$('fb-v-question').textContent=q.question||'';
+    var grid=$$('fb-v-answers'); grid.innerHTML='';
+    var ans=r.answers||{}, votes=r.votes||{};
+    // Build list: all submitted + true answer (anonymous)
+    var entries=[];
+    Object.keys(ans).forEach(function(pid){
+      entries.push({id:'a:'+pid, text:ans[pid].text, authorId:pid, isTrue:false});
+    });
+    entries.push({id:'truth', text:q.answer, authorId:null, isTrue:true});
+    // Stable shuffle per client
+    if(!this.shuffledAnswerOrder.length || this.shuffledAnswerOrder[0]?.qid!==q.id){
+      var order=shuffle(entries);
+      this.shuffledAnswerOrder=[Object.assign({qid:q.id}, order[0])].concat(order.slice(1));
+      this._currentEntries=order;
+    } else {
+      // re-render avec même ordre
+    }
+    var shown=this._currentEntries||shuffle(entries);
+    this._currentEntries=shown;
+    var myVote=votes[this.me.id];
+    shown.forEach(function(e){
+      var btn=document.createElement('button');
+      var isMine = e.authorId===FB.me.id;
+      var cls='fb-answer'+(isMine?' disabled':'')+(myVote===e.id?' sel':'');
+      btn.className=cls;
+      btn.disabled=isMine||!!myVote;
+      btn.innerHTML=esc(e.text)+(isMine?'<span class="fb-answer-meta">— Ta réponse</span>':'');
+      btn.onclick=function(){ if(!isMine && !myVote) FB.submitVote(e.id); };
+      grid.appendChild(btn);
+    });
+    var pls=(r.players||[]).filter(function(p){return !p.spectator;});
+    var voted=Object.keys(votes).length;
+    $$('fb-v-status').textContent='Votes : '+voted+'/'+pls.length;
+  },
+  _startVoteTimer(){
+    $$('fb-v-timer-svg').innerHTML=createTimerSVG('fb-v');
+    startTimer('fb-v', VOTE_TIME, function(){
+      var my=(FB.room.votes||{})[FB.me.id];
+      if(!my){
+        // vote aléatoire excluant sa propre réponse
+        var ans=FB.room.answers||{};
+        var ids=Object.keys(ans).map(function(pid){return 'a:'+pid;}).filter(function(id){return id!=='a:'+FB.me.id;});
+        ids.push('truth');
+        if(ids.length){
+          var pick=ids[Math.floor(Math.random()*ids.length)];
+          FB.submitVote(pick);
+        }
+      }
+    });
+  },
+  async submitVote(answerId){
+    if(!this.room) return;
+    var votes=Object.assign({},this.room.votes||{}); votes[this.me.id]=answerId;
+    try{ await this.client.from('fb_rooms').update({votes:votes,updated_at:new Date().toISOString()}).eq('id',this.roomId); }catch(e){}
+  },
+  async _maybeAdvanceToReveal(){
+    if(this._advancing) return;
+    var pls=(this.room.players||[]).filter(function(p){return !p.spectator;});
+    var votes=this.room.votes||{};
+    var allIn=pls.every(function(p){return !!votes[p.id];});
+    if(!allIn) return;
+    this._advancing=true;
+    setTimeout(async ()=>{
+      FB._advancing=false;
+      if(!FB.room||FB.room.phase!=='vote') return;
+      stopTimer();
+      // Compute scores
+      var scores=FB._computeRoundScores();
+      var totalScores=Object.assign({}, FB.room.scores||{});
+      Object.keys(scores).forEach(function(pid){ totalScores[pid]=(totalScores[pid]||0)+scores[pid]; });
+      await FB.client.from('fb_rooms').update({phase:'reveal', scores:totalScores, current_question: Object.assign({}, FB.room.current_question, {round_scores:scores}), updated_at:new Date().toISOString()}).eq('id',FB.roomId);
+    }, 700);
+  },
+
+  /* ===== SCORE COMPUTATION ===== */
+  _computeRoundScores(){
+    var r=this.room, q=r.current_question||{}, ans=r.answers||{}, votes=r.votes||{};
+    var trueAns=q.answer||'';
+    var pls=(r.players||[]).filter(function(p){return !p.spectator;});
+    var scores={}; pls.forEach(function(p){ scores[p.id]=0; });
+    var correctVoters=[]; // ordre d'arrivée approx via at
+    var voteEntries=Object.entries(votes);
+    voteEntries.forEach(function(kv){
+      var voter=kv[0], answerId=kv[1];
+      if(answerId==='truth'){
+        scores[voter]=(scores[voter]||0)+POINTS.FOUND_TRUTH;
+        correctVoters.push(voter);
+      } else if(answerId.indexOf('a:')===0){
+        var authorId=answerId.slice(2);
+        if(authorId && authorId!==voter && ans[authorId]){
+          var t=ans[authorId].text;
+          if(!tooClose(t, trueAns)){
+            scores[authorId]=(scores[authorId]||0)+POINTS.FOOLED_PLAYER;
+          }
+        }
+      }
+    });
+    if(correctVoters.length>0){
+      scores[correctVoters[0]]=(scores[correctVoters[0]]||0)+POINTS.FIRST_TO_FIND;
+    }
+    // Bonus si tu as trompé TOUS les autres
+    var others=pls.length-1;
+    if(others>0){
+      pls.forEach(function(p){
+        var fooled=voteEntries.filter(function(kv){ return kv[1]==='a:'+p.id && kv[0]!==p.id; }).length;
+        if(fooled===others) scores[p.id]=(scores[p.id]||0)+POINTS.EVERYONE_FOOLED;
+      });
+    }
+    return scores;
+  },
+
+  /* ===== REVEAL ===== */
+  renderReveal(){
+    var r=this.room, q=r.current_question||{}, me=this._meP();
+    var area=$$('fb-r-area');
+    var ans=r.answers||{}, votes=r.votes||{};
+    var trueAns=q.answer||'';
+    var rs=(q.round_scores)||{};
+    var voters={}; Object.entries(votes).forEach(function(kv){ voters[kv[1]]=(voters[kv[1]]||[]).concat([kv[0]]); });
+
+    var html='<div style="text-align:center"><span class="fb-cat">'+esc(q.category)+'</span></div>'
+      +'<div class="fb-question">'+esc(q.question)+'</div>'
+      +'<div style="text-align:center;font-size:14px;color:#9ec4ff;margin:10px 0 6px">🎺 La vraie réponse était...</div>'
+      +'<div class="fb-answer true" style="font-size:18px;text-align:center;font-weight:900">'+esc(trueAns)+'</div>'
+      +'<div style="font-style:italic;color:#c084fc;text-align:center;margin:8px 0;font-size:13px">💡 '+esc(q.fun_fact||'')+'</div>'
+      +'<h3 class="fb-h" style="margin-top:18px">Les bluffs des joueurs</h3>';
+
+    Object.keys(ans).forEach(function(pid){
+      var p=(r.players||[]).find(function(x){return x.id===pid;});
+      if(!p) return;
+      var t=ans[pid].text;
+      var votedFor=(voters['a:'+pid]||[]).map(function(vid){
+        var vp=(r.players||[]).find(function(x){return x.id===vid;});
+        return vp?vp.avatar+' '+vp.pseudo:'?';
+      });
+      var pts=rs[pid]||0;
+      html+='<div class="fb-answer fake" style="margin:6px 0">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px">'
+        +'<span><span style="font-size:18px">'+p.avatar+'</span> <b>'+esc(p.pseudo)+'</b></span>'
+        +(pts?'<span class="fb-badge score">+'+pts+' pts</span>':'')
+        +'</div>'
+        +'<div style="font-size:14px">"'+esc(t)+'"</div>'
+        +(votedFor.length?'<div class="fb-answer-meta">Trompé : '+votedFor.map(esc).join(', ')+'</div>':'<div class="fb-answer-meta">Personne ne s\'est laissé avoir</div>')
+        +'</div>';
+    });
+
+    if(this._isHost()){
+      html+='<button class="btn" onclick="FB.gotoScores()" style="margin-top:14px">SUITE →</button>';
+    } else {
+      html+='<div class="fb-wait">En attente de l\'hôte...</div>';
+    }
+    area.innerHTML=html;
+
+    // Sons après render
+    var myDelta=rs[this.me.id]||0;
+    setTimeout(function(){
+      playDrumRoll(1500, function(){
+        if(myDelta>=1000) playPoints(true);
+        else if(myDelta>=500) playPoints(false);
+        else if(myDelta===0) playWahWah();
+      });
+    }, 200);
+  },
+  async gotoScores(){
+    if(!this._isHost()) return;
+    await this.client.from('fb_rooms').update({phase:'scores',updated_at:new Date().toISOString()}).eq('id',this.roomId);
+  },
+
+  /* ===== SCORES ===== */
+  renderScores(){
+    var r=this.room;
+    var pls=(r.players||[]).filter(function(p){return !p.spectator;});
+    var scores=r.scores||{};
+    var sorted=pls.slice().sort(function(a,b){ return (scores[b.id]||0) - (scores[a.id]||0); });
+    var rs=(r.current_question||{}).round_scores||{};
+    var html='';
+    sorted.forEach(function(p,i){
+      var podium=i===0?'podium-1':i===1?'podium-2':i===2?'podium-3':'';
+      var posCls=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      var delta=rs[p.id]||0;
+      html+='<div class="fb-score-row '+podium+'"><div class="pos '+posCls+'">'+(i+1)+'</div><div class="ava">'+p.avatar+'</div><div class="nm">'+esc(p.pseudo)+'</div><div class="pts">'+(scores[p.id]||0)+(delta>0?'<span class="delta">+'+delta+'</span>':'')+'</div></div>';
+    });
+    $$('fb-s-list').innerHTML=html;
+    $$('fb-s-title').textContent='📊 Manche '+r.round+'/'+r.max_rounds;
+    var host=this._isHost();
+    $$('fb-s-host-actions').style.display=host?'block':'none';
+    var nextBtn=$$('fb-s-next-btn');
+    if(host){
+      var isLast = r.round >= r.max_rounds;
+      nextBtn.textContent = isLast ? '🏆 VOIR LE GAGNANT' : 'MANCHE SUIVANTE';
+    }
+    $$('fb-s-wait').innerHTML = host ? '' : '<div class="fb-wait">En attente de l\'hôte...</div>';
+  },
+  async nextRound(){
+    if(!this._isHost()) return;
+    var r=this.room;
+    if(r.round >= r.max_rounds){
+      await this.client.from('fb_rooms').update({phase:'end', status:'finished', updated_at:new Date().toISOString()}).eq('id',this.roomId);
+      return;
+    }
+    var q=this._pickQuestion();
+    var used=(r.used_questions||[]).slice(); used.push(q.id);
+    await this.client.from('fb_rooms').update({phase:'write', round:r.round+1, current_question:q, answers:{}, votes:{}, used_questions:used, updated_at:new Date().toISOString()}).eq('id',this.roomId);
+  },
+
+  /* ===== END ===== */
+  renderEnd(){
+    var r=this.room;
+    var pls=(r.players||[]).filter(function(p){return !p.spectator;});
+    var scores=r.scores||{};
+    var sorted=pls.slice().sort(function(a,b){ return (scores[b.id]||0) - (scores[a.id]||0); });
+    var winner=sorted[0];
+    // Stats
+    var fooledCount={}, foundCount={};
+    pls.forEach(function(p){fooledCount[p.id]=0; foundCount[p.id]=0;});
+    // Approximation: pas d'historique → on annonce juste le top
+    var html='<h1 style="text-align:center;font-size:28px;font-weight:900;background:linear-gradient(90deg,#FFD700,#FF6B9D);-webkit-background-clip:text;background-clip:text;color:transparent">🏆 '+esc(winner?winner.pseudo:'?')+' GAGNE !</h1>';
+    html+='<p style="text-align:center;color:#c084fc;font-size:14px">Score final : '+(scores[winner.id]||0)+' pts</p>';
+    html+='<h3 class="fb-h">Classement final</h3><div class="fb-scores">';
+    sorted.forEach(function(p,i){
+      var podium=i===0?'podium-1':i===1?'podium-2':i===2?'podium-3':'';
+      var posCls=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      html+='<div class="fb-score-row '+podium+'"><div class="pos '+posCls+'">'+(i+1)+'</div><div class="ava">'+p.avatar+'</div><div class="nm">'+esc(p.pseudo)+'</div><div class="pts">'+(scores[p.id]||0)+'</div></div>';
+    });
+    html+='</div>';
+    if(this._isHost()){
+      html+='<button class="btn" onclick="FB.rematch()" style="margin-top:14px">🔁 REVANCHE</button>';
+    }
+    html+='<button class="btn ghost" onclick="FB.leaveLobby()">RETOUR LELOX</button>';
+    $$('fb-end-area').innerHTML=html;
+    setTimeout(function(){ launchConfetti(80); }, 200);
+    setTimeout(function(){ playPoints(true); }, 400);
+  },
+  async rematch(){
+    if(!this._isHost()) return;
+    var pls=(this.room.players||[]).map(function(p){ return Object.assign({},p,{spectator:false}); });
+    var scores={}; pls.forEach(function(p){scores[p.id]=0;});
+    var q=this._pickQuestion();
+    await this.client.from('fb_rooms').update({status:'playing',phase:'write',round:1,current_question:q,answers:{},votes:{},scores:scores,used_questions:[q.id],players:pls,updated_at:new Date().toISOString()}).eq('id',this.roomId);
+  },
+
+  async openJoinWithCode(c){
+    if(!this.init()) return;
+    this._renderAvatars('fb-join-avatars','fb-join-avatar-sel');
+    this.show('screen-mp-join');
+    var ci=$$('fb-join-code'); if(ci) ci.value=(c||'').toUpperCase();
+    var pi=$$('fb-join-pseudo'); if(pi) pi.value=this.me.pseudo||'';
+  }
+};
+
+/* ============================================================
+   LocalFB — mode local (pass-the-phone)
+   ============================================================ */
+const LocalFB={
+  count:3, rounds:5, players:[], scores:{}, used:[],
+  round:0, currentQ:null, answers:{}, votes:{}, currentIdx:0, currentVoter:0, shuffledAns:[],
+
+  setup(){
+    this.localOnCount=FB.localOnCount;
+    this.renderNames();
+    FB.localOnCount();
+    FB.localOnRounds();
+  },
+  renderNames(){
+    var c=$$('fb-l-names'); c.innerHTML='';
+    for(var i=0;i<this.count;i++){
+      var name=this.players[i]?this.players[i].name:('Joueur '+(i+1));
+      c.innerHTML+='<input class="fb-input" maxlength="14" placeholder="Joueur '+(i+1)+'" value="'+esc(name)+'" id="fb-l-name-'+i+'" style="margin-bottom:6px">';
+    }
+  },
+  start(){
+    this.players=[];
+    for(var i=0;i<this.count;i++){
+      var v=($$('fb-l-name-'+i).value||'').trim()||('Joueur '+(i+1));
+      this.players.push({id:'l'+i, name:v, avatar:AVATARS[i%AVATARS.length]});
+    }
+    this.scores={}; this.players.forEach(function(p){LocalFB.scores[p.id]=0;});
+    this.used=[]; this.round=0;
+    this.nextRoundLocal();
+  },
+  pickQ(){
+    var pool=window.QUESTIONS.filter(function(q){return LocalFB.used.indexOf(q.id)<0;});
+    if(!pool.length){ pool=window.QUESTIONS.slice(); LocalFB.used=[]; }
+    var q=pool[Math.floor(Math.random()*pool.length)];
+    LocalFB.used.push(q.id);
+    return q;
+  },
+  nextRoundLocal(){
+    if(this.round>=this.rounds){ this.endLocal(); return; }
+    this.round++; this.currentQ=this.pickQ(); this.answers={}; this.votes={}; this.currentIdx=0; this.currentVoter=0;
+    this.askWriter();
+  },
+  askWriter(){
+    if(this.currentIdx>=this.players.length){ this.startVoting(); return; }
+    var p=this.players[this.currentIdx];
+    $$('fb-l-pass-name').textContent=p.name;
+    $$('fb-l-pass-area').style.display='block';
+    $$('fb-l-write-area').style.display='none';
+    FB.show('screen-local-writing');
+  },
+  showQuestion(){
+    var p=this.players[this.currentIdx];
+    $$('fb-l-pass-area').style.display='none';
+    $$('fb-l-write-area').style.display='block';
+    $$('fb-l-cat').textContent=this.currentQ.category;
+    $$('fb-l-question').textContent=this.currentQ.question;
+    $$('fb-l-write-name').textContent=p.name;
+    var ta=$$('fb-l-text'); ta.value=''; $$('fb-l-count-text').textContent='0';
+    ta.oninput=function(){ $$('fb-l-count-text').textContent=ta.value.length; };
+  },
+  submitLocalAnswer(){
+    var ta=$$('fb-l-text'); var txt=(ta.value||'').trim().slice(0,80);
+    if(!txt){ toast('Écris une réponse'); return; }
+    if(tooClose(txt, this.currentQ.answer)){ toast('Trop proche de la vraie 😏', 2400); return; }
+    var p=this.players[this.currentIdx];
+    this.answers[p.id]={text:txt, authorId:p.id};
+    this.currentIdx++;
+    this.askWriter();
+  },
+  startVoting(){
+    // Build entries
+    var entries=[];
+    Object.keys(this.answers).forEach(function(pid){ entries.push({id:'a:'+pid, text:LocalFB.answers[pid].text, authorId:pid, isTrue:false}); });
+    entries.push({id:'truth', text:this.currentQ.answer, authorId:null, isTrue:true});
+    this.shuffledAns=shuffle(entries);
+    this.askVoter();
+  },
+  askVoter(){
+    if(this.currentVoter>=this.players.length){ this.revealLocal(); return; }
+    var p=this.players[this.currentVoter];
+    $$('fb-l-vote-pass-name').textContent=p.name;
+    $$('fb-l-vote-pass').style.display='block';
+    $$('fb-l-vote-area').style.display='none';
+    FB.show('screen-local-voting');
+  },
+  showVote(){
+    var p=this.players[this.currentVoter];
+    $$('fb-l-vote-pass').style.display='none';
+    $$('fb-l-vote-area').style.display='block';
+    $$('fb-l-v-cat').textContent=this.currentQ.category;
+    $$('fb-l-v-question').textContent=this.currentQ.question;
+    $$('fb-l-vote-name').textContent=p.name;
+    var grid=$$('fb-l-v-answers'); grid.innerHTML='';
+    this.shuffledAns.forEach(function(e){
+      var btn=document.createElement('button');
+      var isMine=e.authorId===p.id;
+      btn.className='fb-answer'+(isMine?' disabled':'');
+      btn.disabled=isMine;
+      btn.innerHTML=esc(e.text)+(isMine?'<span class="fb-answer-meta">— Ta réponse</span>':'');
+      btn.onclick=function(){ if(!isMine){ LocalFB.votes[p.id]=e.id; LocalFB.currentVoter++; LocalFB.askVoter(); } };
+      grid.appendChild(btn);
+    });
+  },
+  revealLocal(){
+    // Compute scores like multi
+    var trueAns=this.currentQ.answer;
+    var roundScores={}; this.players.forEach(function(p){roundScores[p.id]=0;});
+    var corr=[];
+    Object.entries(this.votes).forEach(function(kv){
+      var voter=kv[0], answerId=kv[1];
+      if(answerId==='truth'){ roundScores[voter]=(roundScores[voter]||0)+POINTS.FOUND_TRUTH; corr.push(voter); }
+      else if(answerId.indexOf('a:')===0){
+        var aid=answerId.slice(2);
+        if(aid && aid!==voter && LocalFB.answers[aid]){ roundScores[aid]=(roundScores[aid]||0)+POINTS.FOOLED_PLAYER; }
+      }
+    });
+    if(corr.length>0) roundScores[corr[0]]=(roundScores[corr[0]]||0)+POINTS.FIRST_TO_FIND;
+    Object.keys(roundScores).forEach(function(pid){ LocalFB.scores[pid]=(LocalFB.scores[pid]||0)+roundScores[pid]; });
+
+    // Render reveal
+    var voters={}; Object.entries(this.votes).forEach(function(kv){ voters[kv[1]]=(voters[kv[1]]||[]).concat([kv[0]]); });
+    var html='<div style="text-align:center"><span class="fb-cat">'+esc(this.currentQ.category)+'</span></div>'
+      +'<div class="fb-question">'+esc(this.currentQ.question)+'</div>'
+      +'<div style="text-align:center;font-size:14px;color:#9ec4ff;margin:10px 0 6px">🎺 La vraie réponse était...</div>'
+      +'<div class="fb-answer true" style="font-size:18px;text-align:center;font-weight:900">'+esc(trueAns)+'</div>'
+      +'<div style="font-style:italic;color:#c084fc;text-align:center;margin:8px 0;font-size:13px">💡 '+esc(this.currentQ.fun_fact||'')+'</div>'
+      +'<h3 class="fb-h" style="margin-top:18px">Les bluffs</h3>';
+    Object.keys(this.answers).forEach(function(pid){
+      var p=LocalFB.players.find(function(x){return x.id===pid;});
+      var t=LocalFB.answers[pid].text;
+      var vf=(voters['a:'+pid]||[]).map(function(vid){
+        var vp=LocalFB.players.find(function(x){return x.id===vid;});
+        return vp?vp.avatar+' '+vp.name:'?';
+      });
+      var pts=roundScores[pid]||0;
+      html+='<div class="fb-answer fake" style="margin:6px 0">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px"><span><span style="font-size:18px">'+p.avatar+'</span> <b>'+esc(p.name)+'</b></span>'+(pts?'<span class="fb-badge score">+'+pts+' pts</span>':'')+'</div>'
+        +'<div style="font-size:14px">"'+esc(t)+'"</div>'
+        +(vf.length?'<div class="fb-answer-meta">Trompé : '+vf.map(esc).join(', ')+'</div>':'<div class="fb-answer-meta">Personne</div>')
+        +'</div>';
+    });
+    html+='<h3 class="fb-h" style="margin-top:14px">📊 Scores après '+this.round+'/'+this.rounds+'</h3><div class="fb-scores">';
+    var sorted=this.players.slice().sort(function(a,b){return LocalFB.scores[b.id]-LocalFB.scores[a.id];});
+    sorted.forEach(function(p,i){
+      var podium=i===0?'podium-1':i===1?'podium-2':i===2?'podium-3':'';
+      var posCls=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      var d=roundScores[p.id]||0;
+      html+='<div class="fb-score-row '+podium+'"><div class="pos '+posCls+'">'+(i+1)+'</div><div class="ava">'+p.avatar+'</div><div class="nm">'+esc(p.name)+'</div><div class="pts">'+(LocalFB.scores[p.id]||0)+(d>0?'<span class="delta">+'+d+'</span>':'')+'</div></div>';
+    });
+    html+='</div>';
+    var nextLabel = this.round>=this.rounds ? '🏆 VOIR LE GAGNANT' : 'MANCHE SUIVANTE';
+    html+='<button class="btn" onclick="LocalFB.next()" style="margin-top:14px">'+nextLabel+'</button>';
+    var area=$$('fb-r-area'); area.innerHTML=html; FB.show('screen-reveal');
+    setTimeout(function(){ playDrumRoll(1500); }, 200);
+  },
+  next(){ this.nextRoundLocal(); },
+  endLocal(){
+    var sorted=this.players.slice().sort(function(a,b){return LocalFB.scores[b.id]-LocalFB.scores[a.id];});
+    var w=sorted[0];
+    var html='<h1 style="text-align:center;font-size:28px;font-weight:900;background:linear-gradient(90deg,#FFD700,#FF6B9D);-webkit-background-clip:text;background-clip:text;color:transparent">🏆 '+esc(w.name)+' GAGNE !</h1>';
+    html+='<p style="text-align:center;color:#c084fc">Score final : '+(this.scores[w.id]||0)+' pts</p>';
+    html+='<h3 class="fb-h">Classement</h3><div class="fb-scores">';
+    sorted.forEach(function(p,i){
+      var podium=i===0?'podium-1':i===1?'podium-2':i===2?'podium-3':'';
+      var posCls=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      html+='<div class="fb-score-row '+podium+'"><div class="pos '+posCls+'">'+(i+1)+'</div><div class="ava">'+p.avatar+'</div><div class="nm">'+esc(p.name)+'</div><div class="pts">'+(LocalFB.scores[p.id]||0)+'</div></div>';
+    });
+    html+='</div><button class="btn" onclick="FB.show(\'screen-local-setup\');LocalFB.setup()">🔁 REVANCHE</button><button class="btn ghost" onclick="FB.show(\'screen-home\')">RETOUR LELOX</button>';
+    $$('fb-end-area').innerHTML=html; FB.show('screen-end');
+    setTimeout(function(){ launchConfetti(80); }, 200);
+    setTimeout(function(){ playPoints(true); }, 400);
+  }
+};
+
+/* Local UI helpers */
+FB.localOnCount=function(){ var v=parseInt($$('fb-l-count').value,10); LocalFB.count=v; $$('fb-l-count-display').textContent=v; LocalFB.renderNames(); };
+FB.localOnRounds=function(){ var v=parseInt($$('fb-l-rounds').value,10); LocalFB.rounds=v; $$('fb-l-rounds-display').textContent=v; };
+FB.localChangeCount=function(d){ var i=$$('fb-l-count'); i.value=Math.max(2, Math.min(8, parseInt(i.value,10)+d)); FB.localOnCount(); };
+FB.localChangeRounds=function(d){ var i=$$('fb-l-rounds'); i.value=Math.max(3, Math.min(10, parseInt(i.value,10)+d)); FB.localOnRounds(); };
+FB.localStart=function(){ LocalFB.start(); };
+FB.localShowQuestion=function(){ LocalFB.showQuestion(); };
+FB.localSubmitAnswer=function(){ LocalFB.submitLocalAnswer(); };
+FB.localShowVote=function(){ LocalFB.showVote(); };
+
+window.FB=FB; window.LocalFB=LocalFB;
+
+/* Auto-join via ?join=CODE */
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    var p=new URLSearchParams(location.search);
+    var c=p.get('join') || localStorage.getItem('fb_pending_join');
+    if(c){
+      localStorage.removeItem('fb_pending_join');
+      try{ history.replaceState({}, '', location.pathname); }catch(e){}
+      setTimeout(function(){ FB.openJoinWithCode(c); }, 300);
+    }
+  }catch(e){}
+});
+
+/* SW */
+if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
+
+/* beforeunload cleanup */
+window.addEventListener('beforeunload', function(){
+  try{ if(FB.presenceChannel && FB.client) FB.client.removeChannel(FB.presenceChannel); }catch(e){}
+  try{ if(FB.channel && FB.client) FB.client.removeChannel(FB.channel); }catch(e){}
+});
+
+})();
+</script>
+
+</body>
+</html>

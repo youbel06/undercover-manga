@@ -1479,7 +1479,6 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
 
 <!-- ============ LG MULTIJOUEUR ============ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 /* ============================================================
    LG_MP — Loup-Garou multijoueur en ligne (Supabase realtime)
@@ -1694,13 +1693,11 @@ const LG_MP = {
   _inviteLink(){ return location.origin+location.pathname.replace(/[^/]*$/, 'loupgarou.html')+'?join='+encodeURIComponent(this.code); },
   _renderQR(){
     var wrap=document.getElementById('mp-qr-wrap'); if(!wrap) return;
-    if(!this.code || !window.QRCode){ wrap.innerHTML=''; return; }
+    if(!this.code){ wrap.innerHTML=''; return; }
     if(wrap.dataset.code===this.code) return;
     wrap.dataset.code=this.code;
-    wrap.innerHTML='<canvas id="mp-qr-canvas"></canvas><div style="font-size:11px;color:#8ea0c4;letter-spacing:1px">SCANNE POUR REJOINDRE</div>';
-    try{
-      QRCode.toCanvas(document.getElementById('mp-qr-canvas'), this._inviteLink(), {width:180, margin:1, color:{dark:'#6cb1ff', light:'#05050F'}});
-    }catch(e){ console.error('QR error', e); }
+    var url = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&bgcolor=05050F&color=6cb1ff&data='+encodeURIComponent(this._inviteLink());
+    wrap.innerHTML='<img id="mp-qr-img" width="180" height="180" alt="QR code" src="'+url+'"><div style="font-size:11px;color:#8ea0c4;letter-spacing:1px;text-align:center">SCANNE POUR REJOINDRE</div>';
   },
   async copyCode(){ try{ await navigator.clipboard.writeText(this.code); LG_MP._toast('Code copié'); }catch(e){} },
   async copyLink(){ try{ await navigator.clipboard.writeText(this._inviteLink()); LG_MP._toast('Lien copié'); }catch(e){} },

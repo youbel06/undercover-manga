@@ -211,6 +211,27 @@ pre{background:#05050F;padding:12px;border-radius:8px;margin-top:10px;overflow-x
 .mp-modal ul{padding-left:20px;color:#c8d4f0;line-height:1.7}
 .mp-rule-role{display:flex;gap:10px;padding:10px 12px;margin:6px 0;border-radius:10px;background:rgba(108,177,255,.06);border:1px solid rgba(108,177,255,.15)}
 .mp-rule-role .ic{font-size:28px}
+
+/* ===== Chat LG ===== */
+.mp-chat-list{max-height:320px;overflow-y:auto;padding:4px;display:flex;flex-direction:column;gap:6px;background:rgba(5,5,15,.4);border-radius:10px;border:1px solid rgba(108,177,255,.08);padding:10px;scroll-behavior:smooth}
+.mp-chat-msg{display:flex;gap:8px;align-items:flex-start;animation:mpSlideIn .25s ease}
+.mp-chat-msg.me{flex-direction:row-reverse}
+.mp-chat-msg .chat-ava{font-size:22px;flex-shrink:0}
+.mp-chat-msg .chat-bubble{background:rgba(108,177,255,.12);border:1px solid rgba(108,177,255,.2);padding:8px 12px;border-radius:14px;max-width:75%;word-break:break-word;font-size:14px;line-height:1.4}
+.mp-chat-msg.me .chat-bubble{background:linear-gradient(135deg,rgba(58,141,255,.3),rgba(108,177,255,.25));border-color:rgba(108,177,255,.4)}
+.mp-chat-msg .chat-meta{font-size:10px;color:#8ea0c4;margin-bottom:2px;font-weight:700;letter-spacing:.5px}
+.mp-chat-msg.dead{opacity:.55}
+.mp-chat-msg.dead .chat-bubble::before{content:'☠️ ';}
+.mp-chat-reactions{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+.mp-chat-reactions button{background:rgba(108,177,255,.08);border:1px solid rgba(108,177,255,.2);border-radius:20px;padding:6px 12px;color:#fff;font-size:18px;cursor:pointer;transition:transform .15s,background .15s}
+.mp-chat-reactions button:hover{transform:scale(1.1);background:rgba(108,177,255,.2)}
+.mp-chat-inputrow{display:flex;gap:8px;align-items:center}
+.mp-chat-inputrow .mp-input{flex:1;margin:0}
+.mp-chat-msg.reaction .chat-bubble{font-size:22px;padding:4px 10px}
+
+/* ===== QR lobby ===== */
+#mp-qr-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:10px}
+#mp-qr-wrap canvas,#mp-qr-wrap img{border-radius:12px;background:#05050F;padding:8px;box-shadow:0 0 24px rgba(108,177,255,.25)}
 </style>
 </head>
 <body>
@@ -495,7 +516,11 @@ ALTER PUBLICATION supabase_realtime ADD TABLE lw_players;</pre>
     <div style="text-align:center">
       <div style="font-size:11px;color:#8ea0c4;letter-spacing:3px">CODE DE LA SALLE</div>
       <div style="font-size:36px;font-weight:900;letter-spacing:8px;margin:6px 0;background:linear-gradient(90deg,#6cb1ff,#a88dff);-webkit-background-clip:text;background-clip:text;color:transparent" id="mp-lobby-code">------</div>
-      <button class="btn ghost" onclick="LG_MP.copyCode()" style="max-width:160px;margin:0 auto;padding:8px 14px;font-size:13px">📋 Copier le code</button>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px">
+        <button class="btn ghost" onclick="LG_MP.copyCode()" style="width:auto;padding:8px 14px;font-size:13px;margin:0">📋 Copier code</button>
+        <button class="btn ghost" onclick="LG_MP.copyLink()" style="width:auto;padding:8px 14px;font-size:13px;margin:0">🔗 Copier lien</button>
+      </div>
+      <div id="mp-qr-wrap"></div>
     </div>
   </div>
   <div class="card">
@@ -532,6 +557,22 @@ ALTER PUBLICATION supabase_realtime ADD TABLE lw_players;</pre>
     <div id="mp-narrator-d" class="mp-narrator"></div>
     <div id="mp-day-area"></div>
   </div>
+  <div class="card" id="mp-chat-card">
+    <h3 style="margin-top:0">💬 Débat du village</h3>
+    <div id="mp-chat-list" class="mp-chat-list"></div>
+    <div class="mp-chat-reactions">
+      <button type="button" onclick="LG_MP.chatReact('😡')">😡</button>
+      <button type="button" onclick="LG_MP.chatReact('🤔')">🤔</button>
+      <button type="button" onclick="LG_MP.chatReact('👁️')">👁️</button>
+      <button type="button" onclick="LG_MP.chatReact('🐺')">🐺</button>
+      <button type="button" onclick="LG_MP.chatReact('💀')">💀</button>
+      <button type="button" onclick="LG_MP.chatReact('❓')">❓</button>
+    </div>
+    <div class="mp-chat-inputrow">
+      <input id="mp-chat-input" class="mp-input" maxlength="200" placeholder="Écris un message…" onkeydown="if(event.key==='Enter'){event.preventDefault();LG_MP.chatSend();}">
+      <button class="btn" style="width:auto;padding:12px 18px;margin:0" onclick="LG_MP.chatSend()">Envoyer</button>
+    </div>
+  </div>
   <button class="btn ghost" onclick="LG.showRules()">📖 Règles</button>
 </div>
 
@@ -546,6 +587,15 @@ ALTER PUBLICATION supabase_realtime ADD TABLE lw_players;</pre>
 <!-- ============ MP END ============ -->
 <div id="screen-mp-end" class="screen">
   <div class="card"><div id="mp-end-area"></div></div>
+</div>
+
+<!-- ============ MP HUNTER SHOT ============ -->
+<div id="screen-mp-hunter" class="screen">
+  <h2 style="text-align:center">🏹 Dernier coup du Chasseur</h2>
+  <div class="card">
+    <div class="mp-narrator">Tu es mort... mais tu emportes quelqu'un avec toi.</div>
+    <div id="mp-hunter-area"></div>
+  </div>
 </div>
 
 </div>
@@ -1429,6 +1479,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
 
 <!-- ============ LG MULTIJOUEUR ============ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 /* ============================================================
    LG_MP — Loup-Garou multijoueur en ligne (Supabase realtime)
@@ -1520,6 +1571,13 @@ const LG_MP = {
   async goHub(){ var ok = await this.init(); if(!ok) return; LG.show('screen-mp-hub'); },
   openCreate(){ var i=document.getElementById('mp-create-pseudo'); if(i)i.value=this.me.pseudo||''; this._renderAvatars('mp-create-avatars','mp-create-avatar-sel'); LG.show('screen-mp-create'); },
   openJoin(){ var i=document.getElementById('mp-join-pseudo'); if(i)i.value=this.me.pseudo||''; this._renderAvatars('mp-join-avatars','mp-join-avatar-sel'); LG.show('screen-mp-join'); },
+  async openJoinWithCode(code){
+    await this.init();
+    this._renderAvatars('mp-join-avatars','mp-join-avatar-sel');
+    LG.show('screen-mp-join');
+    var ci=document.getElementById('mp-join-code'); if(ci) ci.value=(code||'').toUpperCase();
+    var pi=document.getElementById('mp-join-pseudo'); if(pi){ pi.value=this.me.pseudo||''; if(!pi.value) setTimeout(function(){pi.focus();},200); }
+  },
   _renderAvatars(gridId, selId){
     var self=this, grid=document.getElementById(gridId); if(!grid) return;
     grid.innerHTML='';
@@ -1605,7 +1663,10 @@ const LG_MP = {
     if(p==='lobby'){ LG.show('screen-mp-lobby'); this.renderLobby(); }
     else if(p==='reveal'){ LG.show('screen-mp-reveal'); this.renderReveal(); }
     else if(p==='night'){ LG.show('screen-mp-night'); this.renderNight(); }
-    else if(p==='day'){ LG.show('screen-mp-day'); this.renderDay(); }
+    else if(p==='day'){
+      if(this._pendingHunter()){ LG.show('screen-mp-hunter'); this.renderHunter(); }
+      else { LG.show('screen-mp-day'); this.renderDay(); this._ensureChat(); }
+    }
     else if(p==='vote'){ LG.show('screen-mp-vote'); this.renderVote(); }
     else if(p==='end'){ LG.show('screen-mp-end'); this.renderEnd(); }
   },
@@ -1628,9 +1689,21 @@ const LG_MP = {
     var btn=document.getElementById('mp-start-btn');
     btn.disabled=!(host && n>=5);
     btn.textContent = host ? (n<5?'Attente ('+n+'/5)':'LANCER LA PARTIE') : "En attente de l'hôte...";
+    this._renderQR();
   },
-
+  _inviteLink(){ return location.origin+location.pathname.replace(/[^/]*$/, 'loupgarou.html')+'?join='+encodeURIComponent(this.code); },
+  _renderQR(){
+    var wrap=document.getElementById('mp-qr-wrap'); if(!wrap) return;
+    if(!this.code || !window.QRCode){ wrap.innerHTML=''; return; }
+    if(wrap.dataset.code===this.code) return;
+    wrap.dataset.code=this.code;
+    wrap.innerHTML='<canvas id="mp-qr-canvas"></canvas><div style="font-size:11px;color:#8ea0c4;letter-spacing:1px">SCANNE POUR REJOINDRE</div>';
+    try{
+      QRCode.toCanvas(document.getElementById('mp-qr-canvas'), this._inviteLink(), {width:180, margin:1, color:{dark:'#6cb1ff', light:'#05050F'}});
+    }catch(e){ console.error('QR error', e); }
+  },
   async copyCode(){ try{ await navigator.clipboard.writeText(this.code); LG_MP._toast('Code copié'); }catch(e){} },
+  async copyLink(){ try{ await navigator.clipboard.writeText(this._inviteLink()); LG_MP._toast('Lien copié'); }catch(e){} },
   _toast(msg){ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(30,40,80,.95);color:#fff;padding:10px 20px;border-radius:12px;z-index:10001;box-shadow:0 6px 20px rgba(0,0,0,.5);font-weight:700'; document.body.appendChild(t); setTimeout(function(){t.remove();},1800); },
 
   async leaveLobby(){
@@ -1698,6 +1771,7 @@ const LG_MP = {
     var steps=[{key:'start',rolesActing:[]}];
     if(this.room.night_count===1 && has('cupidon')) steps.push({key:'cupidon',audioKey:'cupidon_reveille',rolesActing:['cupidon'],narration:'Cupidon se réveille. Choisis deux amoureux.',passiveLabel:'💘 Cupidon désigne les amoureux...',passiveNarr:'Cupidon se réveille...'});
     if(has('voyante')) steps.push({key:'voyante',audioKey:'voyante_reveille',rolesActing:['voyante'],narration:'Voyante, choisis un joueur à sonder.',passiveLabel:'🔮 La voyante sonde une âme...',passiveNarr:'La voyante se réveille...'});
+    if(has('chevalier')) steps.push({key:'chevalier',audioKey:'chevalier_reveille',rolesActing:['chevalier'],narration:'Chevalier, choisis un joueur à protéger.',passiveLabel:'🛡️ Le chevalier monte la garde...',passiveNarr:'Le chevalier se réveille...'});
     steps.push({key:'loups',audioKey:'loups_reveillent',rolesActing:['loupgarou','loup_alpha'],narration:'Loups-garous, choisissez votre victime.',passiveLabel:'🐺 Les loups-garous rôdent...',passiveNarr:'Les loups-garous se réveillent et choisissent une victime.'});
     if(has('sorciere')) steps.push({key:'sorciere',audioKey:'sorciere_reveille',rolesActing:['sorciere'],narration:'Sorcière, veux-tu utiliser une potion ?',passiveLabel:'🧪 La sorcière hésite...',passiveNarr:'La sorcière se réveille...'});
     steps.push({key:'end',rolesActing:[]});
@@ -1755,6 +1829,15 @@ const LG_MP = {
         +alive.filter(function(p){return p.id!==me.id;}).map(function(p){return '<button type="button" class="mp-tg" onclick="LG_MP.submitVoyante(\''+p.id+'\')">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'</button>';}).join('')
         +'</div>';
     }
+    if(step.key==='chevalier'){
+      var last=(this.room.config||{}).chevalier_last || null;
+      var opts=alive.filter(function(p){return p.id!==last;});
+      return '<h3>🛡️ Chevalier — protège un joueur</h3>'
+        +(last?'<p style="color:#9ec4ff;font-size:12px">Tu ne peux pas protéger deux fois la même personne d\'affilée.</p>':'')
+        +'<div class="mp-grid">'
+        +opts.map(function(p){return '<button type="button" class="mp-tg" onclick="LG_MP.submitChevalier(\''+p.id+'\')">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'</button>';}).join('')
+        +'</div>';
+    }
     if(step.key==='loups'){
       return '<h3>🐺 Loups — choisissez une victime</h3><div class="mp-grid">'
         +alive.filter(function(p){return p.role!=='loupgarou'&&p.role!=='loup_alpha';}).map(function(p){return '<button type="button" class="mp-tg" onclick="LG_MP.submitWolf(\''+p.id+'\')">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'</button>';}).join('')
@@ -1796,6 +1879,7 @@ const LG_MP = {
     await this._submitAction({voyanteTarget:id});
   },
   async submitWolf(id){ await this._submitAction({wolfVote:id}); },
+  async submitChevalier(id){ await this._submitAction({chevalierProtect:id}); },
   async submitWitch(action, target){ await this._submitAction({witch:{action:action,target:target}}); },
   async _submitAction(extra){
     var act=Object.assign({}, this.room.night_actions||{});
@@ -1835,6 +1919,10 @@ const LG_MP = {
       if(act.witch.action==='save' && act.witch.target){ toKill.delete(act.witch.target); witch.save=false; }
       if(act.witch.action==='kill' && act.witch.target){ toKill.add(act.witch.target); witch.kill=false; }
     }
+    // Chevalier protège : sauve sa cible des loups (pas du poison)
+    if(act.chevalierProtect && act.wolfTarget===act.chevalierProtect && (!act.witch || act.witch.action!=='kill' || act.witch.target!==act.chevalierProtect)){
+      toKill.delete(act.chevalierProtect);
+    }
     var kills=new Set(toKill);
     toKill.forEach(function(id){ if(lovers.indexOf(id)>=0){ var o=lovers.find(function(x){return x!==id;}); if(o) kills.add(o); } });
     var killedList=[];
@@ -1843,8 +1931,9 @@ const LG_MP = {
       if(p && p.alive){ p.alive=false; eliminated.push({id:id,at:'night',night:LG_MP.room.night_count,role:p.role}); killedList.push({id:p.id,pseudo:p.pseudo,role:p.role}); }
     });
     var winner=this._checkWin(players, lovers);
-    var upd={players:players,eliminated:eliminated,witch_potions:witch,night_actions:{lastDeaths:killedList},updated_at:new Date().toISOString()};
-    if(winner){ upd.phase='end'; upd.status='finished'; upd.config=Object.assign({},this.room.config,{winner:winner}); }
+    var newConfig=Object.assign({}, this.room.config||{}, {chevalier_last: act.chevalierProtect || null});
+    var upd={players:players,eliminated:eliminated,witch_potions:witch,config:newConfig,night_actions:{lastDeaths:killedList},updated_at:new Date().toISOString()};
+    if(winner){ upd.phase='end'; upd.status='finished'; upd.config=Object.assign(upd.config,{winner:winner}); }
     else { upd.phase='day'; }
     await this.client.from('lw_rooms').update(upd).eq('id',this.roomId);
   },
@@ -1949,6 +2038,109 @@ const LG_MP = {
     document.getElementById('mp-end-area').innerHTML=html;
     if(w==='village'||w==='lovers') this.vibrate(this.VIB.victory); else this.vibrate(this.VIB.defeat);
     this.narrate(labels[w]||'Fin de partie.', w==='wolves'?'loups_gagnent':(w==='village'||w==='lovers')?'village_gagne':null);
+  },
+
+  /* ========= CHAT ========= */
+  chatChannel: null, _chatSubscribedFor: null, _chatMsgs: [],
+  _ensureChat(){
+    if(this._chatSubscribedFor===this.roomId) return;
+    if(this.chatChannel){ try{ this.client.removeChannel(this.chatChannel); }catch(e){} this.chatChannel=null; }
+    var self=this;
+    this.chatChannel = this.client.channel('chat:'+this.roomId)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'lw_chat',filter:'room_id=eq.'+this.roomId}, function(payload){
+        self._onChatMsg(payload.new);
+      }).subscribe();
+    this._chatSubscribedFor=this.roomId;
+    // initial fetch
+    this.client.from('lw_chat').select('*').eq('room_id', this.roomId).order('created_at',{ascending:true}).limit(100).then(function(r){
+      if(r.data){ self._chatMsgs=r.data.slice(); self._renderChatList(); }
+    });
+  },
+  _onChatMsg(m){
+    if(this._chatMsgs.some(function(x){return x.id===m.id;})) return;
+    this._chatMsgs.push(m);
+    this._renderChatList();
+  },
+  _renderChatList(){
+    var el=document.getElementById('mp-chat-list'); if(!el) return;
+    var me=this.me.id;
+    el.innerHTML = this._chatMsgs.map(function(m){
+      var mine = m.sender_id===me;
+      var emojiOnly = /^\p{Extended_Pictographic}+$/u.test((m.text||'').trim());
+      return '<div class="mp-chat-msg'+(mine?' me':'')+(m.alive===false?' dead':'')+(emojiOnly?' reaction':'')+'">'+
+        '<span class="chat-ava">'+(m.avatar||'🎭')+'</span>'+
+        '<div><div class="chat-meta">'+LG_MP._esc(m.pseudo||'?')+'</div><div class="chat-bubble">'+LG_MP._esc(m.text||'')+'</div></div>'+
+      '</div>';
+    }).join('');
+    el.scrollTop = el.scrollHeight;
+  },
+  async chatSend(){
+    var i=document.getElementById('mp-chat-input'); if(!i) return;
+    var text=(i.value||'').trim().slice(0,200);
+    if(!text) return;
+    i.value='';
+    await this._chatPost(text);
+  },
+  async chatReact(emoji){ await this._chatPost(emoji); },
+  async _chatPost(text){
+    if(!this.room) return;
+    var me=this._meP();
+    await this.client.from('lw_chat').insert({room_id:this.roomId, sender_id:this.me.id, pseudo:this.me.pseudo, avatar:this.me.avatar, text:text, alive: me ? me.alive : true});
+  },
+
+  /* ========= CHEVALIER (nuit) ========= */
+  /* Déjà traité : le chevalier agit à l'étape 'chevalier'. Ajouté via _nightSteps. */
+
+  /* ========= HUNTER (sur mort) ========= */
+  _pendingHunter(){
+    // Détecte si MOI (hunter vivant→mort) à ce tour; si oui → écran tir
+    var me=this._meP(); if(!me) return false;
+    if(me.role!=='chasseur') return false;
+    if(me.alive) return false;
+    if(me.hunter_shot) return false;
+    // ne s'applique que si la partie continue
+    if(this.room.phase==='end') return false;
+    return true;
+  },
+  renderHunter(){
+    var alive=this._alive();
+    var targets=alive.filter(function(p){return p.id!==LG_MP.me.id;});
+    var el=document.getElementById('mp-hunter-area');
+    el.innerHTML = '<div class="mp-grid">'+targets.map(function(p){
+      return '<button type="button" class="mp-tg" onclick="LG_MP.hunterShoot(\''+p.id+'\')">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'</button>';
+    }).join('')+'</div><button class="btn ghost" onclick="LG_MP.hunterPass()">Passer</button>';
+    this.vibrate([400,200,400]);
+    this.narrate("Le chasseur tire son dernier coup...");
+  },
+  async hunterShoot(id){
+    var players=(this.room.players||[]).slice();
+    var me=players.find(function(x){return x.id===LG_MP.me.id;});
+    if(me) me.hunter_shot=true;
+    var target=players.find(function(x){return x.id===id;});
+    var eliminated=(this.room.eliminated||[]).slice();
+    if(target && target.alive){
+      target.alive=false;
+      eliminated.push({id:target.id, at:'hunter', role:target.role});
+      // lover chain
+      var lovers=this.room.lovers||[];
+      if(lovers.indexOf(target.id)>=0){
+        var oid=lovers.find(function(l){return l!==target.id;});
+        var o=players.find(function(x){return x.id===oid;});
+        if(o && o.alive){ o.alive=false; eliminated.push({id:o.id,at:'love',role:o.role}); }
+      }
+    }
+    var winner=this._checkWin(players, this.room.lovers||[]);
+    var upd={players:players, eliminated:eliminated, updated_at:new Date().toISOString()};
+    if(winner){ upd.phase='end'; upd.status='finished'; upd.config=Object.assign({},this.room.config,{winner:winner}); }
+    await this.client.from('lw_rooms').update(upd).eq('id',this.roomId);
+    LG.show('screen-mp-day');
+  },
+  async hunterPass(){
+    var players=(this.room.players||[]).slice();
+    var me=players.find(function(x){return x.id===LG_MP.me.id;});
+    if(me) me.hunter_shot=true;
+    await this.client.from('lw_rooms').update({players:players, updated_at:new Date().toISOString()}).eq('id',this.roomId);
+    LG.show('screen-mp-day');
   }
 };
 
@@ -1957,6 +2149,20 @@ window.LG_MP = LG_MP;
 if(window.speechSynthesis){
   try{ window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = function(){}; }catch(e){}
 }
+
+// Auto-join via ?join=CODE (lien d'invitation)
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    var params = new URLSearchParams(location.search);
+    var code = params.get('join') || localStorage.getItem('lg_pending_join');
+    if(code){
+      localStorage.removeItem('lg_pending_join');
+      // Cleanup URL
+      try{ history.replaceState({}, '', location.pathname); }catch(e){}
+      setTimeout(function(){ LG_MP.openJoinWithCode(code); }, 300);
+    }
+  }catch(e){}
+});
 })();
 </script>
 

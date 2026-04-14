@@ -12,6 +12,13 @@
     var saved = localStorage.getItem('lelox_display_mode');
     var isM = window.innerWidth < 768 || /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
     document.documentElement.setAttribute('data-mode', saved || (isM?'mobile':'desktop'));
+    // Redirection automatique si invitation Loup-Garou dans l'URL
+    var params = new URLSearchParams(location.search);
+    var join = params.get('join');
+    if(join){
+      localStorage.setItem('lg_pending_join', join);
+      location.replace('loupgarou.html?join='+encodeURIComponent(join));
+    }
   }catch(e){ document.documentElement.setAttribute('data-mode','desktop'); }
 })();
 </script>

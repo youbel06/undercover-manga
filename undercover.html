@@ -4245,8 +4245,26 @@ const GameState = {
 
 // ===== UTILITY FUNCTIONS =====
 
+/* Narrateur Undercover (ElevenLabs) — hooks automatiques par écran */
+const UCNarrator = {
+  base:'audio/uc/', cur:null, vol:0.85,
+  play(key){
+    try{ if(this.cur){ this.cur.pause(); this.cur=null; } }catch(e){}
+    var a=new Audio(this.base+key+'.mp3'); a.volume=this.vol; this.cur=a;
+    a.play().catch(function(){});
+  },
+  stop(){ try{ if(this.cur){ this.cur.pause(); this.cur=null; } }catch(e){} }
+};
+const UC_NARR_MAP = {
+  'screen-reveal':'role_civil', // générique — remplacé dynamiquement par ailleurs si besoin
+  'screen-discuss':'discussion_start',
+  'screen-vote':'vote_start'
+};
+window.UCNarrator = UCNarrator;
+
 function showScreen(screenId) {
   SoundFX.whoosh();
+  try{ if(UC_NARR_MAP[screenId]) UCNarrator.play(UC_NARR_MAP[screenId]); }catch(e){}
   const currentActive = document.querySelector('.screen.active');
   const nextScreen = document.getElementById(screenId);
   if (!nextScreen) return;

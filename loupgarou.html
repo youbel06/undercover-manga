@@ -1434,6 +1434,31 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
    LG_MP — Loup-Garou multijoueur en ligne (Supabase realtime)
    ============================================================ */
 (function(){
+/* --- Narrateur humain (fichiers MP3 ElevenLabs) --- */
+var LGNarrator = {
+  base: 'audio/lg/',
+  current: null,
+  vol: 0.85,
+  play: function(key, fallbackText){
+    try{ if(this.current){ this.current.pause(); this.current.src=''; this.current=null; } }catch(e){}
+    try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){}
+    var a = new Audio(this.base + key + '.mp3');
+    a.volume = this.vol;
+    this.current = a;
+    var self = this;
+    a.play().catch(function(){
+      // Fallback Web Speech si MP3 inaccessible / autoplay bloqué
+      if(window.LG_MP) LG_MP.speak(fallbackText);
+    });
+    a.addEventListener('ended', function(){ if(self.current===a){ self.current=null; } });
+  },
+  stop: function(){
+    try{ if(this.current){ this.current.pause(); this.current=null; } }catch(e){}
+    try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){}
+  }
+};
+window.LGNarrator = LGNarrator;
+
 const LG_MP = {
   SUPA_URL: 'https://frrluakugoabzmkndriv.supabase.co',
   SUPA_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZycmx1YWt1Z29hYnpta25kcml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MzA2ODEsImV4cCI6MjA5MTUwNjY4MX0.AMVDA104Otfx6LPTxgCUEyk0M5OaG6jszW8G_Nucgmc',
@@ -1469,16 +1494,26 @@ const LG_MP = {
       window.speechSynthesis.speak(u);
     }catch(e){}
   },
-  narrate(text){
-    this.speak(text);
+  _showText(text){
     document.querySelectorAll('.mp-narrator').forEach(function(n){
       n.textContent = text; n.classList.remove('pulse'); void n.offsetWidth; n.classList.add('pulse');
     });
   },
-  narrateSequence(lines, pauseMs){
-    var self=this; window.speechSynthesis && window.speechSynthesis.cancel();
+  narrate(text, key){
+    this._showText(text);
+    if(key && window.LGNarrator){ LGNarrator.play(key, text); }
+    else { this.speak(text); }
+  },
+  narrateSequence(lines, pauseMs, firstKey){
+    var self=this;
+    if(window.speechSynthesis) window.speechSynthesis.cancel();
+    if(window.LGNarrator) LGNarrator.stop();
     (async function(){
-      for(var i=0;i<lines.length;i++){ self.narrate(lines[i]); await new Promise(function(r){setTimeout(r, pauseMs||2200);}); }
+      for(var i=0;i<lines.length;i++){
+        if(i===0 && firstKey){ self.narrate(lines[i], firstKey); }
+        else { self._showText(lines[i]); self.speak(lines[i]); }
+        await new Promise(function(r){setTimeout(r, pauseMs||2200);});
+      }
     })();
   },
 
@@ -1640,7 +1675,7 @@ const LG_MP = {
       +(me.ready?'<div class="mp-wait" style="padding:14px">✅ Prêt — en attente…</div>':'<button class="btn" style="margin-top:16px;max-width:260px" onclick="LG_MP.markReady()">J\'AI COMPRIS</button>')
       +'</div></div></div>'
       +'<div style="margin-top:14px;text-align:center;color:#9ec4ff" id="mp-reveal-status">Prêts : '+ready+'/'+total+'</div>';
-    if(!me.ready){ this.narrate("Le village s'endort. Chacun découvre son destin..."); this.vibrate([200,100,200]); }
+    if(!me.ready){ this.narrate("Le village s'endort. Chacun découvre son destin...", 'village_endort'); this.vibrate([200,100,200]); }
   },
   async markReady(){
     var self=this, players=(this.room.players||[]).slice();
@@ -1661,10 +1696,10 @@ const LG_MP = {
   _nightSteps(){
     var alive=this._alive(), has=function(r){return alive.some(function(p){return p.role===r;});};
     var steps=[{key:'start',rolesActing:[]}];
-    if(this.room.night_count===1 && has('cupidon')) steps.push({key:'cupidon',rolesActing:['cupidon'],narration:'Cupidon se réveille. Choisis deux amoureux.',passiveLabel:'💘 Cupidon désigne les amoureux...',passiveNarr:'Cupidon se réveille...'});
-    if(has('voyante')) steps.push({key:'voyante',rolesActing:['voyante'],narration:'Voyante, choisis un joueur à sonder.',passiveLabel:'🔮 La voyante sonde une âme...',passiveNarr:'La voyante se réveille...'});
-    steps.push({key:'loups',rolesActing:['loupgarou','loup_alpha'],narration:'Loups-garous, choisissez votre victime.',passiveLabel:'🐺 Les loups-garous rôdent...',passiveNarr:'Les loups-garous se réveillent et choisissent une victime.'});
-    if(has('sorciere')) steps.push({key:'sorciere',rolesActing:['sorciere'],narration:'Sorcière, veux-tu utiliser une potion ?',passiveLabel:'🧪 La sorcière hésite...',passiveNarr:'La sorcière se réveille...'});
+    if(this.room.night_count===1 && has('cupidon')) steps.push({key:'cupidon',audioKey:'cupidon_reveille',rolesActing:['cupidon'],narration:'Cupidon se réveille. Choisis deux amoureux.',passiveLabel:'💘 Cupidon désigne les amoureux...',passiveNarr:'Cupidon se réveille...'});
+    if(has('voyante')) steps.push({key:'voyante',audioKey:'voyante_reveille',rolesActing:['voyante'],narration:'Voyante, choisis un joueur à sonder.',passiveLabel:'🔮 La voyante sonde une âme...',passiveNarr:'La voyante se réveille...'});
+    steps.push({key:'loups',audioKey:'loups_reveillent',rolesActing:['loupgarou','loup_alpha'],narration:'Loups-garous, choisissez votre victime.',passiveLabel:'🐺 Les loups-garous rôdent...',passiveNarr:'Les loups-garous se réveillent et choisissent une victime.'});
+    if(has('sorciere')) steps.push({key:'sorciere',audioKey:'sorciere_reveille',rolesActing:['sorciere'],narration:'Sorcière, veux-tu utiliser une potion ?',passiveLabel:'🧪 La sorcière hésite...',passiveNarr:'La sorcière se réveille...'});
     steps.push({key:'end',rolesActing:[]});
     return steps;
   },
@@ -1676,13 +1711,13 @@ const LG_MP = {
     document.getElementById('mp-night-num').textContent='Nuit '+r.night_count;
     if(step==='start'){
       el.innerHTML='<div class="mp-wait">🌙 Nuit qui tombe…</div>';
-      this.narrateSequence(['Nuit '+r.night_count+' tombe sur le village...',"Le village s'endort doucement...","Mais certains habitants ne dorment pas."], 1800);
+      this.narrateSequence(['Nuit '+r.night_count+' tombe sur le village...',"Le village s'endort doucement...","Mais certains habitants ne dorment pas."], 3200, 'nuit_tombe');
       if(this._isHost() && !this._advancing){ this._advancing=true; setTimeout(function(){LG_MP._advancing=false;LG_MP._advanceNightStep('start');}, 6200); }
       return;
     }
     if(step==='end'){
       el.innerHTML='<div class="mp-wait">L\'aube approche…</div>';
-      this.narrate("Le village va se réveiller...");
+      this.narrate("Le village va se réveiller...");  // pas d'audio — transition courte
       if(this._isHost() && !this._advancing){ this._advancing=true; setTimeout(function(){LG_MP._advancing=false;LG_MP._resolveNight();}, 2400); }
       return;
     }
@@ -1693,10 +1728,10 @@ const LG_MP = {
     if(isMyTurn && !submitted){
       this.vibrate(this.VIB.myTurn);
       el.innerHTML=this._renderNightAction(cur,me);
-      this.narrate(cur.narration);
+      this.narrate(cur.narration, cur.audioKey);
     } else {
       el.innerHTML='<div class="mp-wait">'+cur.passiveLabel+'</div>';
-      if(!submitted) this.narrate(cur.passiveNarr);
+      if(!submitted) this.narrate(cur.passiveNarr, cur.audioKey);
     }
     if(this._isHost() && !this._advancing){
       var alive=this._alive();
@@ -1821,12 +1856,12 @@ const LG_MP = {
     var html='<h2 style="text-align:center">🌅 Jour '+r.night_count+'</h2>';
     if(deaths.length===0){
       html+='<div class="mp-wait">Miracle : personne n\'est mort cette nuit !</div>';
-      this.narrate("Le village se réveille... Miracle : personne n'est mort cette nuit !");
+      this.narrate("Le village se réveille... Miracle : personne n'est mort cette nuit !", 'jour_leve');
     } else {
       html+=deaths.map(function(d){return '<div class="mp-death">💀 <b>'+LG_MP._esc(d.pseudo)+'</b> était '+((ROLES[d.role]&&ROLES[d.role].name)||d.role)+'.</div>';}).join('');
       var lines=["Le village se réveille...","Cette nuit a fait des victimes..."];
       deaths.forEach(function(d){lines.push(d.pseudo+' était '+((ROLES[d.role]&&ROLES[d.role].name)||d.role)+'.');});
-      this.narrateSequence(lines, 2400);
+      this.narrateSequence(lines, 3000, 'jour_leve');
     }
     html+='<h3 style="margin-top:16px">Joueurs vivants ('+alive.length+')</h3><div class="mp-alive">'
       +alive.map(function(p){return '<div class="mp-player-row"><span class="mp-ava">'+p.avatar+'</span><span class="mp-nm">'+LG_MP._esc(p.pseudo)+'</span></div>';}).join('')
@@ -1855,7 +1890,7 @@ const LG_MP = {
     html+='<p style="text-align:center">Votes : '+voted+'/'+total+'</p>';
     if(this._isHost()){ html+='<button class="btn" onclick="LG_MP.resolveVote()">Terminer le vote</button>'; }
     document.getElementById('mp-vote-area').innerHTML=html;
-    this.narrate("Le village doit voter. Désignez qui éliminer.");
+    this.narrate("Le village doit voter. Désignez qui éliminer.", 'vote');
     if(this._isHost() && voted>=total && total>0 && !this._advancing){ this._advancing=true; setTimeout(function(){LG_MP._advancing=false;LG_MP.resolveVote();}, 900); }
   },
   async submitVote(id){
@@ -1913,7 +1948,7 @@ const LG_MP = {
     html+='<button class="btn" onclick="LG_MP.leaveLobby()">Quitter</button>';
     document.getElementById('mp-end-area').innerHTML=html;
     if(w==='village'||w==='lovers') this.vibrate(this.VIB.victory); else this.vibrate(this.VIB.defeat);
-    this.narrate(labels[w]||'Fin de partie.');
+    this.narrate(labels[w]||'Fin de partie.', w==='wolves'?'loups_gagnent':(w==='village'||w==='lovers')?'village_gagne':null);
   }
 };
 

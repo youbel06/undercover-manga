@@ -6,8 +6,20 @@
 <meta name="theme-color" content="#0a0a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Undercover Lelox">
+<meta name="apple-mobile-web-app-title" content="LELOX">
+<link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
+<script>
+(function(){
+  try{
+    var saved = localStorage.getItem('lelox_display_mode');
+    var isM = window.innerWidth < 768 || /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+    document.documentElement.setAttribute('data-mode', saved || (isM?'mobile':'desktop'));
+    var th = localStorage.getItem('lelox_theme');
+    if(th && ['ocean','purple','mono'].indexOf(th)>=0) document.documentElement.setAttribute('data-theme', th);
+  }catch(e){ document.documentElement.setAttribute('data-mode','desktop'); }
+})();
+</script>
 <meta name="description" content="Undercover Lelox - Le jeu de devinettes manga entre amis !">
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVW5kZXJjb3ZlciBNYW5nYSIsInNob3J0X25hbWUiOiJVQyBNYW5nYSIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBhMGExYSIsInRoZW1lX2NvbG9yIjoiIzBhMGExYSIsImljb25zIjpbXX0=">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕵️</text></svg>">
@@ -1403,6 +1415,7 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 .music-radial-btn:nth-child(2){--tx:0px;--ty:-75px;animation-delay:0.04s}
 .music-radial-btn:nth-child(3){--tx:35px;--ty:-60px;animation-delay:0.08s}
 .music-radial-btn:nth-child(4){--tx:-60px;--ty:-35px;animation-delay:0.12s}
+.music-radial-btn:nth-child(5){--tx:60px;--ty:-35px;animation-delay:0.16s}
 @keyframes radialIn{from{transform:scale(0) translate(0,0);opacity:0}
   to{transform:scale(1) translate(var(--tx),var(--ty));opacity:1}}
 @keyframes radialOut{from{transform:scale(1) translate(var(--tx),var(--ty));opacity:1}
@@ -2932,8 +2945,26 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
 <nav id="lelox-navbar" role="navigation" aria-label="Navigation principale">
   <a href="index.html" class="nv-back" aria-label="Retour plateforme LELOX">&larr; LELOX</a>
   <div class="nv-title">Undercover</div>
-  <button class="nv-gear" onclick="showScreen('screen-settings')" aria-label="Paramètres">⚙️</button>
+  <div style="display:flex;align-items:center;gap:4px">
+    <button class="nv-gear" onclick="switchDisplayMode()" aria-label="Mode d'affichage" title="Changer de mode" id="mode-switch-btn">📱</button>
+    <button class="nv-gear" onclick="showScreen('screen-settings')" aria-label="Paramètres">⚙️</button>
+  </div>
 </nav>
+<script>
+function switchDisplayMode(){
+  var current = document.documentElement.getAttribute('data-mode') || 'desktop';
+  var next = current === 'desktop' ? 'mobile' : 'desktop';
+  localStorage.setItem('lelox_display_mode', next);
+  document.documentElement.setAttribute('data-mode', next);
+  var b = document.getElementById('mode-switch-btn');
+  if(b) b.textContent = next === 'mobile' ? '🖥️' : '📱';
+}
+(function(){
+  var m = document.documentElement.getAttribute('data-mode') || 'desktop';
+  var b = document.getElementById('mode-switch-btn');
+  if(b) b.textContent = m === 'mobile' ? '🖥️' : '📱';
+})();
+</script>
 
 <!-- ===== AAA SPLASH / MODES OVERRIDES ===== -->
 <style>
@@ -2952,6 +2983,9 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
 #screen-modes>*{position:relative;z-index:1}
 #screen-modes .modes-grid>*{background:rgba(255,45,85,.07) !important;backdrop-filter:blur(14px);border:1px solid rgba(255,45,85,.25) !important;border-radius:16px;transition:transform .25s,box-shadow .25s,border-color .25s}
 #screen-modes .modes-grid>*:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(255,106,138,.6) !important;box-shadow:0 12px 36px rgba(255,45,85,.35)}
+/* Scanlines + vignette rouge */
+#screen-splash::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(to bottom, rgba(255,45,85,0.04) 0px, rgba(255,45,85,0.04) 1px, transparent 1px, transparent 3px),radial-gradient(ellipse at center, transparent 40%, rgba(120,0,20,0.45) 100%);mix-blend-mode:screen}
+#screen-splash .social-proof-local{font-size:.75rem;color:rgba(255,179,196,.7);letter-spacing:1px;text-align:center;margin-top:6px}
 </style>
 <script>
 (function(){
@@ -2973,6 +3007,7 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
   else spawnParticles();
 })();
 </script>
+
 
 <!-- ===== ROUND PROGRESS BAR ===== -->
 <div class="round-progress" id="round-progress" style="width:0%"></div>
@@ -3126,6 +3161,25 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
       <h3>Temps par joueur</h3>
       <div class="timer-select" id="timer-select"></div>
     </div>
+
+    <div class="settings-section">
+      <h3>🎙️ Narrateur vocal</h3>
+      <div class="setting-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="flex:1">
+          <div style="font-weight:600">Voix qui annonce les phases</div>
+          <div style="font-size:12px;opacity:0.5">Discussion, vote, rôles… (8 phrases)</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:50px;height:28px">
+          <input type="checkbox" id="narrator-toggle" onchange="toggleNarrator(this.checked)" style="opacity:0;width:0;height:0">
+          <span style="position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,0.15);border-radius:28px;transition:.3s"></span>
+          <span style="position:absolute;left:3px;top:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></span>
+        </label>
+      </div>
+    </div>
+    <style>
+      #narrator-toggle:checked ~ span:first-of-type{background:linear-gradient(135deg,#FF2D55,#FF6A8A) !important}
+      #narrator-toggle:checked ~ span:last-of-type{transform:translateX(22px)}
+    </style>
 
     <div class="settings-section">
       <h3>Univers</h3>
@@ -3297,6 +3351,7 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
     <div class="final-chart" id="final-chart"></div>
     <div class="final-actions">
       <button class="btn btn-primary btn-large" onclick="resetToSplash()">Nouvelle partie</button>
+      <button class="btn btn-ghost" onclick="shareGameResult()" style="margin-top:8px">📸 Partager le résultat</button>
       <div class="hof" id="hof-section"></div>
     <button class="btn btn-ghost" onclick="showScreen('screen-history')">Historique</button>
     </div>
@@ -3562,7 +3617,6 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
 // ===== GAME DATA (replaced by build script) =====
 const PAIRS = __PAIRS_DATA_JSON__;
 const PAIRS_BY_MODE = __MODE_INDEX_JSON__;
-
 // Map UI mode ids -> database mode ids (keeps pairs_database stable while UI evolves)
 const MODE_ALIASES = {
   'series_disney': 'disney',
@@ -4214,8 +4268,44 @@ const GameState = {
 
 // ===== UTILITY FUNCTIONS =====
 
+/* Narrateur Undercover (ElevenLabs) — hooks automatiques par écran */
+const UCNarrator = {
+  base:'audio/uc/', cur:null, vol:0.85,
+  enabled: localStorage.getItem('uc_narrator_enabled') !== '0',
+  play(key){
+    if(!this.enabled) return;
+    try{ if(this.cur){ this.cur.pause(); this.cur=null; } }catch(e){}
+    var a=new Audio(this.base+key+'.mp3'); a.volume=this.vol; this.cur=a;
+    a.play().catch(function(){});
+  },
+  stop(){ try{ if(this.cur){ this.cur.pause(); this.cur=null; } }catch(e){} }
+};
+function toggleNarrator(forceVal){
+  var next = (typeof forceVal==='boolean') ? forceVal : !UCNarrator.enabled;
+  UCNarrator.enabled = next;
+  localStorage.setItem('uc_narrator_enabled', next?'1':'0');
+  if(!next) UCNarrator.stop();
+  var rb = document.getElementById('radial-narrator'); if(rb) rb.textContent = next?'🎙️':'🔇';
+  var tg = document.getElementById('narrator-toggle'); if(tg) tg.checked = next;
+  if(window.showToast) showToast(next?'Narrateur activé':'Narrateur muet', 1500);
+}
+// Apply initial UI state on load
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    var rb = document.getElementById('radial-narrator'); if(rb) rb.textContent = UCNarrator.enabled?'🎙️':'🔇';
+    var tg = document.getElementById('narrator-toggle'); if(tg) tg.checked = UCNarrator.enabled;
+  }, 100);
+});
+const UC_NARR_MAP = {
+  'screen-reveal':'role_civil', // générique — remplacé dynamiquement par ailleurs si besoin
+  'screen-discuss':'discussion_start',
+  'screen-vote':'vote_start'
+};
+window.UCNarrator = UCNarrator;
+
 function showScreen(screenId) {
   SoundFX.whoosh();
+  try{ if(UC_NARR_MAP[screenId]) UCNarrator.play(UC_NARR_MAP[screenId]); }catch(e){}
   const currentActive = document.querySelector('.screen.active');
   const nextScreen = document.getElementById(screenId);
   if (!nextScreen) return;
@@ -5355,6 +5445,29 @@ function showRoundResult(winnerType) {
   }
 
   showScreen('screen-round-result');
+  try{ setTimeout(showSecretLinkReveal, 800); }catch(e){}
+}
+
+function showSecretLinkReveal(){
+  var pair = GameState.currentPair; if(!pair) return;
+  var civil = getPairCharacter1(pair), uc = getPairCharacter2(pair);
+  var link = pair.similarity || pair.link || pair.hint || pair.universe || '';
+  if(!link) return;
+  var old = document.getElementById('lelox-secret-link'); if(old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'lelox-secret-link';
+  el.style.cssText = 'position:fixed;left:0;right:0;bottom:0;padding:22px 20px 28px;text-align:center;z-index:8500;background:linear-gradient(to top,rgba(5,5,15,.98) 40%,rgba(5,5,15,.7) 80%,transparent);animation:ucSecretUp .55s cubic-bezier(.2,.8,.2,1)';
+  el.innerHTML = '<div style="font-size:11px;color:#9ec4ff;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">💡 Le lien secret</div>'
+    + '<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:6px">'+civil+' <span style="color:#ff6a8a">×</span> '+uc+'</div>'
+    + '<div style="font-size:15px;color:rgba(255,255,255,.75);font-style:italic">"'+String(link).replace(/</g,'&lt;')+'"</div>'
+    + '<button onclick="this.parentNode.remove()" style="margin-top:10px;background:none;border:0;color:rgba(255,255,255,.5);font-size:12px;cursor:pointer;letter-spacing:1px">Masquer</button>';
+  document.body.appendChild(el);
+  setTimeout(function(){ if(el.parentNode) el.remove(); }, 9000);
+}
+if(!document.getElementById('lelox-secret-link-style')){
+  var s=document.createElement('style'); s.id='lelox-secret-link-style';
+  s.textContent='@keyframes ucSecretUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}';
+  document.head.appendChild(s);
 }
 
 function nextRound() {
@@ -5416,6 +5529,21 @@ function showFinalScreen() {
   saveGameHistory(mvpName, maxScore);
 
   showScreen('screen-final');
+}
+
+async function shareGameResult(){
+  try{
+    var mvp = document.getElementById('mvp-name')?.textContent || '';
+    var score = document.getElementById('mvp-score')?.textContent || '';
+    var text = '🎭 LELOX Undercover\n⭐ MVP : '+mvp+' ('+score+')\n\nRejoins la partie → ';
+    var url = 'https://youbel06.github.io/undercover-manga/';
+    if(navigator.share){
+      await navigator.share({title:'LELOX Undercover', text:text, url:url});
+    } else {
+      await navigator.clipboard.writeText(text+url);
+      showToast && showToast('📋 Résultat copié ! Colle-le dans ta conversation.', 3500);
+    }
+  }catch(e){}
 }
 
 function saveGameHistory(mvpName, mvpScore) {
@@ -8548,14 +8676,50 @@ async function mpJoinRoom() {
   broadcastPlayerJoin({player_id: mpPlayerId, username: p.data?.username || "Joueur", avatar_emoji: p.data?.avatar_emoji || "🕵️", is_host: false, is_ready: false});
 }
 
+var _mpOnlineIds = new Set();
+function mpIsOnline(id){ return _mpOnlineIds.has(id); }
 function mpSubscribe() {
   if (!sb || !mpRoomId) return;
-  mpChannel = sb.channel("room-" + mpRoomId, {config: {broadcast: {self: true}}})
+  mpChannel = sb.channel("room-" + mpRoomId, {config: {broadcast: {self: true}, presence: {key: mpPlayerId}}})
     .on("broadcast", {event: "player_list"}, function(payload) { if (payload.payload && payload.payload.players) { var incoming = payload.payload.players; incoming.forEach(function(p) { if (!_mpLocalPlayers.find(function(x){return x.player_id===p.player_id})) { _mpLocalPlayers.push(p); } }); console.log("[MP] Merged players:", _mpLocalPlayers.length); renderMpLobby(); } })
     .on("broadcast", {event: "request_players"}, function(payload) { console.log("[MP] Got request, sending our list:", _mpLocalPlayers.length); mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}}); })
     .on("postgres_changes", {event:"*", schema:"public", table:"game_state", filter:"room_id=eq." + mpRoomId}, function(p) { handleMpGame(p.new); })
-    .subscribe();
+    .on("presence", {event: "sync"}, function(){
+      try{
+        var st = mpChannel.presenceState();
+        _mpOnlineIds = new Set(Object.keys(st||{}));
+        if (typeof renderMpLobby === "function") renderMpLobby();
+        mpMaybePromoteHost();
+      }catch(e){}
+    })
+    .subscribe(async function(status){
+      if(status === "SUBSCRIBED"){
+        try{ await mpChannel.track({player_id:mpPlayerId, online_at:new Date().toISOString()}); }catch(e){}
+      }
+    });
 }
+async function mpMaybePromoteHost(){
+  try{
+    if (!mpRoomId) return;
+    var r = await sb.from("rooms").select("host_id,status").eq("id", mpRoomId).maybeSingle();
+    if(!r || !r.data) return;
+    var hostId = r.data.host_id;
+    if (_mpOnlineIds.has(hostId)) return; // host still online
+    // Candidates: online players sorted by id
+    var cand = _mpLocalPlayers.filter(function(p){ return p.player_id!==hostId && _mpOnlineIds.has(p.player_id); }).map(function(p){return p.player_id;}).sort();
+    if(cand.length===0) return;
+    if(cand[0] !== mpPlayerId) return;
+    var upd = await sb.from("rooms").update({host_id:mpPlayerId}).eq("id", mpRoomId).eq("host_id", hostId).select();
+    if(upd && upd.data && upd.data.length){
+      mpIsHost = true;
+      if(typeof showToast === "function") showToast("Tu es le nouvel hôte", 2500);
+      if(typeof renderMpLobby === "function") renderMpLobby();
+    }
+  }catch(e){}
+}
+window.addEventListener("beforeunload", function(){
+  try{ if(mpChannel && sb) sb.removeChannel(mpChannel); }catch(e){}
+});
 
 async function renderMpLobby() {
   document.getElementById("mp-room-code").textContent = mpRoomCode || "------";
@@ -8566,11 +8730,14 @@ async function renderMpLobby() {
   var allReady = true;
   players.forEach(function(p) {
     if (!p.is_ready) allReady = false;
+    var online = _mpOnlineIds.has(p.player_id) || p.player_id === mpPlayerId;
     var row = document.createElement("div");
-    row.className = "mp-player-row";
-    row.innerHTML = "<div class=\"mp-avatar\">" + (p.avatar_emoji || "🕵️") + "</div>" +
+    row.className = "mp-player-row" + (online ? "" : " mp-player-deco");
+    row.innerHTML = "<div class=\"mp-avatar\" style=\"" + (online?"":"filter:grayscale(1);opacity:.6") + "\">" + (p.avatar_emoji || "🕵️") + "</div>" +
       "<div class=\"mp-info\"><div class=\"mp-name\">" + (p.username || "Joueur") +
-      (p.is_host ? "<span class=\"mp-host-badge\">HÔTE</span>" : "") + "</div></div>" +
+      (p.is_host ? "<span class=\"mp-host-badge\">HÔTE</span>" : "") +
+      (online ? "" : "<span class=\"mp-host-badge\" style=\"background:linear-gradient(135deg,#ff3860,#7a1220);margin-left:6px\">⚡ DÉCO</span>") +
+      "</div></div>" +
       "<span class=\"mp-ready-badge " + (p.is_ready ? "ready" : "waiting") + "\">" +
       (p.is_ready ? "✓" : "...") + "</span>";
     list.appendChild(row);
@@ -10243,28 +10410,26 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-/* Auto-start music on first user interaction */
+/* Auto-start music — robust (replaced) */
 (function(){
-  function startMusic(){
-    try{
-      MusicPlayer.init();
-      if(!MusicPlayer.stopped && MusicPlayer.audio && (MusicPlayer.audio.paused || !MusicPlayer.audio.src)){
-        MusicPlayer.play();
-      }
-    }catch(e){}
+  function autoStart() {
+    var p = window.MusicPlayer || window.LGMusicPlayer || window.LGMusic;
+    if (!p) return;
+    try { if (p.init) p.init(); } catch(e){}
+    // First run (no src yet): always auto-play.
+    // Subsequent runs: only resume if not user-stopped.
+    var firstRun = !p.audio || !p.audio.src;
+    var canResume = p.audio && p.audio.paused && !p.userStopped && !p.stopped;
+    if (firstRun || canResume) {
+      var r = p.play && p.play();
+      if (r && r.catch) r.catch(function(){});
+    }
   }
-  document.addEventListener('click', startMusic, { once:true });
-  document.addEventListener('touchstart', startMusic, { once:true });
-  document.addEventListener('keydown', startMusic, { once:true });
+  ['click','touchstart','keydown','pointerdown'].forEach(function(e){
+    document.addEventListener(e, autoStart, { once: false, capture: true });
+  });
+  window.addEventListener('load', function(){ setTimeout(autoStart, 800); });
 })();
-
-// Auto-play on first interaction (if not stopped)
-document.addEventListener('click', function() {
-  MusicPlayer.init();
-  if (!MusicPlayer.stopped && (!MusicPlayer.audio || MusicPlayer.audio.paused)) {
-    MusicPlayer.play();
-  }
-}, { once: true });
 
 // Override old functions to prevent errors
 function toggleAudioPanel() { openMusicModal(); }
@@ -10472,6 +10637,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <button class="music-radial-btn" id="radial-play" onclick="MusicPlayer.togglePlay();updateRadialUI()">▶</button>
     <button class="music-radial-btn" onclick="MusicPlayer.next();updateRadialUI()">⏭</button>
     <button class="music-radial-btn" id="radial-mute" onclick="radialToggleMute()">🔊</button>
+    <button class="music-radial-btn" id="radial-narrator" onclick="toggleNarrator()" title="Narrateur vocal">🎙️</button>
     <div class="music-tooltip" id="radial-tooltip">—</div>
   </div>
   <button class="music-main-btn" id="music-main-btn" onclick="toggleRadialMenu()">🎵</button>
@@ -10500,84 +10666,95 @@ window.Narrator = {
     return this.enabled;
   }
 };
+
 window.LeloxXP = {
-  LEVELS: [{name:'Novice',min:0},{name:'Apprenti',min:100},{name:'Détective',min:300},{name:'Expert',min:600},{name:'Maître',min:1000},{name:'Légende',min:2000}],
+  LEVELS: [
+    {name:'Novice', min:0},{name:'Apprenti', min:100},{name:'Détective', min:300},
+    {name:'Expert', min:600},{name:'Maître', min:1000},{name:'Légende', min:2000}
+  ],
   get(){ return parseInt(localStorage.getItem('lelox_xp')||'0',10); },
   set(v){ localStorage.setItem('lelox_xp', String(v)); },
   levelOf(xp){ let out=this.LEVELS[0]; for(const l of this.LEVELS){ if(xp>=l.min) out=l; } return out; },
   add(amount, reason){
-    const before=this.get(), after=before+amount;
+    const before = this.get();
+    const after = before + amount;
     this.set(after);
-    const lb=this.levelOf(before).name, la=this.levelOf(after).name;
-    try { if(typeof showToast==='function') showToast('+'+amount+' XP'+(reason?' · '+reason:'')); } catch(e){}
-    if(lb!==la){ this.celebrateLevelUp(la); }
+    const lvlBefore = this.levelOf(before).name;
+    const lvlAfter = this.levelOf(after).name;
+    try { if(typeof showToast === 'function') showToast('+'+amount+' XP' + (reason?' · '+reason:'')); } catch(e){}
+    if(lvlBefore !== lvlAfter){ this.celebrateLevelUp(lvlAfter); }
     return after;
   },
   celebrateLevelUp(name){
     try {
-      const o=document.createElement('div');
-      o.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(255,45,85,.35),rgba(0,0,0,.85));';
-      o.innerHTML='<div style="text-align:center;color:#fff"><div style="font-size:3rem">🎉</div><div style="font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,#ff2d55,#ff6a8a);-webkit-background-clip:text;color:transparent">LEVEL UP</div><div style="font-size:1.4rem;margin-top:8px;letter-spacing:2px">'+name+'</div></div>';
+      const o = document.createElement('div');
+      o.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(255,45,85,.35),rgba(0,0,0,.85));animation:fadeIn .4s';
+      o.innerHTML='<div style="text-align:center;color:#fff;font-family:inherit"><div style="font-size:3rem;margin-bottom:12px">🎉</div><div style="font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,#ff2d55,#ff6a8a);-webkit-background-clip:text;color:transparent">LEVEL UP</div><div style="font-size:1.4rem;margin-top:8px;letter-spacing:2px">'+name+'</div></div>';
       document.body.appendChild(o);
-      setTimeout(()=>{o.style.transition='opacity .5s';o.style.opacity='0';setTimeout(()=>o.remove(),500);},2200);
+      setTimeout(()=>{o.style.transition='opacity .5s';o.style.opacity='0';setTimeout(()=>o.remove(),500);}, 2200);
       if(navigator.vibrate) navigator.vibrate([30,60,30]);
     } catch(e){}
   }
 };
+
 window.LeloxProfile = {
   key:'lelox_profile',
   get(){ try { return JSON.parse(localStorage.getItem(this.key)||'{}'); } catch(e){ return {}; } },
   save(p){ localStorage.setItem(this.key, JSON.stringify(p)); },
-  init(){ const p=this.get(); if(!p.pseudo) p.pseudo='Joueur'; if(!p.avatar) p.avatar='🎭'; if(!p.stats) p.stats={undercover:{wins:0,games:0},loupgarou:{wins:0,games:0}}; this.save(p); return p; }
+  init(){
+    const p = this.get();
+    if(!p.pseudo) p.pseudo = 'Joueur';
+    if(!p.avatar) p.avatar = '🎭';
+    if(!p.stats) p.stats = {undercover:{wins:0,games:0}, loupgarou:{wins:0,games:0}};
+    this.save(p);
+    return p;
+  }
 };
 LeloxProfile.init();
+
+// Streak tracker (lightweight)
 window.LeloxStreak = {
   get(){ return parseInt(localStorage.getItem('lelox_streak')||'0',10); },
-  bump(won){ const cur=this.get(), next=won?cur+1:0; localStorage.setItem('lelox_streak',String(next)); if(won&&next>=3) LeloxXP.add(20,'Streak '+next+'🔥'); return next; }
+  bump(won){
+    const cur = this.get();
+    const next = won ? cur+1 : 0;
+    localStorage.setItem('lelox_streak', String(next));
+    if(won && next>=3) LeloxXP.add(20, 'Streak '+next+'🔥');
+    return next;
+  }
 };
+
+// Hook end-of-game: add XP when stats updated
 (function(){
   const origUpdate = window.updateLocalStats;
   if(typeof origUpdate === 'function'){
-    let lastGames=-1;
+    let lastGames = -1;
     window.updateLocalStats = function(){
       const r = origUpdate.apply(this, arguments);
-      try { const stats=JSON.parse(localStorage.getItem('uc_stats')||'{}'); const g=stats.games||0; if(lastGames>=0 && g>lastGames){ LeloxXP.add(10,'Partie jouée'); } lastGames=g; } catch(e){}
+      try {
+        const stats = JSON.parse(localStorage.getItem('uc_stats')||'{}');
+        const g = stats.games||0;
+        if(lastGames>=0 && g>lastGames){ LeloxXP.add(10,'Partie jouée'); }
+        lastGames = g;
+      } catch(e){}
       return r;
     };
   }
 })();
+
+// Narrator toggle button (inject into settings if visible)
 document.addEventListener('DOMContentLoaded', function(){
   try {
     const settings = document.getElementById('screen-settings');
     if(settings && !document.getElementById('narrator-toggle-row')){
       const row = document.createElement('div');
-      row.id='narrator-toggle-row'; row.className='settings-section';
-      row.innerHTML='<h3>🔊 Narrateur IA</h3><div class="setting-row"><label>Voix synthétique aux moments clés</label><button class="btn btn-ghost" id="narrator-btn" onclick="const s=Narrator.toggle();document.getElementById(\'narrator-btn\').textContent=s?\'Activé\':\'Désactivé\';">'+(Narrator.enabled?'Activé':'Désactivé')+'</button></div>';
+      row.id = 'narrator-toggle-row';
+      row.className = 'settings-section';
+      row.innerHTML = '<h3>🔊 Narrateur IA</h3><div class="setting-row"><label>Voix synthétique aux moments clés</label><button class="btn btn-ghost" id="narrator-btn" onclick="const s=Narrator.toggle();document.getElementById(\'narrator-btn\').textContent=s?\'Activé\':\'Désactivé\';">'+(Narrator.enabled?'Activé':'Désactivé')+'</button></div>';
       settings.appendChild(row);
     }
   } catch(e){}
 });
-</script>
-
-<script>
-/* Auto-start music — robust */
-(function(){
-  function autoStart() {
-    var p = window.MusicPlayer || window.LGMusicPlayer || window.LGMusic;
-    if (!p) return;
-    try { if (p.init) p.init(); } catch(e){}
-    var firstRun = !p.audio || !p.audio.src;
-    var canResume = p.audio && p.audio.paused && !p.userStopped && !p.stopped;
-    if (firstRun || canResume) {
-      var r = p.play && p.play();
-      if (r && r.catch) r.catch(function(){});
-    }
-  }
-  ['click','touchstart','keydown','pointerdown'].forEach(function(e){
-    document.addEventListener(e, autoStart, { once: false, capture: true });
-  });
-  window.addEventListener('load', function(){ setTimeout(autoStart, 800); });
-})();
 </script>
 
 </body>

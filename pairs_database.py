@@ -458,3 +458,854 @@ PAIRS = [
     {'civil': 'Princess Zelda', 'undercover': 'Pénélope', 'universe1': 'Zelda', 'universe2': 'Odyssée', 'archetype': 'Princesse Patiente', 'wiki1': 'zelda', 'page1': 'Princess Zelda', 'wiki2': 'none', 'page2': 'none', 'mode': 'jeux_video', 'hint': 'Princesses patientes qui attendent le retour du héros', 'pair_type': 'decale'},
     {'civil': 'Pac-Man', 'undercover': 'Jonas', 'universe1': 'Pac-Man', 'universe2': 'Bible', 'archetype': 'Avalé Vivant', 'wiki1': 'pacman', 'page1': 'Pac-Man', 'wiki2': 'none', 'page2': 'none', 'mode': 'jeux_video', 'hint': 'Avalés vivants, survivent, continuent leur quête', 'pair_type': 'decale'},
 ]
+
+DISPLAY_NAMES = {
+    # Naruto
+    "Kakashi Hatake": "Kakashi",
+    "Naruto Uzumaki": "Naruto",
+    "Sasuke Uchiha": "Sasuke",
+    "Itachi Uchiha": "Itachi",
+    "Jiraiya": "Jiraiya",
+    "Orochimaru": "Orochimaru",
+    "Sakura Haruno": "Sakura",
+    "Tsunade": "Tsunade",
+    "Gaara": "Gaara",
+    "Madara Uchiha": "Madara",
+    "Hashirama Senju": "Hashirama",
+    "Obito Uchiha": "Obito",
+    "Minato Namikaze": "Minato",
+    "Shikamaru Nara": "Shikamaru",
+    "Neji Hyūga": "Neji",
+    "Hinata Hyūga": "Hinata",
+    "Rock Lee": "Rock Lee",
+    "Nagato": "Pain",
+    "Konan": "Konan",
+    "Kurama": "Kurama",
+    "Kaguya Ōtsutsuki": "Kaguya",
+
+    # Dragon Ball
+    "Goku": "Goku",
+    "Vegeta": "Vegeta",
+    "Gohan": "Gohan",
+    "Trunks": "Trunks",
+    "Frieza": "Frieza",
+    "Cell": "Cell",
+    "Piccolo": "Piccolo",
+    "Broly (DBS)": "Broly",
+    "Beerus": "Beerus",
+    "Whis": "Whis",
+    "Master Roshi": "Muten Roshi",
+    "Zeno": "Zeno",
+    "Android 18": "Android 18",
+    "Bulma": "Bulma",
+
+    # One Piece
+    "Monkey D. Luffy": "Luffy",
+    "Roronoa Zoro": "Zoro",
+    "Sanji": "Sanji",
+    "Nami": "Nami",
+    "Nico Robin": "Robin",
+    "Portgas D. Ace": "Ace",
+    "Sabo": "Sabo",
+    "Shanks": "Shanks",
+    "Edward Newgate": "Barbe Blanche",
+    "Silvers Rayleigh": "Rayleigh",
+    "Donquixote Doflamingo": "Doflamingo",
+    "Crocodile": "Crocodile",
+    "Dracule Mihawk": "Mihawk",
+    "Marshall D. Teach": "Barbe Noire",
+    "Gol D. Roger": "Roger",
+    "Trafalgar D. Water Law": "Law",
+    "Donquixote Rosinante": "Corazon",
+    "Charlotte Linlin": "Big Mom",
+
+    # Bleach
+    "Ichigo Kurosaki": "Ichigo",
+    "Rukia Kuchiki": "Rukia",
+    "Byakuya Kuchiki": "Byakuya",
+    "Sousuke Aizen": "Aizen",
+    "Kisuke Urahara": "Urahara",
+    "Grimmjow Jaegerjaquez": "Grimmjow",
+    "Tōshirō Hitsugaya": "Toshiro",
+    "Rangiku Matsumoto": "Rangiku",
+    "Yoruichi Shihōin": "Yoruichi",
+    "Retsu Unohana": "Unohana",
+    "Yhwach": "Yhwach",
+
+    # Attack on Titan
+    "Eren Yeager": "Eren",
+    "Mikasa Ackerman": "Mikasa",
+    "Levi Ackerman": "Levi",
+    "Erwin Smith (Anime)": "Erwin",
+    "Reiner Braun (Anime)": "Reiner",
+    "Annie Leonhart (Anime)": "Annie",
+    "Armin Arlert": "Armin",
+    "Zeke Yeager": "Zeke",
+    "Ymir Fritz (Anime)": "Ymir Fritz",
+    "Marco Bott": "Marco",
+    "Willy Tybur (Anime)": "Willy Tybur",
+
+    # My Hero Academia
+    "Izuku Midoriya": "Deku",
+    "Katsuki Bakugo": "Bakugo",
+    "Shoto Todoroki": "Todoroki",
+    "Toshinori Yagi": "All Might",
+    "Enji Todoroki": "Endeavor",
+    "Rumi Usagiyama": "Mirko",
+
+    # Jujutsu Kaisen
+    "Satoru Gojo": "Gojo",
+    "Sukuna": "Sukuna",
+    "Yuji Itadori": "Yuji",
+    "Megumi Fushiguro": "Megumi",
+    "Toji Fushiguro": "Toji",
+    "Suguru Geto": "Geto",
+    "Nobara Kugisaki": "Nobara",
+    "Maki Zenin": "Maki",
+    "Aoi Todo": "Todo",
+
+    # Demon Slayer
+    "Tanjiro Kamado": "Tanjiro",
+    "Nezuko Kamado": "Nezuko",
+    "Zenitsu Agatsuma": "Zenitsu",
+    "Inosuke Hashibira": "Inosuke",
+    "Muzan Kibutsuji": "Muzan",
+    "Tamayo": "Tamayo",
+    "Giyu Tomioka": "Giyu",
+    "Sanemi Shinazugawa": "Sanemi",
+
+    # Death Note
+    "Light Yagami": "Light",
+    "L (character)": "L",
+    "Ryuk": "Ryuk",
+    "Misa Amane": "Misa",
+    "Rem": "Rem",
+    "Near": "Near",
+    "Mello": "Mello",
+
+    # Hunter x Hunter
+    "Gon Freecss": "Gon",
+    "Killua Zoldyck": "Killua",
+    "Kurapika": "Kurapika",
+    "Hisoka Morow": "Hisoka",
+    "Chrollo Lucilfer": "Chrollo",
+    "Meruem": "Meruem",
+    "Isaac Netero": "Netero",
+    "Biscuit Krueger": "Biscuit",
+    "Kite": "Kite",
+    "Alluka Zoldyck": "Alluka",
+    "Phantom Troupe": "Brigade Fantôme",
+
+    # Fullmetal Alchemist
+    "Edward Elric": "Edward",
+    "Alphonse Elric": "Alphonse",
+    "Roy Mustang": "Mustang",
+    "Riza Hawkeye": "Riza",
+    "Maes Hughes": "Hughes",
+    "Scar": "Scar",
+    "Solf J. Kimblee": "Kimblee",
+    "Van Hohenheim": "Hohenheim",
+    "Father": "Father",
+    "King Bradley": "King Bradley",
+    "Shou Tucker": "Shou Tucker",
+    "Winry Rockbell": "Winry",
+    "Truth": "Truth",
+
+    # Code Geass
+    "Lelouch vi Britannia": "Lelouch",
+    "Charles zi Britannia": "Charles",
+    "Cornelia li Britannia": "Cornelia",
+
+    # Tokyo Ghoul
+    "Ken Kaneki": "Kaneki",
+
+    # Chainsaw Man
+    "Denji": "Denji",
+    "Makima": "Makima",
+    "Power": "Power",
+    "Pochita": "Pochita",
+
+    # One Punch Man
+    "Saitama": "Saitama",
+
+    # Black Clover
+    "Asta": "Asta",
+
+    # Fairy Tail
+    "Natsu Dragneel": "Natsu",
+    "Erza Scarlet": "Erza",
+    "Gildarts Clive": "Gildarts",
+
+    # Mob Psycho 100
+    "Shigeo Kageyama": "Mob",
+
+    # Berserk
+    "Guts": "Guts",
+    "Griffith": "Griffith",
+    "Casca": "Casca",
+
+    # Dr. Stone
+    "Senku Ishigami": "Senku",
+
+    # Promised Neverland
+    "Ray": "Ray",
+
+    # Evangelion
+    "Shinji Ikari": "Shinji",
+
+    # Akira
+    "Tetsuo Shima": "Tetsuo",
+
+    # Yu Yu Hakusho
+    "Genkai": "Genkai",
+    "Hiei": "Hiei",
+
+    # Seven Deadly Sins
+    "Meliodas": "Meliodas",
+
+    # Gurren Lagann
+    "Simon": "Simon",
+
+    # Avatar
+    "Iroh": "Iroh",
+
+    # Konosuba
+    "Aqua": "Aqua",
+
+    # JoJo
+    "Dio Brando": "Dio",
+
+    # Slime
+    "Rimuru Tempest": "Rimuru",
+
+    # Assassination Classroom
+    "Korosensei": "Koro-sensei",
+
+    # Akame ga Kill
+    "Esdeath": "Esdeath",
+
+    # Gintama
+    "Gintoki Sakata": "Gintoki",
+
+    # --- MODE SHŌJO ---
+    # Sailor Moon
+    "Usagi Tsukino": "Usagi",
+    "Rei Hino": "Rei",
+    "Hotaru Tomoe": "Hotaru",
+    "Chibiusa": "Chibiusa",
+
+    # Cardcaptor Sakura
+    "Sakura Kinomoto": "Sakura",
+    "Tomoyo Daidouji": "Tomoyo",
+    "Syaoran Li": "Syaoran",
+
+    # Fruits Basket
+    "Tohru Honda": "Tohru",
+    "Kyo Sohma": "Kyo",
+    "Yuki Sohma": "Yuki",
+    "Momiji Sohma": "Momiji",
+    "Akito Sohma": "Akito",
+
+    # Ouran High School Host Club
+    "Tamaki Suoh": "Tamaki",
+    "Haruhi Fujioka": "Haruhi",
+    "Mitsukuni Haninozuka": "Honey",
+
+    # Kimi ni Todoke
+    "Sawako Kuronuma": "Sawako",
+
+    # Clannad
+    "Nagisa Furukawa": "Nagisa",
+    "Tomoya Okazaki": "Tomoya",
+
+    # Violet Evergarden
+    "Violet Evergarden": "Violet",
+
+    # Your Lie in April
+    "Kaori Miyazono": "Kaori",
+    "Kousei Arima": "Kousei",
+
+    # Toradora
+    "Taiga Aisaka": "Taiga",
+
+    # Evangelion (shojo crossover)
+    "Rei Ayanami": "Rei",
+    "Asuka Langley Soryu": "Asuka",
+
+    # Puella Magi Madoka Magica
+    "Madoka Kaname": "Madoka",
+    "Homura Akemi": "Homura",
+
+    # Full Moon wo Sagashite
+    "Mitsuki Koyama": "Mitsuki",
+
+    # Magical Girl Lyrical Nanoha
+    "Nanoha Takamachi": "Nanoha",
+
+    # Maid Sama
+    "Misaki Ayuzawa": "Misaki",
+    "Takumi Usui": "Usui",
+
+    # Black Butler
+    "Ciel Phantomhive": "Ciel",
+
+    # Code Geass (shojo crossover)
+    "Nunnally vi Britannia": "Nunnally",
+
+    # --- MODE ISEKAI ---
+    # Re:Zero
+    "Subaru Natsuki": "Subaru",
+    "Emilia": "Emilia",
+    "Rem": "Rem",
+    "Reinhard van Astrea": "Reinhard",
+    "Roswaal L Mathers": "Roswaal",
+    "Echidna": "Echidna",
+
+    # Sword Art Online
+    "Kirito": "Kirito",
+    "Asuna": "Asuna",
+
+    # Overlord
+    "Ainz Ooal Gown": "Ainz",
+    "Albedo": "Albedo",
+    "Shalltear Bloodfallen": "Shalltear",
+
+    # Slime
+    "Rimuru Tempest": "Rimuru",
+
+    # KonoSuba
+    "Kazuma Satou": "Kazuma",
+    "Megumin": "Megumin",
+    "Darkness": "Darkness",
+    "Wiz": "Wiz",
+
+    # Mushoku Tensei
+    "Rudeus Greyrat": "Rudeus",
+
+    # Shield Hero
+    "Naofumi Iwatani": "Naofumi",
+    "Raphtalia": "Raphtalia",
+
+    # No Game No Life
+    "Sora": "Sora",
+    "Shiro": "Shiro",
+
+    # How Not to Summon a Demon Lord
+    "Diablo": "Diablo",
+
+    # --- MODE CLASSIQUE ---
+    # Saint Seiya
+    "Pegasus Seiya": "Seiya",
+
+    # Slam Dunk
+    "Hanamichi Sakuragi": "Sakuragi",
+
+    # Inuyasha
+    "Inuyasha": "Inuyasha",
+    "Kagome Higurashi": "Kagome",
+    "Sesshōmaru": "Sesshōmaru",
+    "Miroku": "Miroku",
+
+    # Hokuto no Ken
+    "Kenshiro": "Kenshiro",
+
+    # Ranma ½
+    "Ranma Saotome": "Ranma",
+
+    # Yu-Gi-Oh
+    "Yugi Mutou": "Yugi",
+
+    # Captain Tsubasa
+    "Tsubasa Ozora": "Tsubasa",
+
+    # Rurouni Kenshin
+    "Himura Kenshin": "Kenshin",
+    "Shinomori Aoshi": "Aoshi",
+
+    # Trigun
+    "Vash the Stampede": "Vash",
+
+    # Cowboy Bebop
+    "Spike Spiegel": "Spike",
+
+    # Gundam
+    "Char Aznable": "Char",
+
+    # Yu Yu Hakusho
+    "Yusuke Urameshi": "Yusuke",
+
+    # --- MODE SEINEN ---
+    # Vinland Saga
+    "Thorfinn": "Thorfinn",
+    "Askeladd": "Askeladd",
+    "Canute": "Canute",
+
+    # Monster
+    "Johan Liebert": "Johan",
+
+    # Vagabond
+    "Miyamoto Musashi": "Musashi",
+
+    # Psycho-Pass
+    "Akane Tsunemori": "Akane",
+    "Shogo Makishima": "Makishima",
+
+    # Ghost in the Shell
+    "Motoko Kusanagi": "Motoko",
+
+    # Parasyte
+    "Shinichi Izumi": "Shinichi",
+
+    # Black Lagoon
+    "Revy": "Revy",
+
+    # --- MODE OR_ANIME ---
+    # Pokemon
+    "Pikachu": "Pikachu",
+    "Charizard": "Charizard",
+    "Ash Ketchum": "Ash",
+    "Gary Oak": "Gary",
+
+    # Detective Conan
+    "Conan Edogawa": "Conan",
+    "Shinichi Kudo": "Shinichi",
+
+    # Doraemon
+    "Doraemon": "Doraemon",
+    "Nobita Nobi": "Nobita",
+
+    # My Neighbor Totoro
+    "Totoro": "Totoro",
+    "Catbus": "Catbus",
+
+    # Astro Boy
+    "Astro Boy": "Astro Boy",
+
+    # Mega Man
+    "Mega Man": "Mega Man",
+
+    # Fairy Tail
+    "Natsu Dragneel": "Natsu",
+    "Gray Fullbuster": "Gray",
+
+    # Seven Deadly Sins
+    "Meliodas": "Meliodas",
+    "Ban": "Ban",
+
+    # Code Geass (or_anime)
+    "Suzaku Kururugi": "Suzaku",
+
+    # Sailor Moon
+    "Usagi Tsukino": "Sailor Moon",
+
+    # Cardcaptor Sakura
+    "Sakura Kinomoto": "Sakura (CCS)",
+
+    # Death Note (or_anime)
+    "L (character)": "L",
+
+    # Demon Slayer
+    "Tanjiro Kamado": "Tanjiro",
+    "Nezuko Kamado": "Nezuko",
+
+    # Jujutsu Kaisen (or_anime)
+    "Ryomen Sukuna": "Sukuna",
+
+    # --- MODE SERIES_NETFLIX ---
+    # Stranger Things
+    "Eleven": "Eleven",
+    "Max Mayfield": "Max",
+
+    # Breaking Bad
+    "Walter White": "Walter White",
+    "Jesse Pinkman": "Jesse",
+
+    # BBC Sherlock
+    "Sherlock Holmes": "Sherlock",
+    "John Watson": "Watson",
+
+    # You
+    "Joe Goldberg": "Joe",
+    "Love Quinn": "Love",
+
+    # Peaky Blinders
+    "Thomas Shelby": "Tommy",
+    "Alfie Solomons": "Alfie",
+
+    # BoJack Horseman
+    "BoJack Horseman": "BoJack",
+    "Mr. Peanutbutter": "Mr. PB",
+
+    # The Witcher
+    "Geralt of Rivia": "Geralt",
+    "Yennefer of Vengerberg": "Yennefer",
+
+    # Vikings
+    "Ragnar Lothbrok": "Ragnar",
+    "Bjorn Ironside": "Bjorn",
+
+    # Narcos
+    "Pablo Escobar": "Escobar",
+    "El Chapo": "El Chapo",
+
+    # Game of Thrones
+    "Jon Snow": "Jon Snow",
+    "Daenerys Targaryen": "Daenerys",
+    "Tyrion Lannister": "Tyrion",
+    "Cersei Lannister": "Cersei",
+
+    # The Walking Dead
+    "Rick Grimes": "Rick",
+    "Negan": "Negan",
+
+    # Dexter
+    "Dexter Morgan": "Dexter",
+
+    # Hannibal
+    "Hannibal Lecter": "Hannibal",
+
+    # Squid Game
+    "Seong Gi-hun": "Gi-hun",
+    "Front Man": "Front Man",
+
+    # La Casa de Papel
+    "The Professor": "Le Professeur",
+    "Berlin": "Berlin",
+
+    # --- MODE SERIES_DISNEY ---
+    # The Lion King
+    "Simba": "Simba",
+    "Mufasa": "Mufasa",
+
+    # Frozen
+    "Elsa": "Elsa",
+    "Anna": "Anna",
+
+    # Marvel
+    "Tony Stark": "Iron Man",
+    "Steve Rogers": "Captain America",
+    "Thor Odinson": "Thor",
+    "Loki Laufeyson": "Loki",
+    "Peter Parker": "Spider-Man",
+    "Stephen Strange": "Doctor Strange",
+    "Wanda Maximoff": "Wanda",
+    "Vision": "Vision",
+    "Thanos": "Thanos",
+
+    # Star Wars
+    "Luke Skywalker": "Luke",
+    "Anakin Skywalker": "Anakin",
+    "Din Djarin": "Mando",
+    "Grogu": "Grogu",
+    "Obi-Wan Kenobi": "Obi-Wan",
+
+    # Pixar
+    "Buzz Lightyear": "Buzz",
+    "Woody": "Woody",
+
+    # Disney
+    "Aladdin": "Aladdin",
+    "Genie": "Genie",
+    "Mulan": "Mulan",
+    "Mushu": "Mushu",
+    "Rapunzel": "Rapunzel",
+    "Flynn Rider": "Flynn",
+    "Moana Waialiki": "Moana",
+    "Maui": "Maui",
+    "Baymax": "Baymax",
+    "Hiro Hamada": "Hiro",
+
+    # --- MODE CARTOONS ---
+    # SpongeBob
+    "SpongeBob SquarePants": "SpongeBob",
+    "Patrick Star": "Patrick",
+
+    # Tom and Jerry
+    "Tom Cat": "Tom",
+    "Jerry Mouse": "Jerry",
+
+    # Looney Tunes
+    "Bugs Bunny": "Bugs Bunny",
+    "Daffy Duck": "Daffy Duck",
+
+    # The Simpsons
+    "Homer Simpson": "Homer",
+
+    # Family Guy
+    "Peter Griffin": "Peter Griffin",
+
+    # DC Animated
+    "Batman": "Batman",
+    "Joker": "Joker",
+
+    # Scooby-Doo
+    "Scooby-Doo": "Scooby",
+    "Shaggy Rogers": "Shaggy",
+
+    # Dexter's Lab
+    "Dexter": "Dexter (Lab)",
+    "Dee Dee": "Dee Dee",
+
+    # Phineas and Ferb
+    "Phineas Flynn": "Phineas",
+    "Ferb Fletcher": "Ferb",
+
+    # Avatar (cartoons)
+    "Korra": "Korra",
+
+    # Rick and Morty
+    "Rick Sanchez": "Rick",
+    "Morty Smith": "Morty",
+
+    # Adventure Time
+    "Finn": "Finn",
+    "Jake": "Jake",
+
+    # Gumball
+    "Gumball Watterson": "Gumball",
+    "Darwin Watterson": "Darwin",
+
+    # Ben 10
+    "Ben Tennyson": "Ben 10",
+    "Kevin Levin": "Kevin",
+
+    # Danny Phantom
+    "Danny Fenton": "Danny Phantom",
+
+    # Invincible
+    "Mark Grayson": "Invincible",
+
+    # Courage
+    "Courage": "Courage",
+
+    # Powerpuff Girls
+    "Blossom": "Blossom",
+    "Buttercup": "Buttercup",
+
+    # Shrek
+    "Shrek": "Shrek",
+    "Donkey": "Donkey",
+
+    # Kung Fu Panda
+    "Po": "Po",
+    "Tigress": "Tigress",
+
+    # Teen Titans
+    "Raven": "Raven",
+    "Starfire": "Starfire",
+
+    # Steven Universe
+    "Steven Universe": "Steven",
+    "Garnet": "Garnet",
+
+    # --- MODE SERIES_MIX ---
+    # DC Comics
+    "Superman": "Superman",
+    "Wonder Woman": "Wonder Woman",
+
+    # Harry Potter
+    "Harry Potter": "Harry Potter",
+    "Severus Snape": "Snape",
+
+    # Pirates of the Caribbean
+    "Jack Sparrow": "Jack Sparrow",
+
+    # John Wick
+    "John Wick": "John Wick",
+
+    # Lord of the Rings
+    "Aragorn II Elessar": "Aragorn",
+
+    # --- MODE JEUX_VIDEO ---
+    # Mario
+    "Mario": "Mario",
+    "Luigi": "Luigi",
+    "Princess Peach": "Peach",
+    "Bowser": "Bowser",
+    "Yoshi": "Yoshi",
+
+    # Sonic
+    "Sonic the Hedgehog": "Sonic",
+    "Shadow the Hedgehog": "Shadow",
+    "Doctor Eggman": "Dr. Eggman",
+
+    # Zelda
+    "Link": "Link",
+    "Ganondorf": "Ganondorf",
+    "Princess Zelda": "Zelda",
+
+    # God of War
+    "Kratos": "Kratos",
+    "Zeus": "Zeus",
+
+    # Halo
+    "John-117": "Master Chief",
+    "Thel 'Vadam": "Arbiter",
+
+    # Final Fantasy
+    "Cloud Strife": "Cloud",
+    "Sephiroth": "Sephiroth",
+    "Tifa Lockhart": "Tifa",
+
+    # Pokémon
+    "Pikachu": "Pikachu",
+    "Mewtwo": "Mewtwo",
+
+    # Street Fighter
+    "Ryu": "Ryu",
+    "Ken Masters": "Ken",
+
+    # Mortal Kombat
+    "Sub-Zero": "Sub-Zero",
+    "Scorpion": "Scorpion",
+
+    # Assassin's Creed
+    "Ezio Auditore da Firenze": "Ezio",
+    "Altaïr Ibn-La'Ahad": "Altaïr",
+
+    # The Last of Us
+    "Joel": "Joel",
+    "Ellie": "Ellie",
+
+    # The Witcher
+    "Geralt of Rivia": "Geralt",
+    "Yennefer of Vengerberg": "Yennefer",
+
+    # Overwatch
+    "Tracer": "Tracer",
+    "Genji": "Genji",
+
+    # Minecraft
+    "Steve": "Steve",
+    "Alex": "Alex",
+
+    # Undertale
+    "Sans": "Sans",
+    "Papyrus": "Papyrus",
+
+    # Devil May Cry
+    "Dante": "Dante",
+
+    # Crash Bandicoot
+    "Crash Bandicoot": "Crash",
+
+    # Tomb Raider
+    "Lara Croft": "Lara Croft",
+
+    # Uncharted
+    "Nathan Drake": "Nathan Drake",
+
+    # Red Dead Redemption
+    "Arthur Morgan": "Arthur Morgan",
+
+    # Metal Gear
+    "Solid Snake": "Snake",
+
+    # Splinter Cell
+    "Sam Fisher": "Sam Fisher",
+
+    # Doom
+    "Doom Slayer": "Doom Slayer",
+
+    # Half-Life
+    "Gordon Freeman": "Gordon Freeman",
+
+    # Dead Space
+    "Isaac Clarke": "Isaac Clarke",
+
+    # The Walking Dead (game)
+    "Clementine": "Clementine",
+
+    # NieR
+    "2B": "2B",
+
+    # Horizon
+    "Aloy": "Aloy",
+
+    # Mega Man
+    "Mega Man": "Mega Man",
+
+    # Metroid
+    "Samus Aran": "Samus",
+
+    # Kirby
+    "Kirby": "Kirby",
+
+    # Pac-Man
+    "Pac-Man": "Pac-Man",
+
+    # Digimon
+    "Agumon": "Agumon",
+
+    # Bayonetta
+    "Bayonetta": "Bayonetta",
+
+    # Hitman
+    "Agent 47": "Agent 47",
+
+    # GTA
+    "Carl Johnson": "CJ",
+    "Niko Bellic": "Niko",
+
+    # Resident Evil
+    "Leon S. Kennedy": "Leon",
+    "Chris Redfield": "Chris",
+
+    # Donkey Kong
+    "Donkey Kong": "Donkey Kong",
+
+    # Décalé - Historical / Fictional crossover characters
+    "Spartacus": "Spartacus",
+    "Rocky Balboa": "Rocky",
+    "Chuck Norris": "Chuck Norris",
+    "Napoléon": "Napoléon",
+    "Christophe Colomb": "Colomb",
+    "Miyamoto Musashi": "Musashi",
+    "Sherlock Holmes": "Sherlock",
+    "Brutus": "Brutus",
+    "Sisyphe": "Sisyphe",
+    "Sun Tzu": "Sun Tzu",
+    "Carrie White": "Carrie",
+    "Danny Ocean": "Danny Ocean",
+    "Macbeth": "Macbeth",
+    "Aragorn": "Aragorn",
+    "John McClane": "McClane",
+    "Katniss Everdeen": "Katniss",
+    "Clint Eastwood": "Eastwood",
+    "Jay Gatsby": "Gatsby",
+    "Cyrano de Bergerac": "Cyrano",
+    "Al Capone": "Al Capone",
+    "Hamlet": "Hamlet",
+    "Pinocchio": "Pinocchio",
+    "Jack Frost": "Jack Frost",
+    "Ursula": "Ursula",
+    "Jeanne d'Arc": "Jeanne d'Arc",
+    "Hercule": "Hercule",
+    "Neil Armstrong": "Armstrong",
+    "Candide": "Candide",
+    "Ubu Roi": "Ubu Roi",
+    "Dalaï-Lama": "Dalaï-Lama",
+    "Nietzsche": "Nietzsche",
+    "Colombo": "Colombo",
+    "Quasimodo": "Quasimodo",
+    "Zorro": "Zorro",
+    "Don Quichotte": "Don Quichotte",
+    "Einstein": "Einstein",
+    "Wile E. Coyote": "Coyote",
+    "Achille": "Achille",
+    "Roi Arthur": "Arthur",
+    "Lucifer": "Lucifer",
+    "Liam Neeson": "Liam Neeson",
+    "RoboCop": "RoboCop",
+    "James Bond": "James Bond",
+    "Pénélope": "Pénélope",
+    "Jonas": "Jonas",
+    "Tom Cat": "Tom",
+    "Deadpool": "Deadpool",
+    "Buzz Lightyear": "Buzz",
+    "Seong Gi-hun": "Gi-hun",
+    "Geralt of Rivia": "Geralt",
+    "Loki Laufeyson": "Loki",
+    "Princess Zelda": "Zelda",
+    "John-117": "Master Chief",
+}

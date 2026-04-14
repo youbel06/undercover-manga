@@ -170,6 +170,43 @@ pre{background:#05050F;padding:12px;border-radius:8px;margin-top:10px;overflow-x
 .lg-typewriter{font-family:inherit;color:#cfd8ff;font-size:15px;letter-spacing:1px;min-height:22px;text-align:center;margin:12px 0 4px;text-shadow:0 0 8px rgba(108,177,255,.35)}
 .lg-typewriter::after{content:"▋";color:#6cb1ff;animation:blink 1s step-end infinite}
 @keyframes blink{50%{opacity:0}}
+
+/* ===== MULTIJOUEUR ===== */
+.mp-input{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(108,177,255,.3);background:rgba(10,14,26,.6);color:#E8EEFF;font-size:16px;outline:none;margin-top:6px}
+.mp-input:focus{border-color:#6cb1ff;box-shadow:0 0 0 3px rgba(108,177,255,.15)}
+.mp-input-code{text-align:center;letter-spacing:8px;font-weight:900;text-transform:uppercase;font-size:22px}
+.mp-avatars{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+.mp-avatar{font-size:28px;padding:10px;border-radius:12px;border:2px solid rgba(108,177,255,.15);background:rgba(10,14,26,.5);cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+.mp-avatar:hover{transform:scale(1.08)}
+.mp-avatar.sel{border-color:#6cb1ff;background:rgba(108,177,255,.2);box-shadow:0 0 14px rgba(108,177,255,.4)}
+.mp-player-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(108,177,255,.06);border:1px solid rgba(108,177,255,.15);margin:6px 0;animation:mpSlideIn .35s ease}
+@keyframes mpSlideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+.mp-ava{font-size:26px}
+.mp-nm{flex:1;font-weight:700;color:#E8EEFF}
+.mp-badge{background:linear-gradient(135deg,#ffb347,#ff7e5f);color:#1a0f00;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.mp-role{font-size:13px;color:#9ec4ff}
+.mp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:12px 0}
+.mp-tg{padding:12px 10px;border-radius:12px;border:1px solid rgba(108,177,255,.2);background:rgba(10,14,26,.7);color:#E8EEFF;font-size:14px;cursor:pointer;transition:all .15s;font-weight:700;position:relative}
+.mp-tg:hover{border-color:#6cb1ff;transform:translateY(-2px);background:rgba(108,177,255,.15)}
+.mp-tg.sel{border-color:#ffb347;background:rgba(255,179,71,.2);box-shadow:0 0 16px rgba(255,179,71,.4)}
+.mp-tg small{display:block;font-size:11px;color:#9ec4ff;margin-top:4px}
+.mp-wait{text-align:center;padding:40px 20px;color:#9ec4ff;font-style:italic;font-size:15px;animation:mpPulse 2s ease-in-out infinite}
+@keyframes mpPulse{0%,100%{opacity:.6}50%{opacity:1}}
+.mp-narrator{text-align:center;padding:18px;border-radius:14px;background:linear-gradient(135deg,rgba(80,40,120,.25),rgba(40,40,80,.25));border:1px solid rgba(168,141,255,.35);color:#e6d9ff;font-style:italic;letter-spacing:.5px;margin-bottom:14px;min-height:28px;font-size:15px}
+.mp-narrator.pulse{animation:mpNarrPulse .6s ease}
+@keyframes mpNarrPulse{0%{box-shadow:0 0 0 rgba(168,141,255,.6)}50%{box-shadow:0 0 24px rgba(168,141,255,.6)}100%{box-shadow:0 0 0 rgba(168,141,255,0)}}
+.mp-death{padding:12px 14px;margin:8px 0;border-radius:10px;background:rgba(220,40,60,.15);border:1px solid rgba(220,40,60,.35);color:#ffc8cf}
+.mp-dead-banner{margin:14px 0;padding:16px;text-align:center;border-radius:12px;background:rgba(0,0,0,.5);border:1px solid rgba(180,180,200,.2);color:#b0b0c0;letter-spacing:2px}
+.mp-alive{display:flex;flex-wrap:wrap;gap:6px}
+.mp-alive .mp-player-row{flex:1 1 calc(50% - 6px);min-width:140px;margin:0}
+.mp-modal{position:fixed;inset:0;z-index:10000;background:rgba(5,5,15,.88);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.mp-modal-inner{background:linear-gradient(180deg,rgba(20,24,48,.98),rgba(10,12,26,.98));border:1px solid rgba(108,177,255,.35);border-radius:16px;max-width:620px;width:100%;padding:28px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.mp-modal-close{position:absolute;top:10px;right:14px;background:none;border:0;color:#c8d4f0;font-size:28px;cursor:pointer;line-height:1}
+.mp-modal h2{margin-top:0;color:#a88dff}
+.mp-modal h4{color:#9ec4ff;margin:14px 0 6px;letter-spacing:1px}
+.mp-modal ul{padding-left:20px;color:#c8d4f0;line-height:1.7}
+.mp-rule-role{display:flex;gap:10px;padding:10px 12px;margin:6px 0;border-radius:10px;background:rgba(108,177,255,.06);border:1px solid rgba(108,177,255,.15)}
+.mp-rule-role .ic{font-size:28px}
 </style>
 </head>
 <body>
@@ -407,6 +444,131 @@ ALTER PUBLICATION supabase_realtime ADD TABLE lw_players;</pre>
   <div id="lg-result-area"></div>
 </div>
 
+<!-- ============ MP HUB ============ -->
+<div id="screen-mp-hub" class="screen">
+  <a href="#" onclick="LG.goHome();return false" class="back">← Accueil</a>
+  <h2 style="text-align:center">🌐 Multijoueur en ligne</h2>
+  <div class="card">
+    <p style="text-align:center;color:#9ec4ff;margin-bottom:12px">Chaque joueur sur son téléphone.<br>Narrateur IA automatique.</p>
+    <button class="btn" onclick="LG_MP.openCreate()">Créer une partie</button>
+    <button class="btn ghost" onclick="LG_MP.openJoin()">Rejoindre une partie</button>
+    <button class="btn ghost" onclick="LG.showRules()">📖 Règles du jeu</button>
+  </div>
+</div>
+
+<!-- ============ MP CREATE ============ -->
+<div id="screen-mp-create" class="screen">
+  <a href="#" onclick="LG_MP.goHub();return false" class="back">← Retour</a>
+  <h2 style="text-align:center">Créer une partie</h2>
+  <div class="card">
+    <label>Pseudo</label>
+    <input id="mp-create-pseudo" maxlength="16" placeholder="Ton pseudo" class="mp-input">
+    <label style="margin-top:14px;display:block">Avatar <span id="mp-create-avatar-sel" style="margin-left:6px;font-size:22px"></span></label>
+    <div class="mp-avatars" id="mp-create-avatars"></div>
+    <button class="btn" onclick="LG_MP.createRoom()" style="margin-top:14px">CRÉER LA PARTIE</button>
+  </div>
+</div>
+
+<!-- ============ MP JOIN ============ -->
+<div id="screen-mp-join" class="screen">
+  <a href="#" onclick="LG_MP.goHub();return false" class="back">← Retour</a>
+  <h2 style="text-align:center">Rejoindre une partie</h2>
+  <div class="card">
+    <label>Code de la salle</label>
+    <input id="mp-join-code" maxlength="6" placeholder="ABCDEF" class="mp-input mp-input-code" oninput="this.value=this.value.toUpperCase()">
+    <label style="margin-top:14px;display:block">Pseudo</label>
+    <input id="mp-join-pseudo" maxlength="16" placeholder="Ton pseudo" class="mp-input">
+    <label style="margin-top:14px;display:block">Avatar <span id="mp-join-avatar-sel" style="margin-left:6px;font-size:22px"></span></label>
+    <div class="mp-avatars" id="mp-join-avatars"></div>
+    <button class="btn" onclick="LG_MP.joinRoom()" style="margin-top:14px">REJOINDRE</button>
+  </div>
+</div>
+
+<!-- ============ MP LOBBY ============ -->
+<div id="screen-mp-lobby" class="screen">
+  <h2 style="text-align:center">Salle d'attente</h2>
+  <div class="card">
+    <div style="text-align:center">
+      <div style="font-size:11px;color:#8ea0c4;letter-spacing:3px">CODE DE LA SALLE</div>
+      <div style="font-size:36px;font-weight:900;letter-spacing:8px;margin:6px 0;background:linear-gradient(90deg,#6cb1ff,#a88dff);-webkit-background-clip:text;background-clip:text;color:transparent" id="mp-lobby-code">------</div>
+      <button class="btn ghost" onclick="LG_MP.copyCode()" style="max-width:160px;margin:0 auto;padding:8px 14px;font-size:13px">📋 Copier le code</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Joueurs (<span id="mp-lobby-count">0</span>)</h3>
+    <div id="mp-lobby-players"></div>
+  </div>
+  <button class="btn" id="mp-start-btn" onclick="LG_MP.startGame()" disabled>LANCER LA PARTIE</button>
+  <button class="btn ghost" onclick="LG_MP.leaveLobby()">QUITTER</button>
+  <button class="btn ghost" onclick="LG.showRules()">📖 Règles</button>
+</div>
+
+<!-- ============ MP REVEAL ============ -->
+<div id="screen-mp-reveal" class="screen">
+  <h2 style="text-align:center">🎭 Découverte</h2>
+  <div class="card">
+    <div id="mp-narrator" class="mp-narrator"></div>
+    <div id="mp-reveal-area"></div>
+  </div>
+</div>
+
+<!-- ============ MP NIGHT ============ -->
+<div id="screen-mp-night" class="screen">
+  <h2 style="text-align:center">🌙 <span id="mp-night-num">Nuit 1</span></h2>
+  <div class="card">
+    <div id="mp-narrator-n" class="mp-narrator"></div>
+    <div id="mp-night-area"></div>
+  </div>
+  <button class="btn ghost" onclick="LG.showRules()">📖 Règles</button>
+</div>
+
+<!-- ============ MP DAY ============ -->
+<div id="screen-mp-day" class="screen">
+  <div class="card">
+    <div id="mp-narrator-d" class="mp-narrator"></div>
+    <div id="mp-day-area"></div>
+  </div>
+  <button class="btn ghost" onclick="LG.showRules()">📖 Règles</button>
+</div>
+
+<!-- ============ MP VOTE ============ -->
+<div id="screen-mp-vote" class="screen">
+  <div class="card">
+    <div id="mp-narrator-v" class="mp-narrator"></div>
+    <div id="mp-vote-area"></div>
+  </div>
+</div>
+
+<!-- ============ MP END ============ -->
+<div id="screen-mp-end" class="screen">
+  <div class="card"><div id="mp-end-area"></div></div>
+</div>
+
+</div>
+
+<!-- ============ RULES MODAL ============ -->
+<div id="lg-rules-modal" class="mp-modal" style="display:none" onclick="if(event.target===this)LG.hideRules()">
+  <div class="mp-modal-inner">
+    <button class="mp-modal-close" onclick="LG.hideRules()" aria-label="Fermer">×</button>
+    <h2>📖 Règles du Loup-Garou</h2>
+    <h4>🎯 Objectif</h4>
+    <p style="color:#c8d4f0;line-height:1.6">Deux camps s'affrontent : le <b>village</b> doit éliminer tous les loups. Les <b>loups</b> doivent atteindre la parité avec les villageois.</p>
+    <h4>🌙 Les rôles</h4>
+    <div id="lg-rules-roles"></div>
+    <h4>⏱️ Déroulement</h4>
+    <ul>
+      <li><b>Nuit</b> — Cupidon (nuit 1), Voyante, Loups, Sorcière agissent à tour de rôle.</li>
+      <li><b>Jour</b> — Le village découvre les victimes, discute et débat.</li>
+      <li><b>Vote</b> — Le village élimine un suspect par vote majoritaire.</li>
+    </ul>
+    <h4>🏆 Conditions de victoire</h4>
+    <ul>
+      <li><b>Village</b> — Tous les loups éliminés.</li>
+      <li><b>Loups</b> — Parité atteinte avec le village.</li>
+      <li><b>Amoureux</b> — Les deux seuls survivants sont les amoureux.</li>
+    </ul>
+    <button class="btn" onclick="LG.hideRules()" style="margin-top:18px">Fermer</button>
+  </div>
 </div>
 
 <script>
@@ -543,9 +705,21 @@ const LG = {
     this.show('screen-lg-setup');
     this.onCount();
   },
-  showMP(){
-    alert("🌐 Multijoueur en ligne\n\nBientôt disponible !\nLe schéma Supabase est prêt, l'intégration realtime arrive dans une prochaine mise à jour.\n\nEn attendant, jouez en local : c'est 100% fonctionnel.");
+  showMP(){ if(window.LG_MP) LG_MP.goHub(); else alert('Multi en cours de chargement…'); },
+  showRules(){
+    try{
+      var box = document.getElementById('lg-rules-roles');
+      if(box && !box.dataset.done){
+        box.innerHTML = Object.keys(ROLES).map(function(k){
+          var r = ROLES[k];
+          return '<div class="mp-rule-role"><span class="ic">'+r.emoji+'</span><div><b>'+r.name+'</b> <small style="color:#9ec4ff">('+r.team+')</small><br><span style="color:#c8d4f0;font-size:13px">'+r.desc+'</span></div></div>';
+        }).join('');
+        box.dataset.done = '1';
+      }
+    }catch(e){}
+    document.getElementById('lg-rules-modal').style.display = 'flex';
   },
+  hideRules(){ document.getElementById('lg-rules-modal').style.display = 'none'; },
 
   // Setup
   onCount(){
@@ -1248,5 +1422,490 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
   };
 })();
 </script>
+
+<!-- ============ LG MULTIJOUEUR ============ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ============================================================
+   LG_MP — Loup-Garou multijoueur en ligne (Supabase realtime)
+   ============================================================ */
+(function(){
+const LG_MP = {
+  SUPA_URL: 'https://frrluakugoabzmkndriv.supabase.co',
+  SUPA_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZycmx1YWt1Z29hYnpta25kcml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MzA2ODEsImV4cCI6MjA5MTUwNjY4MX0.AMVDA104Otfx6LPTxgCUEyk0M5OaG6jszW8G_Nucgmc',
+  client: null, channel: null, room: null, roomId: null, code: null,
+  me: null, lastPhase: null, _advancing: false,
+  AVATARS: ['🐺','🧛','👁️','💊','🏹','🛡️','🃏','🎭','👻','🔮','🌙','⚔️'],
+  VIB: {myTurn:[200,100,200], imDead:[500,200,500,200,500], victory:[100,50,100,50,100,50,300], defeat:[500,200,500], newPhase:[300], vote:[100,100,100]},
+
+  async init(){
+    if(this.client) return true;
+    if(!window.supabase || !window.supabase.createClient){
+      alert('Connexion Supabase impossible. Vérifie ta connexion internet.'); return false;
+    }
+    this.client = window.supabase.createClient(this.SUPA_URL, this.SUPA_KEY);
+    var saved = localStorage.getItem('lg_mp_me');
+    if(saved){ try{ this.me = JSON.parse(saved); }catch(e){} }
+    if(!this.me || !this.me.id){ this.me = {id:'p_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4), pseudo:'', avatar:this.AVATARS[0]}; this._save(); }
+    return true;
+  },
+  _save(){ localStorage.setItem('lg_mp_me', JSON.stringify(this.me)); },
+  _code(){ var s='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r=''; for(var i=0;i<6;i++) r+=s[Math.floor(Math.random()*s.length)]; return r; },
+  _esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); },
+  vibrate(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} },
+
+  speak(text){
+    try{
+      if(!window.speechSynthesis || !text) return;
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang='fr-FR'; u.rate=0.92; u.pitch=0.9;
+      var voices = window.speechSynthesis.getVoices();
+      var fr = voices.find(function(v){return /fr/i.test(v.lang);});
+      if(fr) u.voice = fr;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  },
+  narrate(text){
+    this.speak(text);
+    document.querySelectorAll('.mp-narrator').forEach(function(n){
+      n.textContent = text; n.classList.remove('pulse'); void n.offsetWidth; n.classList.add('pulse');
+    });
+  },
+  narrateSequence(lines, pauseMs){
+    var self=this; window.speechSynthesis && window.speechSynthesis.cancel();
+    (async function(){
+      for(var i=0;i<lines.length;i++){ self.narrate(lines[i]); await new Promise(function(r){setTimeout(r, pauseMs||2200);}); }
+    })();
+  },
+
+  async goHub(){ var ok = await this.init(); if(!ok) return; LG.show('screen-mp-hub'); },
+  openCreate(){ var i=document.getElementById('mp-create-pseudo'); if(i)i.value=this.me.pseudo||''; this._renderAvatars('mp-create-avatars','mp-create-avatar-sel'); LG.show('screen-mp-create'); },
+  openJoin(){ var i=document.getElementById('mp-join-pseudo'); if(i)i.value=this.me.pseudo||''; this._renderAvatars('mp-join-avatars','mp-join-avatar-sel'); LG.show('screen-mp-join'); },
+  _renderAvatars(gridId, selId){
+    var self=this, grid=document.getElementById(gridId); if(!grid) return;
+    grid.innerHTML='';
+    this.AVATARS.forEach(function(a){
+      var b=document.createElement('button');
+      b.type='button'; b.className='mp-avatar'+(a===self.me.avatar?' sel':''); b.textContent=a;
+      b.onclick=function(){ self.me.avatar=a; self._save(); grid.querySelectorAll('.mp-avatar').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); var s=document.getElementById(selId); if(s) s.textContent=a; };
+      grid.appendChild(b);
+    });
+    var s=document.getElementById(selId); if(s) s.textContent=this.me.avatar;
+  },
+
+  async createRoom(){
+    var p=(document.getElementById('mp-create-pseudo').value||'').trim().slice(0,16);
+    if(!p || p.length<2){ alert('Entre un pseudo (2 caractères min)'); return; }
+    this.me.pseudo=p; this._save();
+    var code=this._code();
+    var player={id:this.me.id,pseudo:p,avatar:this.me.avatar,host:true,ready:false,alive:true,role:null};
+    var res=await this.client.from('lw_rooms').insert({code:code,host_id:this.me.id,status:'waiting',phase:'lobby',players:[player],config:{narratorMode:'app'}}).select().single();
+    if(res.error){ alert('Erreur : '+res.error.message+'\n\nAs-tu exécuté le SQL dans Supabase ?'); return; }
+    this.room=res.data; this.roomId=res.data.id; this.code=code; this.lastPhase='lobby';
+    await this._subscribe(); LG.show('screen-mp-lobby'); this.renderLobby();
+  },
+  async joinRoom(){
+    var p=(document.getElementById('mp-join-pseudo').value||'').trim().slice(0,16);
+    var code=(document.getElementById('mp-join-code').value||'').trim().toUpperCase();
+    if(!p||p.length<2){ alert('Pseudo requis'); return; }
+    if(!/^[A-Z0-9]{6}$/.test(code)){ alert('Code invalide'); return; }
+    this.me.pseudo=p; this._save();
+    var res=await this.client.from('lw_rooms').select('*').eq('code',code).maybeSingle();
+    if(res.error || !res.data){ alert('Salle introuvable'); return; }
+    if(res.data.status!=='waiting' && !(res.data.players||[]).some(function(x){return x.id===LG_MP.me.id;})){
+      alert('Partie déjà commencée'); return;
+    }
+    var players=(res.data.players||[]).slice();
+    if(!players.some(function(x){return x.id===LG_MP.me.id;})){
+      players.push({id:this.me.id,pseudo:p,avatar:this.me.avatar,host:false,ready:false,alive:true,role:null});
+    }
+    var u=await this.client.from('lw_rooms').update({players:players,updated_at:new Date().toISOString()}).eq('id',res.data.id).select().single();
+    if(u.error){ alert('Erreur : '+u.error.message); return; }
+    this.room=u.data; this.roomId=u.data.id; this.code=code; this.lastPhase=u.data.phase;
+    await this._subscribe(); this._enterPhase(u.data.phase);
+  },
+
+  async _subscribe(){
+    if(this.channel){ try{ await this.client.removeChannel(this.channel); }catch(e){} this.channel=null; }
+    var self=this;
+    this.channel=this.client.channel('room:'+this.code)
+      .on('postgres_changes',{event:'*',schema:'public',table:'lw_rooms',filter:'id=eq.'+this.roomId}, function(payload){
+        if(payload.new) self._onRoom(payload.new);
+      }).subscribe();
+  },
+  _onRoom(r){
+    this.room=r;
+    if(r.phase !== this.lastPhase){ this.lastPhase=r.phase; this._enterPhase(r.phase); }
+    else { this._rerender(); }
+  },
+  _rerender(){
+    var p=this.room.phase;
+    if(p==='lobby') this.renderLobby();
+    else if(p==='reveal') this.renderReveal();
+    else if(p==='night') this.renderNight();
+    else if(p==='day') this.renderDay();
+    else if(p==='vote') this.renderVote();
+    else if(p==='end') this.renderEnd();
+  },
+  _enterPhase(p){
+    this.vibrate(this.VIB.newPhase);
+    if(p==='lobby'){ LG.show('screen-mp-lobby'); this.renderLobby(); }
+    else if(p==='reveal'){ LG.show('screen-mp-reveal'); this.renderReveal(); }
+    else if(p==='night'){ LG.show('screen-mp-night'); this.renderNight(); }
+    else if(p==='day'){ LG.show('screen-mp-day'); this.renderDay(); }
+    else if(p==='vote'){ LG.show('screen-mp-vote'); this.renderVote(); }
+    else if(p==='end'){ LG.show('screen-mp-end'); this.renderEnd(); }
+  },
+  _isHost(){ return this.room && this.room.host_id===this.me.id; },
+  _meP(){ return (this.room.players||[]).find(function(x){return x.id===LG_MP.me.id;}); },
+  _alive(){ return (this.room.players||[]).filter(function(x){return x.alive;}); },
+
+  renderLobby(){
+    var r=this.room;
+    document.getElementById('mp-lobby-code').textContent=r.code;
+    var list=document.getElementById('mp-lobby-players'); list.innerHTML='';
+    (r.players||[]).forEach(function(p){
+      var d=document.createElement('div'); d.className='mp-player-row';
+      d.innerHTML='<span class="mp-ava">'+p.avatar+'</span><span class="mp-nm">'+LG_MP._esc(p.pseudo)+'</span>'+(p.host?'<span class="mp-badge">Hôte</span>':'');
+      list.appendChild(d);
+    });
+    var n=(r.players||[]).length;
+    document.getElementById('mp-lobby-count').textContent=n;
+    var host=this._isHost();
+    var btn=document.getElementById('mp-start-btn');
+    btn.disabled=!(host && n>=5);
+    btn.textContent = host ? (n<5?'Attente ('+n+'/5)':'LANCER LA PARTIE') : "En attente de l'hôte...";
+  },
+
+  async copyCode(){ try{ await navigator.clipboard.writeText(this.code); LG_MP._toast('Code copié'); }catch(e){} },
+  _toast(msg){ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(30,40,80,.95);color:#fff;padding:10px 20px;border-radius:12px;z-index:10001;box-shadow:0 6px 20px rgba(0,0,0,.5);font-weight:700'; document.body.appendChild(t); setTimeout(function(){t.remove();},1800); },
+
+  async leaveLobby(){
+    if(!this.room) return LG.goHome();
+    var players=(this.room.players||[]).filter(function(x){return x.id!==LG_MP.me.id;});
+    if(players.length===0){
+      await this.client.from('lw_rooms').delete().eq('id',this.roomId);
+    } else if(this._isHost()){
+      players[0].host=true;
+      await this.client.from('lw_rooms').update({players:players,host_id:players[0].id,updated_at:new Date().toISOString()}).eq('id',this.roomId);
+    } else {
+      await this.client.from('lw_rooms').update({players:players,updated_at:new Date().toISOString()}).eq('id',this.roomId);
+    }
+    if(this.channel){ try{ await this.client.removeChannel(this.channel); }catch(e){} this.channel=null; }
+    this.room=null; this.roomId=null; this.code=null; this.lastPhase=null;
+    LG.goHome();
+  },
+
+  async startGame(){
+    if(!this._isHost()) return;
+    var players=(this.room.players||[]).slice();
+    if(players.length<5){ alert('Il faut au moins 5 joueurs'); return; }
+    var cfg=buildRoleConfig(players.length), roleList=[];
+    Object.keys(cfg).forEach(function(k){ for(var i=0;i<cfg[k];i++) roleList.push(k); });
+    for(var i=roleList.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=roleList[i]; roleList[i]=roleList[j]; roleList[j]=t; }
+    players.forEach(function(p,i){ p.role=roleList[i]||'villageois'; p.alive=true; p.ready=false; });
+    await this.client.from('lw_rooms').update({status:'playing',phase:'reveal',players:players,night_count:0,eliminated:[],lovers:[],night_actions:{},day_votes:{},witch_potions:{save:true,kill:true},updated_at:new Date().toISOString()}).eq('id',this.roomId);
+  },
+
+  renderReveal(){
+    var me=this._meP(); if(!me) return;
+    var role=ROLES[me.role]||ROLES.villageois;
+    var el=document.getElementById('mp-reveal-area');
+    var ready=(this.room.players||[]).filter(function(p){return p.ready;}).length;
+    var total=(this.room.players||[]).length;
+    el.innerHTML = '<div class="reveal-card"><div class="reveal-flip" id="mp-flip">'
+      +'<div class="face front" onclick="document.getElementById(\'mp-flip\').classList.add(\'flipped\'); LG_MP.vibrate([200,100,200]);">'
+      +'<div style="font-size:56px">?</div><div class="sub">Touche pour découvrir ton rôle</div></div>'
+      +'<div class="face back"><div style="font-size:56px">'+role.emoji+'</div>'
+      +'<h2 style="text-align:center;margin:6px 0">'+role.name+'</h2>'
+      +'<p style="text-align:center;color:#c8d4f0;padding:0 12px;font-size:14px">'+role.desc+'</p>'
+      +(me.ready?'<div class="mp-wait" style="padding:14px">✅ Prêt — en attente…</div>':'<button class="btn" style="margin-top:16px;max-width:260px" onclick="LG_MP.markReady()">J\'AI COMPRIS</button>')
+      +'</div></div></div>'
+      +'<div style="margin-top:14px;text-align:center;color:#9ec4ff" id="mp-reveal-status">Prêts : '+ready+'/'+total+'</div>';
+    if(!me.ready){ this.narrate("Le village s'endort. Chacun découvre son destin..."); this.vibrate([200,100,200]); }
+  },
+  async markReady(){
+    var self=this, players=(this.room.players||[]).slice();
+    var me=players.find(function(x){return x.id===LG_MP.me.id;});
+    if(!me||me.ready) return; me.ready=true;
+    await this.client.from('lw_rooms').update({players:players,updated_at:new Date().toISOString()}).eq('id',this.roomId);
+    if(this._isHost()){
+      setTimeout(async function(){
+        if(!self.room) return;
+        var all=(self.room.players||[]).every(function(p){return p.ready;});
+        if(all && self.room.phase==='reveal'){
+          await self.client.from('lw_rooms').update({phase:'night',night_count:1,night_actions:{step:'start'},updated_at:new Date().toISOString()}).eq('id',self.roomId);
+        }
+      }, 800);
+    }
+  },
+
+  _nightSteps(){
+    var alive=this._alive(), has=function(r){return alive.some(function(p){return p.role===r;});};
+    var steps=[{key:'start',rolesActing:[]}];
+    if(this.room.night_count===1 && has('cupidon')) steps.push({key:'cupidon',rolesActing:['cupidon'],narration:'Cupidon se réveille. Choisis deux amoureux.',passiveLabel:'💘 Cupidon désigne les amoureux...',passiveNarr:'Cupidon se réveille...'});
+    if(has('voyante')) steps.push({key:'voyante',rolesActing:['voyante'],narration:'Voyante, choisis un joueur à sonder.',passiveLabel:'🔮 La voyante sonde une âme...',passiveNarr:'La voyante se réveille...'});
+    steps.push({key:'loups',rolesActing:['loupgarou','loup_alpha'],narration:'Loups-garous, choisissez votre victime.',passiveLabel:'🐺 Les loups-garous rôdent...',passiveNarr:'Les loups-garous se réveillent et choisissent une victime.'});
+    if(has('sorciere')) steps.push({key:'sorciere',rolesActing:['sorciere'],narration:'Sorcière, veux-tu utiliser une potion ?',passiveLabel:'🧪 La sorcière hésite...',passiveNarr:'La sorcière se réveille...'});
+    steps.push({key:'end',rolesActing:[]});
+    return steps;
+  },
+
+  renderNight(){
+    var r=this.room, me=this._meP(); if(!me) return;
+    var act=r.night_actions||{}, step=act.step||'start';
+    var el=document.getElementById('mp-night-area');
+    document.getElementById('mp-night-num').textContent='Nuit '+r.night_count;
+    if(step==='start'){
+      el.innerHTML='<div class="mp-wait">🌙 Nuit qui tombe…</div>';
+      this.narrateSequence(['Nuit '+r.night_count+' tombe sur le village...',"Le village s'endort doucement...","Mais certains habitants ne dorment pas."], 1800);
+      if(this._isHost() && !this._advancing){ this._advancing=true; setTimeout(function(){LG_MP._advancing=false;LG_MP._advanceNightStep('start');}, 6200); }
+      return;
+    }
+    if(step==='end'){
+      el.innerHTML='<div class="mp-wait">L\'aube approche…</div>';
+      this.narrate("Le village va se réveiller...");
+      if(this._isHost() && !this._advancing){ this._advancing=true; setTimeout(function(){LG_MP._advancing=false;LG_MP._resolveNight();}, 2400); }
+      return;
+    }
+    var phases=this._nightSteps(), cur=phases.find(function(x){return x.key===step;});
+    if(!cur){ el.innerHTML='<div class="mp-wait">…</div>'; return; }
+    var isMyTurn = me.alive && cur.rolesActing.indexOf(me.role)>=0;
+    var submitted = act.submitted && act.submitted[me.id];
+    if(isMyTurn && !submitted){
+      this.vibrate(this.VIB.myTurn);
+      el.innerHTML=this._renderNightAction(cur,me);
+      this.narrate(cur.narration);
+    } else {
+      el.innerHTML='<div class="mp-wait">'+cur.passiveLabel+'</div>';
+      if(!submitted) this.narrate(cur.passiveNarr);
+    }
+    if(this._isHost() && !this._advancing){
+      var alive=this._alive();
+      var reqIds=alive.filter(function(p){return cur.rolesActing.indexOf(p.role)>=0;}).map(function(p){return p.id;});
+      var subMap=act.submitted||{};
+      var allIn=reqIds.every(function(id){return subMap[id];});
+      if(reqIds.length===0 || allIn){ this._advancing=true; setTimeout(function(){LG_MP._advancing=false;LG_MP._advanceNightStep(step);}, 1100); }
+    }
+  },
+  _renderNightAction(step, me){
+    var alive=this._alive(), html='';
+    if(step.key==='cupidon'){
+      html='<h3>💘 Cupidon — choisis 2 amoureux</h3><div class="mp-grid" id="mp-cupid-grid">'
+        +alive.map(function(p){return '<button type="button" class="mp-tg" data-id="'+p.id+'">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'</button>';}).join('')
+        +'</div><button class="btn" id="mp-cupid-ok" disabled onclick="LG_MP.submitCupid()">Valider</button>';
+      setTimeout(function(){LG_MP._wireCupid();},0);
+      return html;
+    }
+    if(step.key==='voyante'){
+      return '<h3>🔮 Voyante — sonde un joueur</h3><div class="mp-grid">'
+        +alive.filter(function(p){return p.id!==me.id;}).map(function(p){return '<button type="button" class="mp-tg" onclick="LG_MP.submitVoyante(\''+p.id+'\')">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'</button>';}).join('')
+        +'</div>';
+    }
+    if(step.key==='loups'){
+      return '<h3>🐺 Loups — choisissez une victime</h3><div class="mp-grid">'
+        +alive.filter(function(p){return p.role!=='loupgarou'&&p.role!=='loup_alpha';}).map(function(p){return '<button type="button" class="mp-tg" onclick="LG_MP.submitWolf(\''+p.id+'\')">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'</button>';}).join('')
+        +'</div>';
+    }
+    if(step.key==='sorciere'){
+      var act=this.room.night_actions||{}, victim=act.wolfTarget?alive.find(function(p){return p.id===act.wolfTarget;}):null;
+      var pots=this.room.witch_potions||{save:true,kill:true};
+      html='<h3>🧪 Sorcière</h3>';
+      html += victim ? '<p>Victime des loups : <b>'+victim.avatar+' '+LG_MP._esc(victim.pseudo)+'</b></p>' : '<p>Pas de victime cette nuit.</p>';
+      if(pots.save && victim) html+='<button class="btn" onclick="LG_MP.submitWitch(\'save\',\''+victim.id+'\')">💊 Sauver</button>';
+      if(pots.kill){
+        var targets=alive.filter(function(p){return p.id!==me.id;});
+        html+='<details style="margin-top:10px"><summary style="cursor:pointer;padding:10px;color:#ffb347">☠️ Tuer un joueur</summary><div class="mp-grid">'
+          +targets.map(function(p){return '<button type="button" class="mp-tg" onclick="LG_MP.submitWitch(\'kill\',\''+p.id+'\')">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'</button>';}).join('')
+          +'</div></details>';
+      }
+      html+='<button class="btn ghost" onclick="LG_MP.submitWitch(\'pass\',null)" style="margin-top:10px">Passer</button>';
+      return html;
+    }
+    return '<div class="mp-wait">…</div>';
+  },
+  _wireCupid(){
+    var sel=new Set(), btns=document.querySelectorAll('#mp-cupid-grid .mp-tg');
+    var ok=document.getElementById('mp-cupid-ok'); if(ok) ok._sel=[];
+    btns.forEach(function(b){
+      b.onclick=function(){
+        var id=b.dataset.id;
+        if(sel.has(id)){ sel.delete(id); b.classList.remove('sel'); }
+        else if(sel.size<2){ sel.add(id); b.classList.add('sel'); }
+        if(ok){ ok.disabled=sel.size!==2; ok._sel=Array.from(sel); }
+      };
+    });
+  },
+  async submitCupid(){ var ok=document.getElementById('mp-cupid-ok'); var pair=(ok&&ok._sel)||[]; if(pair.length!==2) return; await this._submitAction({cupidPair:pair}); },
+  async submitVoyante(id){
+    var t=this._alive().find(function(p){return p.id===id;});
+    if(t){ var r=ROLES[t.role], isW=r&&r.team==='wolves'; this._toast('🔮 '+t.pseudo+' est '+(isW?'un Loup-Garou':'un Villageois')); }
+    await this._submitAction({voyanteTarget:id});
+  },
+  async submitWolf(id){ await this._submitAction({wolfVote:id}); },
+  async submitWitch(action, target){ await this._submitAction({witch:{action:action,target:target}}); },
+  async _submitAction(extra){
+    var act=Object.assign({}, this.room.night_actions||{});
+    act.submitted=act.submitted||{}; act.submitted[this.me.id]={step:act.step,data:extra,at:Date.now()};
+    Object.keys(extra).forEach(function(k){
+      if(k==='wolfVote'){ act.wolfVotes=act.wolfVotes||{}; act.wolfVotes[LG_MP.me.id]=extra.wolfVote; }
+      else { act[k]=extra[k]; }
+    });
+    if(extra.wolfVote){
+      var tally={}, votes=Object.values(act.wolfVotes||{});
+      votes.forEach(function(v){tally[v]=(tally[v]||0)+1;});
+      var best=null,n=0; Object.keys(tally).forEach(function(k){if(tally[k]>n){best=k;n=tally[k];}});
+      act.wolfTarget=best;
+    }
+    await this.client.from('lw_rooms').update({night_actions:act,updated_at:new Date().toISOString()}).eq('id',this.roomId);
+    var el=document.getElementById('mp-night-area');
+    if(el) el.innerHTML='<div class="mp-wait">✅ Action envoyée. Attente des autres…</div>';
+  },
+  async _advanceNightStep(curStep){
+    if(!this._isHost()||!this.room) return;
+    var steps=this._nightSteps(), idx=steps.findIndex(function(s){return s.key===curStep;});
+    var next=steps[idx+1]; if(!next) return;
+    var act=Object.assign({}, this.room.night_actions||{});
+    act.step=next.key; act.submitted={};
+    var lovers=this.room.lovers||[];
+    if(curStep==='cupidon' && act.cupidPair) lovers=act.cupidPair;
+    await this.client.from('lw_rooms').update({night_actions:act,lovers:lovers,updated_at:new Date().toISOString()}).eq('id',this.roomId);
+  },
+  async _resolveNight(){
+    if(!this._isHost()) return;
+    var act=this.room.night_actions||{}, players=(this.room.players||[]).slice();
+    var eliminated=(this.room.eliminated||[]).slice(), lovers=this.room.lovers||[];
+    var witch=Object.assign({save:true,kill:true}, this.room.witch_potions||{});
+    var toKill=new Set();
+    if(act.wolfTarget) toKill.add(act.wolfTarget);
+    if(act.witch){
+      if(act.witch.action==='save' && act.witch.target){ toKill.delete(act.witch.target); witch.save=false; }
+      if(act.witch.action==='kill' && act.witch.target){ toKill.add(act.witch.target); witch.kill=false; }
+    }
+    var kills=new Set(toKill);
+    toKill.forEach(function(id){ if(lovers.indexOf(id)>=0){ var o=lovers.find(function(x){return x!==id;}); if(o) kills.add(o); } });
+    var killedList=[];
+    kills.forEach(function(id){
+      var p=players.find(function(x){return x.id===id;});
+      if(p && p.alive){ p.alive=false; eliminated.push({id:id,at:'night',night:LG_MP.room.night_count,role:p.role}); killedList.push({id:p.id,pseudo:p.pseudo,role:p.role}); }
+    });
+    var winner=this._checkWin(players, lovers);
+    var upd={players:players,eliminated:eliminated,witch_potions:witch,night_actions:{lastDeaths:killedList},updated_at:new Date().toISOString()};
+    if(winner){ upd.phase='end'; upd.status='finished'; upd.config=Object.assign({},this.room.config,{winner:winner}); }
+    else { upd.phase='day'; }
+    await this.client.from('lw_rooms').update(upd).eq('id',this.roomId);
+  },
+
+  renderDay(){
+    var r=this.room, me=this._meP();
+    var deaths=(r.night_actions&&r.night_actions.lastDeaths)||[];
+    var alive=this._alive();
+    var html='<h2 style="text-align:center">🌅 Jour '+r.night_count+'</h2>';
+    if(deaths.length===0){
+      html+='<div class="mp-wait">Miracle : personne n\'est mort cette nuit !</div>';
+      this.narrate("Le village se réveille... Miracle : personne n'est mort cette nuit !");
+    } else {
+      html+=deaths.map(function(d){return '<div class="mp-death">💀 <b>'+LG_MP._esc(d.pseudo)+'</b> était '+((ROLES[d.role]&&ROLES[d.role].name)||d.role)+'.</div>';}).join('');
+      var lines=["Le village se réveille...","Cette nuit a fait des victimes..."];
+      deaths.forEach(function(d){lines.push(d.pseudo+' était '+((ROLES[d.role]&&ROLES[d.role].name)||d.role)+'.');});
+      this.narrateSequence(lines, 2400);
+    }
+    html+='<h3 style="margin-top:16px">Joueurs vivants ('+alive.length+')</h3><div class="mp-alive">'
+      +alive.map(function(p){return '<div class="mp-player-row"><span class="mp-ava">'+p.avatar+'</span><span class="mp-nm">'+LG_MP._esc(p.pseudo)+'</span></div>';}).join('')
+      +'</div>';
+    if(me && !me.alive){ html+='<div class="mp-dead-banner">☠️ Vous êtes mort. Observez en silence.</div>'; this.vibrate(this.VIB.imDead); }
+    if(this._isHost()){ html+='<button class="btn" style="margin-top:14px" onclick="LG_MP.goToVote()">🗳️ Passer au vote</button>'; }
+    else { html+='<div class="mp-wait">En attente du vote…</div>'; }
+    document.getElementById('mp-day-area').innerHTML=html;
+  },
+  async goToVote(){ if(this._isHost()) await this.client.from('lw_rooms').update({phase:'vote',day_votes:{},updated_at:new Date().toISOString()}).eq('id',this.roomId); },
+
+  renderVote(){
+    var r=this.room, me=this._meP(), alive=this._alive();
+    var votes=r.day_votes||{}, mine=votes[this.me.id];
+    var html='<h2 style="text-align:center">🗳️ Vote du village</h2>';
+    html+='<p style="text-align:center;color:#9ec4ff">Désignez la personne à éliminer.</p>';
+    if(me && me.alive){
+      html+='<div class="mp-grid">'+alive.filter(function(p){return p.id!==me.id;}).map(function(p){
+        var count=Object.values(votes).filter(function(v){return v===p.id;}).length;
+        return '<button type="button" class="mp-tg'+(mine===p.id?' sel':'')+'" onclick="LG_MP.submitVote(\''+p.id+'\')">'+p.avatar+' '+LG_MP._esc(p.pseudo)+'<small>votes : '+count+'</small></button>';
+      }).join('')+'</div>';
+    } else {
+      html+='<div class="mp-dead-banner">☠️ Mort — spectateur</div>';
+    }
+    var voted=Object.keys(votes).length, total=alive.length;
+    html+='<p style="text-align:center">Votes : '+voted+'/'+total+'</p>';
+    if(this._isHost()){ html+='<button class="btn" onclick="LG_MP.resolveVote()">Terminer le vote</button>'; }
+    document.getElementById('mp-vote-area').innerHTML=html;
+    this.narrate("Le village doit voter. Désignez qui éliminer.");
+    if(this._isHost() && voted>=total && total>0 && !this._advancing){ this._advancing=true; setTimeout(function(){LG_MP._advancing=false;LG_MP.resolveVote();}, 900); }
+  },
+  async submitVote(id){
+    var me=this._meP(); if(!me||!me.alive) return;
+    var votes=Object.assign({}, this.room.day_votes||{}); votes[this.me.id]=id;
+    this.vibrate(this.VIB.vote);
+    await this.client.from('lw_rooms').update({day_votes:votes,updated_at:new Date().toISOString()}).eq('id',this.roomId);
+  },
+  async resolveVote(){
+    if(!this._isHost()) return;
+    var votes=this.room.day_votes||{}, tally={};
+    Object.values(votes).forEach(function(v){tally[v]=(tally[v]||0)+1;});
+    var best=null,n=0,tie=false;
+    Object.keys(tally).forEach(function(k){ if(tally[k]>n){best=k;n=tally[k];tie=false;} else if(tally[k]===n){tie=true;} });
+    var players=(this.room.players||[]).slice(), eliminated=(this.room.eliminated||[]).slice(), lovers=this.room.lovers||[], killed=[];
+    if(best && !tie){
+      var p=players.find(function(x){return x.id===best;});
+      if(p && p.alive){
+        p.alive=false; eliminated.push({id:p.id,at:'vote',role:p.role}); killed.push({id:p.id,pseudo:p.pseudo,role:p.role});
+        if(lovers.indexOf(p.id)>=0){
+          var oid=lovers.find(function(l){return l!==p.id;});
+          var o=players.find(function(x){return x.id===oid;});
+          if(o && o.alive){ o.alive=false; eliminated.push({id:o.id,at:'love',role:o.role}); killed.push({id:o.id,pseudo:o.pseudo,role:o.role}); }
+        }
+      }
+    }
+    var winner=this._checkWin(players, lovers);
+    var upd={players:players,eliminated:eliminated,night_actions:{lastDeaths:killed,lastVoteTie:tie},updated_at:new Date().toISOString()};
+    if(winner){ upd.phase='end'; upd.status='finished'; upd.config=Object.assign({},this.room.config,{winner:winner}); }
+    else { upd.phase='night'; upd.night_count=this.room.night_count+1; upd.night_actions={step:'start'}; upd.day_votes={}; }
+    await this.client.from('lw_rooms').update(upd).eq('id',this.roomId);
+  },
+  _checkWin(players, lovers){
+    var alive=players.filter(function(p){return p.alive;});
+    if(alive.length===0) return 'nobody';
+    var wolves=alive.filter(function(p){var r=ROLES[p.role]; return r&&r.team==='wolves';});
+    var villagers=alive.filter(function(p){var r=ROLES[p.role]; return r&&r.team==='village';});
+    if(lovers && lovers.length===2){
+      var bothAlive=lovers.every(function(id){return players.find(function(x){return x.id===id&&x.alive;});});
+      if(bothAlive && alive.length===2 && alive.every(function(p){return lovers.indexOf(p.id)>=0;})) return 'lovers';
+    }
+    if(wolves.length===0) return 'village';
+    if(wolves.length>=villagers.length) return 'wolves';
+    return null;
+  },
+
+  renderEnd(){
+    var w=(this.room.config&&this.room.config.winner)||'?';
+    var labels={village:'🌅 Le village a gagné !',wolves:'🐺 Les loups-garous ont gagné !',lovers:'💘 Les amoureux ont gagné !',nobody:'☠️ Personne n\'a survécu...'};
+    var players=this.room.players||[];
+    var html='<h1 style="text-align:center">'+(labels[w]||'Fin de partie')+'</h1>';
+    html+='<h3>Rôles révélés</h3><div class="mp-alive">'
+      +players.map(function(p){var r=ROLES[p.role]; return '<div class="mp-player-row"><span class="mp-ava">'+p.avatar+'</span><span class="mp-nm">'+LG_MP._esc(p.pseudo)+'</span><span class="mp-role">'+(r?r.emoji+' '+r.name:p.role)+'</span></div>';}).join('')
+      +'</div>';
+    html+='<button class="btn" onclick="LG_MP.leaveLobby()">Quitter</button>';
+    document.getElementById('mp-end-area').innerHTML=html;
+    if(w==='village'||w==='lovers') this.vibrate(this.VIB.victory); else this.vibrate(this.VIB.defeat);
+    this.narrate(labels[w]||'Fin de partie.');
+  }
+};
+
+window.LG_MP = LG_MP;
+// Load voices proactively
+if(window.speechSynthesis){
+  try{ window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = function(){}; }catch(e){}
+}
+})();
+</script>
+
 </body>
 </html>

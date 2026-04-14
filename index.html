@@ -14,6 +14,8 @@
     var saved = localStorage.getItem('lelox_display_mode');
     var isM = window.innerWidth < 768 || /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
     document.documentElement.setAttribute('data-mode', saved || (isM?'mobile':'desktop'));
+    var th = localStorage.getItem('lelox_theme');
+    if(th && ['ocean','purple','mono'].indexOf(th)>=0) document.documentElement.setAttribute('data-theme', th);
     // Redirection automatique si invitation Loup-Garou dans l'URL
     var params = new URLSearchParams(location.search);
     var join = params.get('join');
@@ -30,7 +32,17 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --red:#ff3860;--red-soft:#ff6a8a;--blue:#3a8dff;--blue-soft:#6cb1ff;
+  --red:#ff3860;--red-soft:#ff6a8a;--blue:#3a8dff;--blue-soft:#6cb1ff;}
+:root[data-theme="ocean"]{
+  --red:#00b4ff;--red-soft:#4fc4ff;--blue:#00d4aa;--blue-soft:#5fe3bd;
+}
+:root[data-theme="purple"]{
+  --red:#a855f7;--red-soft:#c084fc;--blue:#6366f1;--blue-soft:#818cf8;
+}
+:root[data-theme="mono"]{
+  --red:#e5e7eb;--red-soft:#f3f4f6;--blue:#9ca3af;--blue-soft:#d1d5db;
+}
+:root{
   --bg:#05050F;--bg2:#090A18;--ink:#E8EEFF;--ink2:#9fb0d0;--muted:#6a7895;
   --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
   --safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);
@@ -923,6 +935,13 @@ document.addEventListener("click", function(e) {
     <label style="font-size:.8rem;color:#aaa">Avatar</label>
     <div class="lp-avatar-grid" id="lp-avatars"></div>
     <div class="lp-stats" id="lp-stats"></div>
+    <label style="font-size:.8rem;color:#aaa">Thème visuel</label>
+    <div id="lp-themes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 12px">
+      <button type="button" class="lp-theme" data-theme="" onclick="setLeloxTheme('')" style="padding:10px 6px;border-radius:10px;background:linear-gradient(135deg,#ff3860,#3a8dff);border:2px solid transparent;color:#fff;cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1px">🔴 ROUGE</button>
+      <button type="button" class="lp-theme" data-theme="ocean" onclick="setLeloxTheme('ocean')" style="padding:10px 6px;border-radius:10px;background:linear-gradient(135deg,#00b4ff,#00d4aa);border:2px solid transparent;color:#fff;cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1px">💙 OCÉAN</button>
+      <button type="button" class="lp-theme" data-theme="purple" onclick="setLeloxTheme('purple')" style="padding:10px 6px;border-radius:10px;background:linear-gradient(135deg,#a855f7,#6366f1);border:2px solid transparent;color:#fff;cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1px">💜 MYSTIQUE</button>
+      <button type="button" class="lp-theme" data-theme="mono" onclick="setLeloxTheme('mono')" style="padding:10px 6px;border-radius:10px;background:linear-gradient(135deg,#e5e7eb,#9ca3af);border:2px solid transparent;color:#000;cursor:pointer;font-size:11px;font-weight:800;letter-spacing:1px">🖤 MONO</button>
+    </div>
     <div class="lp-actions">
       <button class="lp-btn ghost" onclick="closeLeloxProfile()">Fermer</button>
       <button class="lp-btn" onclick="saveLeloxProfile()">Enregistrer</button>
@@ -967,6 +986,14 @@ function openLeloxProfile(){
 }
 function selectLpAvatar(a){ _lpSelectedAvatar = a; document.querySelectorAll('.lp-avatar').forEach(el=>el.classList.toggle('selected', el.dataset.a===a)); }
 function closeLeloxProfile(){ document.getElementById('lelox-profile-modal').classList.remove('open'); }
+function setLeloxTheme(t){
+  if(t){ localStorage.setItem('lelox_theme', t); document.documentElement.setAttribute('data-theme', t); }
+  else { localStorage.removeItem('lelox_theme'); document.documentElement.removeAttribute('data-theme'); }
+  document.querySelectorAll('#lp-themes .lp-theme').forEach(function(b){
+    b.style.border = (b.dataset.theme===t)?'2px solid #fff':'2px solid transparent';
+  });
+}
+(function(){ var t=localStorage.getItem('lelox_theme')||''; setTimeout(function(){ try{ setLeloxTheme(t); }catch(e){} }, 200); })();
 function saveLeloxProfile(){
   const p = LeloxProfile.get();
   p.pseudo = (document.getElementById('lp-pseudo').value||'Joueur').slice(0,16);

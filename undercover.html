@@ -15,6 +15,8 @@
     var saved = localStorage.getItem('lelox_display_mode');
     var isM = window.innerWidth < 768 || /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
     document.documentElement.setAttribute('data-mode', saved || (isM?'mobile':'desktop'));
+    var th = localStorage.getItem('lelox_theme');
+    if(th && ['ocean','purple','mono'].indexOf(th)>=0) document.documentElement.setAttribute('data-theme', th);
   }catch(e){ document.documentElement.setAttribute('data-mode','desktop'); }
 })();
 </script>
@@ -3329,6 +3331,7 @@ function switchDisplayMode(){
     <div class="final-chart" id="final-chart"></div>
     <div class="final-actions">
       <button class="btn btn-primary btn-large" onclick="resetToSplash()">Nouvelle partie</button>
+      <button class="btn btn-ghost" onclick="shareGameResult()" style="margin-top:8px">📸 Partager le résultat</button>
       <div class="hof" id="hof-section"></div>
     <button class="btn btn-ghost" onclick="showScreen('screen-history')">Historique</button>
     </div>
@@ -5489,6 +5492,21 @@ function showFinalScreen() {
   saveGameHistory(mvpName, maxScore);
 
   showScreen('screen-final');
+}
+
+async function shareGameResult(){
+  try{
+    var mvp = document.getElementById('mvp-name')?.textContent || '';
+    var score = document.getElementById('mvp-score')?.textContent || '';
+    var text = '🎭 LELOX Undercover\n⭐ MVP : '+mvp+' ('+score+')\n\nRejoins la partie → ';
+    var url = 'https://youbel06.github.io/undercover-manga/';
+    if(navigator.share){
+      await navigator.share({title:'LELOX Undercover', text:text, url:url});
+    } else {
+      await navigator.clipboard.writeText(text+url);
+      showToast && showToast('📋 Résultat copié ! Colle-le dans ta conversation.', 3500);
+    }
+  }catch(e){}
 }
 
 function saveGameHistory(mvpName, mvpScore) {
@@ -8621,14 +8639,50 @@ async function mpJoinRoom() {
   broadcastPlayerJoin({player_id: mpPlayerId, username: p.data?.username || "Joueur", avatar_emoji: p.data?.avatar_emoji || "🕵️", is_host: false, is_ready: false});
 }
 
+var _mpOnlineIds = new Set();
+function mpIsOnline(id){ return _mpOnlineIds.has(id); }
 function mpSubscribe() {
   if (!sb || !mpRoomId) return;
-  mpChannel = sb.channel("room-" + mpRoomId, {config: {broadcast: {self: true}}})
+  mpChannel = sb.channel("room-" + mpRoomId, {config: {broadcast: {self: true}, presence: {key: mpPlayerId}}})
     .on("broadcast", {event: "player_list"}, function(payload) { if (payload.payload && payload.payload.players) { var incoming = payload.payload.players; incoming.forEach(function(p) { if (!_mpLocalPlayers.find(function(x){return x.player_id===p.player_id})) { _mpLocalPlayers.push(p); } }); console.log("[MP] Merged players:", _mpLocalPlayers.length); renderMpLobby(); } })
     .on("broadcast", {event: "request_players"}, function(payload) { console.log("[MP] Got request, sending our list:", _mpLocalPlayers.length); mpChannel.send({type: "broadcast", event: "player_list", payload: {players: _mpLocalPlayers}}); })
     .on("postgres_changes", {event:"*", schema:"public", table:"game_state", filter:"room_id=eq." + mpRoomId}, function(p) { handleMpGame(p.new); })
-    .subscribe();
+    .on("presence", {event: "sync"}, function(){
+      try{
+        var st = mpChannel.presenceState();
+        _mpOnlineIds = new Set(Object.keys(st||{}));
+        if (typeof renderMpLobby === "function") renderMpLobby();
+        mpMaybePromoteHost();
+      }catch(e){}
+    })
+    .subscribe(async function(status){
+      if(status === "SUBSCRIBED"){
+        try{ await mpChannel.track({player_id:mpPlayerId, online_at:new Date().toISOString()}); }catch(e){}
+      }
+    });
 }
+async function mpMaybePromoteHost(){
+  try{
+    if (!mpRoomId) return;
+    var r = await sb.from("rooms").select("host_id,status").eq("id", mpRoomId).maybeSingle();
+    if(!r || !r.data) return;
+    var hostId = r.data.host_id;
+    if (_mpOnlineIds.has(hostId)) return; // host still online
+    // Candidates: online players sorted by id
+    var cand = _mpLocalPlayers.filter(function(p){ return p.player_id!==hostId && _mpOnlineIds.has(p.player_id); }).map(function(p){return p.player_id;}).sort();
+    if(cand.length===0) return;
+    if(cand[0] !== mpPlayerId) return;
+    var upd = await sb.from("rooms").update({host_id:mpPlayerId}).eq("id", mpRoomId).eq("host_id", hostId).select();
+    if(upd && upd.data && upd.data.length){
+      mpIsHost = true;
+      if(typeof showToast === "function") showToast("Tu es le nouvel hôte", 2500);
+      if(typeof renderMpLobby === "function") renderMpLobby();
+    }
+  }catch(e){}
+}
+window.addEventListener("beforeunload", function(){
+  try{ if(mpChannel && sb) sb.removeChannel(mpChannel); }catch(e){}
+});
 
 async function renderMpLobby() {
   document.getElementById("mp-room-code").textContent = mpRoomCode || "------";
@@ -8639,11 +8693,14 @@ async function renderMpLobby() {
   var allReady = true;
   players.forEach(function(p) {
     if (!p.is_ready) allReady = false;
+    var online = _mpOnlineIds.has(p.player_id) || p.player_id === mpPlayerId;
     var row = document.createElement("div");
-    row.className = "mp-player-row";
-    row.innerHTML = "<div class=\"mp-avatar\">" + (p.avatar_emoji || "🕵️") + "</div>" +
+    row.className = "mp-player-row" + (online ? "" : " mp-player-deco");
+    row.innerHTML = "<div class=\"mp-avatar\" style=\"" + (online?"":"filter:grayscale(1);opacity:.6") + "\">" + (p.avatar_emoji || "🕵️") + "</div>" +
       "<div class=\"mp-info\"><div class=\"mp-name\">" + (p.username || "Joueur") +
-      (p.is_host ? "<span class=\"mp-host-badge\">HÔTE</span>" : "") + "</div></div>" +
+      (p.is_host ? "<span class=\"mp-host-badge\">HÔTE</span>" : "") +
+      (online ? "" : "<span class=\"mp-host-badge\" style=\"background:linear-gradient(135deg,#ff3860,#7a1220);margin-left:6px\">⚡ DÉCO</span>") +
+      "</div></div>" +
       "<span class=\"mp-ready-badge " + (p.is_ready ? "ready" : "waiting") + "\">" +
       (p.is_ready ? "✓" : "...") + "</span>";
     list.appendChild(row);

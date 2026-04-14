@@ -16,6 +16,8 @@
     var saved = localStorage.getItem('lelox_display_mode');
     var isM = window.innerWidth < 768 || /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
     document.documentElement.setAttribute('data-mode', saved || (isM?'mobile':'desktop'));
+    var th = localStorage.getItem('lelox_theme');
+    if(th && ['ocean','purple','mono'].indexOf(th)>=0) document.documentElement.setAttribute('data-theme', th);
   }catch(e){ document.documentElement.setAttribute('data-mode','desktop'); }
 })();
 </script>

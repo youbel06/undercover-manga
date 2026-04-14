@@ -4,8 +4,19 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#05050F"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>LELOX — Loup-Garou</title>
 <link rel="icon" href="lelox_logo.png"/>
+<script>
+(function(){
+  try{
+    var saved = localStorage.getItem('lelox_display_mode');
+    var isM = window.innerWidth < 768 || /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+    document.documentElement.setAttribute('data-mode', saved || (isM?'mobile':'desktop'));
+  }catch(e){ document.documentElement.setAttribute('data-mode','desktop'); }
+})();
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:#05050F;color:#E8EEFF;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh;overflow-x:hidden}
@@ -175,8 +186,26 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px))}
 <nav id="lelox-navbar" role="navigation" aria-label="Navigation principale">
   <a href="index.html" class="nv-back" aria-label="Retour plateforme LELOX">&larr; LELOX</a>
   <div class="nv-title">Loup-Garou</div>
-  <button class="nv-gear" onclick="alert('⚙️ Paramètres bientôt disponibles')" aria-label="Paramètres">⚙️</button>
+  <div style="display:flex;align-items:center;gap:4px">
+    <button class="nv-gear" onclick="switchDisplayMode()" aria-label="Mode d'affichage" title="Changer de mode" id="mode-switch-btn">📱</button>
+    <button class="nv-gear" onclick="alert('⚙️ Paramètres bientôt disponibles')" aria-label="Paramètres">⚙️</button>
+  </div>
 </nav>
+<script>
+function switchDisplayMode(){
+  var current = document.documentElement.getAttribute('data-mode') || 'desktop';
+  var next = current === 'desktop' ? 'mobile' : 'desktop';
+  localStorage.setItem('lelox_display_mode', next);
+  document.documentElement.setAttribute('data-mode', next);
+  var b = document.getElementById('mode-switch-btn');
+  if(b) b.textContent = next === 'mobile' ? '🖥️' : '📱';
+}
+(function(){
+  var m = document.documentElement.getAttribute('data-mode') || 'desktop';
+  var b = document.getElementById('mode-switch-btn');
+  if(b) b.textContent = m === 'mobile' ? '🖥️' : '📱';
+})();
+</script>
 <div class="lg-stars" id="lg-stars"></div>
 <div class="moon"></div>
 

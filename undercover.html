@@ -8,6 +8,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Undercover Lelox">
 <meta name="mobile-web-app-capable" content="yes">
+<script>
+(function(){
+  try{
+    var saved = localStorage.getItem('lelox_display_mode');
+    var isM = window.innerWidth < 768 || /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+    document.documentElement.setAttribute('data-mode', saved || (isM?'mobile':'desktop'));
+  }catch(e){ document.documentElement.setAttribute('data-mode','desktop'); }
+})();
+</script>
 <meta name="description" content="Undercover Lelox - Le jeu de devinettes manga entre amis !">
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVW5kZXJjb3ZlciBNYW5nYSIsInNob3J0X25hbWUiOiJVQyBNYW5nYSIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBhMGExYSIsInRoZW1lX2NvbG9yIjoiIzBhMGExYSIsImljb25zIjpbXX0=">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕵️</text></svg>">
@@ -2932,8 +2941,26 @@ body{padding-top:calc(48px + env(safe-area-inset-top,0px)) !important}
 <nav id="lelox-navbar" role="navigation" aria-label="Navigation principale">
   <a href="index.html" class="nv-back" aria-label="Retour plateforme LELOX">&larr; LELOX</a>
   <div class="nv-title">Undercover</div>
-  <button class="nv-gear" onclick="showScreen('screen-settings')" aria-label="Paramètres">⚙️</button>
+  <div style="display:flex;align-items:center;gap:4px">
+    <button class="nv-gear" onclick="switchDisplayMode()" aria-label="Mode d'affichage" title="Changer de mode" id="mode-switch-btn">📱</button>
+    <button class="nv-gear" onclick="showScreen('screen-settings')" aria-label="Paramètres">⚙️</button>
+  </div>
 </nav>
+<script>
+function switchDisplayMode(){
+  var current = document.documentElement.getAttribute('data-mode') || 'desktop';
+  var next = current === 'desktop' ? 'mobile' : 'desktop';
+  localStorage.setItem('lelox_display_mode', next);
+  document.documentElement.setAttribute('data-mode', next);
+  var b = document.getElementById('mode-switch-btn');
+  if(b) b.textContent = next === 'mobile' ? '🖥️' : '📱';
+}
+(function(){
+  var m = document.documentElement.getAttribute('data-mode') || 'desktop';
+  var b = document.getElementById('mode-switch-btn');
+  if(b) b.textContent = m === 'mobile' ? '🖥️' : '📱';
+})();
+</script>
 
 <!-- ===== AAA SPLASH / MODES OVERRIDES ===== -->
 <style>

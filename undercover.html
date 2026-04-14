@@ -1415,6 +1415,7 @@ body .btn::after, body [class*='animation'], body [class*='pulse'], body [class*
 .music-radial-btn:nth-child(2){--tx:0px;--ty:-75px;animation-delay:0.04s}
 .music-radial-btn:nth-child(3){--tx:35px;--ty:-60px;animation-delay:0.08s}
 .music-radial-btn:nth-child(4){--tx:-60px;--ty:-35px;animation-delay:0.12s}
+.music-radial-btn:nth-child(5){--tx:60px;--ty:-35px;animation-delay:0.16s}
 @keyframes radialIn{from{transform:scale(0) translate(0,0);opacity:0}
   to{transform:scale(1) translate(var(--tx),var(--ty));opacity:1}}
 @keyframes radialOut{from{transform:scale(1) translate(var(--tx),var(--ty));opacity:1}
@@ -3162,6 +3163,25 @@ function switchDisplayMode(){
     </div>
 
     <div class="settings-section">
+      <h3>🎙️ Narrateur vocal</h3>
+      <div class="setting-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="flex:1">
+          <div style="font-weight:600">Voix qui annonce les phases</div>
+          <div style="font-size:12px;opacity:0.5">Discussion, vote, rôles… (8 phrases)</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:50px;height:28px">
+          <input type="checkbox" id="narrator-toggle" onchange="toggleNarrator(this.checked)" style="opacity:0;width:0;height:0">
+          <span style="position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,0.15);border-radius:28px;transition:.3s"></span>
+          <span style="position:absolute;left:3px;top:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></span>
+        </label>
+      </div>
+    </div>
+    <style>
+      #narrator-toggle:checked ~ span:first-of-type{background:linear-gradient(135deg,#FF2D55,#FF6A8A) !important}
+      #narrator-toggle:checked ~ span:last-of-type{transform:translateX(22px)}
+    </style>
+
+    <div class="settings-section">
       <h3>Univers</h3>
       <div class="universe-filter" id="universe-filter"></div>
       <div class="settings-group" style="margin-top:14px;">
@@ -4252,13 +4272,31 @@ const GameState = {
 /* Narrateur Undercover (ElevenLabs) — hooks automatiques par écran */
 const UCNarrator = {
   base:'audio/uc/', cur:null, vol:0.85,
+  enabled: localStorage.getItem('uc_narrator_enabled') !== '0',
   play(key){
+    if(!this.enabled) return;
     try{ if(this.cur){ this.cur.pause(); this.cur=null; } }catch(e){}
     var a=new Audio(this.base+key+'.mp3'); a.volume=this.vol; this.cur=a;
     a.play().catch(function(){});
   },
   stop(){ try{ if(this.cur){ this.cur.pause(); this.cur=null; } }catch(e){} }
 };
+function toggleNarrator(forceVal){
+  var next = (typeof forceVal==='boolean') ? forceVal : !UCNarrator.enabled;
+  UCNarrator.enabled = next;
+  localStorage.setItem('uc_narrator_enabled', next?'1':'0');
+  if(!next) UCNarrator.stop();
+  var rb = document.getElementById('radial-narrator'); if(rb) rb.textContent = next?'🎙️':'🔇';
+  var tg = document.getElementById('narrator-toggle'); if(tg) tg.checked = next;
+  if(window.showToast) showToast(next?'Narrateur activé':'Narrateur muet', 1500);
+}
+// Apply initial UI state on load
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    var rb = document.getElementById('radial-narrator'); if(rb) rb.textContent = UCNarrator.enabled?'🎙️':'🔇';
+    var tg = document.getElementById('narrator-toggle'); if(tg) tg.checked = UCNarrator.enabled;
+  }, 100);
+});
 const UC_NARR_MAP = {
   'screen-reveal':'role_civil', // générique — remplacé dynamiquement par ailleurs si besoin
   'screen-discuss':'discussion_start',
@@ -10600,6 +10638,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <button class="music-radial-btn" id="radial-play" onclick="MusicPlayer.togglePlay();updateRadialUI()">▶</button>
     <button class="music-radial-btn" onclick="MusicPlayer.next();updateRadialUI()">⏭</button>
     <button class="music-radial-btn" id="radial-mute" onclick="radialToggleMute()">🔊</button>
+    <button class="music-radial-btn" id="radial-narrator" onclick="toggleNarrator()" title="Narrateur vocal">🎙️</button>
     <div class="music-tooltip" id="radial-tooltip">—</div>
   </div>
   <button class="music-main-btn" id="music-main-btn" onclick="toggleRadialMenu()">🎵</button>

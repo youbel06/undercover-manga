@@ -1,0 +1,21 @@
+{
+  "name": "LELOX — Jeux entre amis",
+  "short_name": "LELOX",
+  "description": "Undercover & Loup-Garou multijoueur entre amis",
+  "start_url": "/undercover-manga/",
+  "scope": "/undercover-manga/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#05050F",
+  "theme_color": "#FF2D55",
+  "lang": "fr",
+  "icons": [
+    { "src": "lelox_logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "lelox_logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Undercover", "short_name": "UC", "url": "/undercover-manga/undercover.html", "icons": [{ "src": "lelox_logo.png", "sizes": "96x96" }] },
+    { "name": "Loup-Garou", "short_name": "LG", "url": "/undercover-manga/loupgarou.html", "icons": [{ "src": "lelox_logo.png", "sizes": "96x96" }] }
+  ],
+  "categories": ["games", "entertainment"]
+}

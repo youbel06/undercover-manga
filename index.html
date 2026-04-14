@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#05050F"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="LELOX"/>
+<link rel="manifest" href="manifest.json"/>
 <script>
 (function(){
   try{
@@ -543,10 +545,10 @@ html[data-mode="mobile"] .hero-overlay{
   <div class="wrap">
     <h2 class="title">Stats Live</h2>
     <div class="stats">
-      <div class="stat"><div class="num" data-target="12480">0</div><div class="lbl">Parties jouées</div></div>
-      <div class="stat"><div class="num" data-target="3210">0</div><div class="lbl">Joueurs uniques</div></div>
+      <div class="stat"><div class="num" id="stat-uc" data-target="0">0</div><div class="lbl">Parties Undercover</div></div>
+      <div class="stat"><div class="num" id="stat-lg" data-target="0">0</div><div class="lbl">Salons Loup-Garou</div></div>
+      <div class="stat"><div class="num" id="stat-players" data-target="0">0</div><div class="lbl">Joueurs actifs</div></div>
       <div class="stat"><div class="num" data-target="2147">0</div><div class="lbl">Paires manga</div></div>
-      <div class="stat"><div class="num" data-target="98">0</div><div class="lbl">% satisfaction</div></div>
     </div>
   </div>
 </section>
@@ -665,21 +667,43 @@ html[data-mode="mobile"] .hero-overlay{
   }, {threshold:0.18});
   document.querySelectorAll('.reveal, .step').forEach(function(el){ io.observe(el); });
 
-  /* STATS LIVE — stub animation au scroll (TODO: remplacer par fetch Supabase) */
+  /* STATS LIVE — fetch Supabase REST avec count exact */
+  var SUPA_URL = 'https://frrluakugoabzmkndriv.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZycmx1YWt1Z29hYnpta25kcml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MzA2ODEsImV4cCI6MjA5MTUwNjY4MX0.AMVDA104Otfx6LPTxgCUEyk0M5OaG6jszW8G_Nucgmc';
+  async function _countTable(table){
+    try{
+      var r = await fetch(SUPA_URL+'/rest/v1/'+table+'?select=id', {headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'count=exact','Range':'0-0'}});
+      var cr = r.headers.get('content-range');
+      if(!cr) return null;
+      var total = cr.split('/').pop();
+      return total==='*'?null:parseInt(total,10);
+    }catch(e){ return null; }
+  }
+  async function _loadPlatformStats(){
+    var uc = await _countTable('game_history');
+    var lg = await _countTable('lw_rooms');
+    var pr = await _countTable('lelox_profiles');
+    var targetUc = uc||0, targetLg = lg||0, targetPl = pr||0;
+    var ucEl = document.getElementById('stat-uc'); if(ucEl) ucEl.dataset.target = String(targetUc);
+    var lgEl = document.getElementById('stat-lg'); if(lgEl) lgEl.dataset.target = String(targetLg);
+    var plEl = document.getElementById('stat-players'); if(plEl) plEl.dataset.target = String(targetPl);
+  }
   var statsObs = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(!e.isIntersecting) return;
       statsObs.unobserve(e.target);
-      document.querySelectorAll('.stat .num').forEach(function(n){
-        var target = parseInt(n.dataset.target||'0',10);
-        var dur = 1600, t0 = performance.now();
-        function tick(t){
-          var p = Math.min(1,(t-t0)/dur);
-          var ease = 1 - Math.pow(1-p,3);
-          n.textContent = Math.round(target*ease).toLocaleString('fr-FR');
-          if(p<1) requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
+      _loadPlatformStats().finally(function(){
+        document.querySelectorAll('.stat .num').forEach(function(n){
+          var target = parseInt(n.dataset.target||'0',10);
+          var dur = 1600, t0 = performance.now();
+          function tick(t){
+            var p = Math.min(1,(t-t0)/dur);
+            var ease = 1 - Math.pow(1-p,3);
+            n.textContent = Math.round(target*ease).toLocaleString('fr-FR');
+            if(p<1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
       });
     });
   }, {threshold:0.3});
@@ -953,6 +977,104 @@ function saveLeloxProfile(){
 }
 // Apply avatar on load
 (function(){ const p = LeloxProfile.get(); const b = document.getElementById('profileBtn'); if(b && p.avatar) b.textContent = p.avatar; })();
+
+/* ===== ONBOARDING première visite ===== */
+(function(){
+  if(localStorage.getItem('lelox_visited')==='1') return;
+  if(new URLSearchParams(location.search).get('join')) return; // pas d'onboarding si on vient d'un lien invite
+  var AV = ['🎭','🦊','🐺','🐉','👾','🥷','🧙','🧛','🦸','🕵️','🧚','👑'];
+  var step = 0, picked = AV[0];
+  var STEPS = [
+    {ic:'🎮', title:'Bienvenue sur LELOX', body:'La plateforme de jeux entre amis.<br>Undercover, Loup-Garou, et plus encore.'},
+    {ic:'🕵️', title:'Undercover', body:'Chaque joueur reçoit un mot secret.<br>Un joueur a un mot <b>différent</b>.<br>Trouvez l\'imposteur !'},
+    {ic:'🐺', title:'Loup-Garou', body:'Villageois contre Loups-Garous.<br>Survivez à la nuit...<br>ou dévorez le village.'},
+    {ic:'🎨', title:'Ton profil', body:null}
+  ];
+  var css = `
+    .ob-root{position:fixed;inset:0;z-index:99999;background:radial-gradient(1000px 600px at 30% 20%,rgba(58,141,255,.25),transparent 60%),radial-gradient(900px 600px at 70% 80%,rgba(255,56,96,.2),transparent 60%),#05050F;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px;color:#fff;overflow-y:auto;animation:obFadeIn .5s}
+    @keyframes obFadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes obFadeOut{from{opacity:1}to{opacity:0}}
+    @keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+    @keyframes obSlideIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+    .ob-step{text-align:center;max-width:440px;width:100%;animation:obSlideIn .4s ease}
+    .ob-ic{font-size:88px;animation:obPulse 2.2s infinite;filter:drop-shadow(0 0 30px rgba(255,56,96,.5))}
+    .ob-title{font-size:clamp(28px,6vw,42px);font-weight:900;letter-spacing:3px;margin:18px 0 10px;background:linear-gradient(90deg,#ff3860,#6cb1ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .ob-body{font-size:16px;line-height:1.6;color:#c8d4f0;margin-bottom:12px}
+    .ob-input{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(108,177,255,.4);background:rgba(10,14,26,.6);color:#fff;font-size:16px;text-align:center;margin:10px 0;outline:none}
+    .ob-input:focus{border-color:#ff6a8a;box-shadow:0 0 0 3px rgba(255,106,138,.2)}
+    .ob-avatars{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:14px 0}
+    .ob-av{font-size:30px;padding:12px;border-radius:14px;border:2px solid rgba(108,177,255,.15);background:rgba(10,14,26,.5);cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+    .ob-av:hover{transform:scale(1.08)}
+    .ob-av.sel{border-color:#ff6a8a;background:rgba(255,106,138,.2);box-shadow:0 0 18px rgba(255,106,138,.4)}
+    .ob-dots{display:flex;gap:8px;margin:22px 0 14px;justify-content:center}
+    .ob-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .3s}
+    .ob-dot.active{background:linear-gradient(90deg,#ff3860,#6cb1ff);width:24px;border-radius:4px}
+    .ob-cta{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;border-radius:14px;border:0;font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:13px;color:#fff;background:linear-gradient(135deg,#ff3860,#3a8dff);cursor:pointer;box-shadow:0 12px 36px rgba(255,56,96,.35);transition:transform .15s}
+    .ob-cta:hover{transform:translateY(-2px)}
+    .ob-skip{background:none;border:0;color:rgba(255,255,255,.45);font-size:13px;padding:10px 16px;cursor:pointer;margin-top:8px;letter-spacing:1px}
+    .ob-skip:hover{color:#fff}
+  `;
+  var root = document.createElement('div'); root.className='ob-root';
+  var style = document.createElement('style'); style.textContent=css; document.head.appendChild(style);
+  function render(){
+    var s = STEPS[step];
+    var dots = STEPS.map(function(_,i){return '<div class="ob-dot'+(i===step?' active':'')+'"></div>';}).join('');
+    var body;
+    if(step<3){
+      body = '<div class="ob-ic">'+s.ic+'</div><div class="ob-title">'+s.title+'</div><div class="ob-body">'+s.body+'</div>'
+        +'<button class="ob-cta" onclick="__obNext()">Suivant →</button>';
+    } else {
+      body = '<div class="ob-title">Ton profil</div>'
+        +'<div class="ob-body">Choisis ton pseudo et ton avatar. Gagne de l\'XP à chaque partie.</div>'
+        +'<input class="ob-input" id="ob-pseudo" maxlength="16" placeholder="Ton pseudo"/>'
+        +'<div class="ob-avatars">'+AV.map(function(a){return '<button class="ob-av'+(a===picked?' sel':'')+'" data-av="'+a+'">'+a+'</button>';}).join('')+'</div>'
+        +'<button class="ob-cta" onclick="__obFinish()">Commencer l\'aventure →</button>';
+    }
+    root.innerHTML = '<div class="ob-step" key="'+step+'">'+body+'</div><div class="ob-dots">'+dots+'</div><button class="ob-skip" onclick="__obSkip()">Passer le tutoriel</button>';
+    if(step===3){
+      var pseudo = (LeloxProfile.get().pseudo||'').replace(/^Joueur$/,'');
+      document.getElementById('ob-pseudo').value = pseudo;
+      root.querySelectorAll('.ob-av').forEach(function(b){
+        b.onclick = function(){ picked = b.dataset.av; root.querySelectorAll('.ob-av').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); };
+      });
+    }
+  }
+  window.__obNext = function(){ if(step<3){ step++; render(); } };
+  window.__obSkip = function(){ localStorage.setItem('lelox_visited','1'); root.style.animation='obFadeOut .4s forwards'; setTimeout(function(){root.remove();}, 400); };
+  window.__obFinish = function(){
+    var pseudo = (document.getElementById('ob-pseudo').value||'').trim().slice(0,16);
+    if(!pseudo || pseudo.length<2){ alert('Entre un pseudo (2 caractères min)'); return; }
+    var p = LeloxProfile.get(); p.pseudo = pseudo; p.avatar = picked; LeloxProfile.save(p);
+    // Sync Supabase (best-effort)
+    try{
+      var id = p.id || ('u_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4));
+      p.id = id; LeloxProfile.save(p);
+      fetch(SUPA_URL+'/rest/v1/lelox_profiles', {method:'POST', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'}, body: JSON.stringify({id:id, pseudo:pseudo, avatar:picked})}).catch(function(){});
+    }catch(e){}
+    var b = document.getElementById('profileBtn'); if(b) b.textContent = picked;
+    localStorage.setItem('lelox_visited','1');
+    root.style.animation='obFadeOut .5s forwards'; setTimeout(function(){root.remove();}, 500);
+  };
+  document.body.appendChild(root);
+  render();
+})();
+
+/* ===== INSTALL BANNER iOS (PWA) ===== */
+(function(){
+  setTimeout(function(){
+    var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    var inStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+    if(!isIOS || inStandalone) return;
+    if(localStorage.getItem('install_dismissed')==='1') return;
+    var b = document.createElement('div');
+    b.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:rgba(15,15,30,.96);border:1px solid rgba(255,45,85,.35);border-radius:16px;padding:14px;z-index:9500;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);animation:obSlideIn .4s';
+    b.innerHTML = '<div style="display:flex;align-items:center;gap:12px"><img src="lelox_logo.png" width="44" height="44" style="border-radius:12px"><div style="flex:1;color:#fff"><div style="font-weight:800">Installer LELOX</div><div style="font-size:12px;color:rgba(255,255,255,.65)">Appuyez sur <span style="color:#6cb1ff">⬆️ Partager</span> puis "Sur l\'écran d\'accueil"</div></div><button onclick="this.closest(\'div\').parentElement.remove();localStorage.setItem(\'install_dismissed\',\'1\')" style="background:none;border:0;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px">×</button></div>';
+    document.body.appendChild(b);
+  }, 4000);
+})();
+
+/* ===== SW registration ===== */
+if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 
 /* ===== MODE PC/Mobile ===== */
 function __leloxIsMobile(){

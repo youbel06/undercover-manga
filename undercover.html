@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#0a0a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Undercover Lelox">
+<meta name="apple-mobile-web-app-title" content="LELOX">
+<link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <script>
 (function(){
@@ -5404,6 +5405,29 @@ function showRoundResult(winnerType) {
   }
 
   showScreen('screen-round-result');
+  try{ setTimeout(showSecretLinkReveal, 800); }catch(e){}
+}
+
+function showSecretLinkReveal(){
+  var pair = GameState.currentPair; if(!pair) return;
+  var civil = getPairCharacter1(pair), uc = getPairCharacter2(pair);
+  var link = pair.similarity || pair.link || pair.hint || pair.universe || '';
+  if(!link) return;
+  var old = document.getElementById('lelox-secret-link'); if(old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'lelox-secret-link';
+  el.style.cssText = 'position:fixed;left:0;right:0;bottom:0;padding:22px 20px 28px;text-align:center;z-index:8500;background:linear-gradient(to top,rgba(5,5,15,.98) 40%,rgba(5,5,15,.7) 80%,transparent);animation:ucSecretUp .55s cubic-bezier(.2,.8,.2,1)';
+  el.innerHTML = '<div style="font-size:11px;color:#9ec4ff;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">💡 Le lien secret</div>'
+    + '<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:6px">'+civil+' <span style="color:#ff6a8a">×</span> '+uc+'</div>'
+    + '<div style="font-size:15px;color:rgba(255,255,255,.75);font-style:italic">"'+String(link).replace(/</g,'&lt;')+'"</div>'
+    + '<button onclick="this.parentNode.remove()" style="margin-top:10px;background:none;border:0;color:rgba(255,255,255,.5);font-size:12px;cursor:pointer;letter-spacing:1px">Masquer</button>';
+  document.body.appendChild(el);
+  setTimeout(function(){ if(el.parentNode) el.remove(); }, 9000);
+}
+if(!document.getElementById('lelox-secret-link-style')){
+  var s=document.createElement('style'); s.id='lelox-secret-link-style';
+  s.textContent='@keyframes ucSecretUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}';
+  document.head.appendChild(s);
 }
 
 function nextRound() {

@@ -163,9 +163,10 @@ pre{background:#05050F;padding:12px;border-radius:8px;margin-top:10px;overflow-x
 @keyframes fogDrift{0%{transform:translateX(-40%)}100%{transform:translateX(140%)}}
 .lg-trees{position:fixed;bottom:0;left:0;right:0;height:180px;pointer-events:none;z-index:1;opacity:.85}
 #screen-lg-home h1.glitchy{position:relative}
-#screen-lg-home h1.glitchy .gl-letter{display:inline-block;opacity:0;transform:translateY(8px);animation:lgLetterIn .45s ease forwards}
-@keyframes lgLetterIn{to{opacity:1;transform:translateY(0)}}
-#screen-lg-home h1.glitchy .gl-letter.gl-shake{animation:lgLetterIn .45s ease forwards, lgGlitch .22s steps(2) .6s 1}
+#screen-lg-home h1.glitchy .gl-letter{display:inline-block;opacity:1;animation:lgLetterIn .45s ease both;animation-play-state:running}
+@keyframes lgLetterIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+#screen-lg-home h1.glitchy .gl-letter.gl-shake{animation:lgLetterIn .45s ease both, lgGlitch .22s steps(2) .6s 1}
+#screen-lg-home h1{opacity:1 !important}
 @keyframes lgGlitch{0%{text-shadow:1px 0 #ff3860,-1px 0 #3a8dff}100%{text-shadow:none}}
 .lg-typewriter{font-family:inherit;color:#cfd8ff;font-size:15px;letter-spacing:1px;min-height:22px;text-align:center;margin:12px 0 4px;text-shadow:0 0 8px rgba(108,177,255,.35)}
 .lg-typewriter::after{content:"▋";color:#6cb1ff;animation:blink 1s step-end infinite}

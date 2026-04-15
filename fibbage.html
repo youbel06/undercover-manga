@@ -312,6 +312,14 @@ h3.fb-h{font-size:18px;font-weight:700;color:#e9d5ff;margin:14px 0 8px}
     <p style="text-align:center;color:#c084fc;font-size:13px">Elle doit sembler vraie pour tromper les autres...</p>
     <textarea id="fb-w-text" class="fb-textarea" maxlength="80" placeholder="Ta fausse réponse..."></textarea>
     <div class="char-count"><span id="fb-w-count">0</span>/80</div>
+    <div id="fb-team-chat-host" style="display:none;margin:10px 0;padding:10px;border-radius:12px;background:rgba(0,0,0,.3);border:1px solid rgba(155,89,255,.3)">
+      <div id="fb-team-chat-label" style="font-size:11px;font-weight:800;letter-spacing:2px;margin-bottom:8px">ÉQUIPE</div>
+      <div id="fb-team-messages" class="fb-team-chat"></div>
+      <div style="display:flex;gap:6px">
+        <input id="fb-team-input" placeholder="Message équipe..." maxlength="100" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#fff;font-size:13px" onkeydown="if(event.key==='Enter'){FB.sendTeamMsg();}">
+        <button onclick="FB.sendTeamMsg()" style="padding:8px 14px;border-radius:8px;border:none;background:#9B59FF;color:#fff;font-weight:700;cursor:pointer">→</button>
+      </div>
+    </div>
     <button class="btn" id="fb-w-submit" onclick="FB.submitAnswer()">SOUMETTRE</button>
     <div id="fb-w-status" style="text-align:center;color:#9ec4ff;font-size:13px;margin-top:8px"></div>
   </div>
@@ -340,6 +348,7 @@ h3.fb-h{font-size:18px;font-weight:700;color:#e9d5ff;margin:14px 0 8px}
 <div id="screen-scores" class="screen">
   <div class="card">
     <h2 class="fb-h" style="text-align:center" id="fb-s-title">📊 Scores</h2>
+    <div id="fb-s-team-totals" style="display:none"></div>
     <div class="fb-scores" id="fb-s-list"></div>
     <div id="fb-s-host-actions" style="display:none;margin-top:14px">
       <button class="btn" onclick="FB.nextRound()" id="fb-s-next-btn">MANCHE SUIVANTE</button>
@@ -644,6 +653,19 @@ function updateTimer(idPrefix, seconds, total){
   if(seconds<=5 && seconds>0) vibrate(40);
 }
 var _timer=null;
+/* v2 multi : timer sync à partir d'un started_at absolu */
+function startSyncTimer(idPrefix, duration, startedAt, onEnd){
+  stopTimer();
+  var total=duration;
+  function tick(){
+    var elapsed=(Date.now()-startedAt)/1000;
+    var s=Math.max(0, Math.ceil(total-elapsed));
+    updateTimer(idPrefix, s, total);
+    if(s<=0){ stopTimer(); if(onEnd) onEnd(); }
+  }
+  tick();
+  _timer=setInterval(tick, 500);
+}
 function startTimer(idPrefix, total, onEnd){
   stopTimer();
   var s=total;
@@ -841,6 +863,7 @@ const FB={
   },
   _enterPhase(p){
     vibrate([200]);
+    if(p!=='write'){ this._leaveTeamChat(); }
     if(p==='lobby'){ this.show('screen-mp-lobby'); this.renderLobby(); }
     else if(p==='write'){ this.show('screen-writing'); this.renderWriting(); this._startWriteTimer(); }
     else if(p==='vote'){ this.show('screen-voting'); this.renderVoting(); this._startVoteTimer(); }
@@ -889,6 +912,7 @@ const FB={
     }catch(e){}
     if(this.channel){ try{ await this.client.removeChannel(this.channel); }catch(e){} this.channel=null; }
     if(this.presenceChannel){ try{ await this.client.removeChannel(this.presenceChannel); }catch(e){} this.presenceChannel=null; }
+    await this._leaveTeamChat();
     this.room=null; this.roomId=null; this.code=null; this.lastPhase=null; this.onlineIds=new Set();
     this.show('screen-home');
   },
@@ -897,16 +921,52 @@ const FB={
   async startGame(){
     if(!this._isHost()) return;
     if((this.room.players||[]).length<MIN_PLAYERS){ alert('2 joueurs min'); return; }
-    var q=this._pickQuestion();
+    var mode=this.room.game_mode||getGameMode()||'classic';
+    var q=this._pickQuestion(mode);
     if(!q){ alert('Erreur questions'); return; }
     var scores={};
     (this.room.players||[]).forEach(function(p){ scores[p.id]=0; });
-    await this.client.from('fb_rooms').update({status:'playing',phase:'write',round:1,current_question:q,answers:{},votes:{},scores:scores,used_questions:[q.id],updated_at:new Date().toISOString()}).eq('id',this.roomId);
+    // Teams (calcul avant enrich pour embarquer dans current_question)
+    var teamA=[], teamB=[];
+    if(mode==='team'){
+      (this.room.players||[]).forEach(function(p,i){ (i%2===0?teamA:teamB).push(p.id); });
+    }
+    this.room.team_a=teamA; this.room.team_b=teamB; // tmp pour _enrichQuestion
+    q=this._enrichQuestion(q, mode, 1, null);
+    // Mode + équipes stockés dans current_question (pas besoin de colonnes dédiées)
+    var payload={status:'playing',phase:'write',round:1,current_question:q,answers:{},votes:{},scores:scores,used_questions:[q.id],updated_at:new Date().toISOString()};
+    var upd=await this.client.from('fb_rooms').update(payload).eq('id',this.roomId).select();
+    if(upd && upd.error){ alert('Erreur démarrage : '+upd.error.message); }
   },
-  _pickQuestion(){
+  _enrichQuestion(q, mode, round, prevContrainteId){
+    var out=Object.assign({}, q);
+    out.mode=mode;
+    out.team_a=(this.room&&this.room.team_a)||[];
+    out.team_b=(this.room&&this.room.team_b)||[];
+    // Pression : timer décroissant
+    var pt=(mode==='pressure')?pressureTimes(round):{write:WRITE_TIME,vote:VOTE_TIME};
+    out.timer_write=pt.write; out.timer_vote=pt.vote;
+    out.started_at=Date.now();
+    // Contrainte
+    if(mode==='constraint'){
+      var c=pickContrainte(prevContrainteId);
+      out.constraint={id:c.id, text:c.text};
+    }
+    // Détective
+    if(mode==='detective'){
+      var pls=(this.room.players||[]).filter(function(p){return !p.spectator;});
+      if(pls.length>0){ out.detective_id=pls[(round-1)%pls.length].id; }
+    }
+    return out;
+  },
+  _pickQuestion(mode){
+    mode=mode||(this.room&&this.room.game_mode)||'classic';
     var used=(this.room && this.room.used_questions)||[];
-    var pool=window.QUESTIONS.filter(function(q){return used.indexOf(q.id)<0;});
-    if(pool.length===0){ pool=window.QUESTIONS.slice(); used=[]; }
+    var all=window.QUESTIONS.slice();
+    if(mode==='cinema') all=all.filter(function(q){return q.category==='Cinéma';});
+    else all=all.filter(function(q){return q.category!=='Cinéma';});
+    var pool=all.filter(function(q){return used.indexOf(q.id)<0;});
+    if(pool.length===0){ pool=all.slice(); }
     var q=pool[Math.floor(Math.random()*pool.length)];
     return {id:q.id,question:q.question,answer:q.answer,category:q.category,difficulty:q.difficulty,fun_fact:q.fun_fact};
   },
@@ -918,6 +978,10 @@ const FB={
     $$('fb-w-question').textContent=q.question||'';
     var my=(r.answers||{})[this.me.id];
     var ta=$$('fb-w-text'), btn=$$('fb-w-submit'), st=$$('fb-w-status');
+    // Bandeau mode
+    this._renderModeBanner('fb-w');
+    // Team chat
+    this._renderTeamChat();
     if(my){
       ta.value=my.text; ta.disabled=true; btn.disabled=true; btn.textContent='✓ Envoyé';
       var tot=(r.players||[]).filter(function(p){return !p.spectator;}).length;
@@ -928,26 +992,106 @@ const FB={
       st.textContent='';
       ta.oninput=function(){ $$('fb-w-count').textContent=ta.value.length; };
       $$('fb-w-count').textContent=ta.value.length;
-      // Display timer if not running
       if(!$$('fb-w-progress')){ $$('fb-w-timer-svg').innerHTML=createTimerSVG('fb-w'); }
     }
   },
-  _startWriteTimer(){
-    if(this._isHost() || true){ // tous les clients affichent le timer; le host est autorité
-      $$('fb-w-timer-svg').innerHTML=createTimerSVG('fb-w');
-      var self=this;
-      startTimer('fb-w', WRITE_TIME, function(){
-        // auto-submit '...' si pas envoyé
-        var my=(self.room.answers||{})[self.me.id];
-        if(!my){ self._submitText('...'); }
-      });
+  _renderModeBanner(prefix){
+    // prefix = 'fb-w' ou 'fb-v'
+    var r=this.room, q=r.current_question||{};
+    var mode=(r.game_mode||((r.current_question||{}).mode)||'classic');
+    var screenId=(prefix==='fb-w')?'screen-writing':'screen-voting';
+    var scr=$$(screenId); if(!scr) return;
+    var card=scr.querySelector('.card'); if(!card) return;
+    var prev=card.querySelector('.fb-mode-banner'); if(prev) prev.remove();
+    var banner=document.createElement('div'); banner.className='fb-mode-banner';
+    var pt=q.timer_write || WRITE_TIME;
+    var html='<div class="fb-round-badge">'+(GAME_MODES[mode]||'🎯 Classique')+' — Manche '+(r.round||1)+'/'+(r.max_rounds||5)+(mode==='pressure'?' — '+pt+'s':'')+'</div>';
+    if(q.constraint){ html+='<div class="fb-constraint-badge">⚡ CONTRAINTE : '+esc(q.constraint.text)+'</div>'; }
+    if(mode==='detective' && q.detective_id){
+      var det=(r.players||[]).find(function(p){return p.id===q.detective_id;});
+      var isMe=q.detective_id===this.me.id;
+      var label=(prefix==='fb-v' && isMe)?'🔍 TU ES LE DÉTECTIVE — les auteurs sont visibles':'🔍 Détective : '+(det?esc(det.pseudo):'?');
+      html+='<div class="fb-detective-badge">'+label+'</div>';
     }
+    if(mode==='team'){
+      var tm=this._myTeam();
+      if(tm){ html+='<div class="fb-detective-badge" style="background:'+(tm==='a'?'#FF2D55':'#00B4FF')+'">👥 Ton équipe : '+tm.toUpperCase()+'</div>'; }
+    }
+    banner.innerHTML=html;
+    card.insertBefore(banner, card.firstChild);
+  },
+  _myTeam(){
+    var r=this.room; if(!r) return null;
+    if((r.team_a||((r.current_question||{}).team_a)||[]).indexOf(this.me.id)>=0) return 'a';
+    if((r.team_b||((r.current_question||{}).team_b)||[]).indexOf(this.me.id)>=0) return 'b';
+    return null;
+  },
+  _renderTeamChat(){
+    var r=this.room, mode=r&&(r.game_mode||((r.current_question||{}).mode));
+    var host=$$('fb-team-chat-host'); if(!host) return;
+    if(mode!=='team' || r.phase!=='write'){ host.style.display='none'; this._leaveTeamChat(); return; }
+    var tm=this._myTeam(); if(!tm){ host.style.display='none'; return; }
+    host.style.display='block';
+    var label=$$('fb-team-chat-label'); if(label){ label.textContent=tm==='a'?'🔴 ÉQUIPE A':'🔵 ÉQUIPE B'; label.style.color=tm==='a'?'#FF2D55':'#00B4FF'; }
+    this._joinTeamChat(tm);
+  },
+  async _joinTeamChat(team){
+    if(!this.client) return;
+    var chName='team:'+this.code+':'+team;
+    if(this.teamChannel && this.teamChannel._lelox_name===chName) return;
+    await this._leaveTeamChat();
+    var self=this;
+    var ch=this.client.channel(chName);
+    ch._lelox_name=chName;
+    ch.on('broadcast',{event:'msg'}, function(payload){ self._appendTeamMsg(payload.payload); });
+    ch.subscribe();
+    this.teamChannel=ch;
+    // Clear old messages
+    var m=$$('fb-team-messages'); if(m) m.innerHTML='';
+  },
+  async _leaveTeamChat(){
+    if(!this.teamChannel) return;
+    try{ await this.client.removeChannel(this.teamChannel); }catch(e){}
+    this.teamChannel=null;
+  },
+  sendTeamMsg(){
+    var inp=$$('fb-team-input'); if(!inp) return;
+    var text=(inp.value||'').trim().slice(0,100);
+    if(!text || !this.teamChannel) return;
+    inp.value='';
+    var msg={pseudo:this.me.pseudo||'?', avatar:this.me.avatar||'', text:text, at:Date.now()};
+    try{ this.teamChannel.send({type:'broadcast', event:'msg', payload:msg}); }catch(e){}
+    this._appendTeamMsg(msg);
+  },
+  _appendTeamMsg(msg){
+    var el=$$('fb-team-messages'); if(!el) return;
+    var div=document.createElement('div');
+    div.className='msg';
+    div.innerHTML='<b style="opacity:.8">'+esc(msg.avatar||'')+' '+esc(msg.pseudo||'?')+' :</b> '+esc(msg.text||'');
+    el.appendChild(div);
+    el.scrollTop=el.scrollHeight;
+  },
+  _startWriteTimer(){
+    $$('fb-w-timer-svg').innerHTML=createTimerSVG('fb-w');
+    var self=this;
+    var q=this.room.current_question||{};
+    var dur=q.timer_write||WRITE_TIME;
+    var started=q.started_at||Date.now();
+    startSyncTimer('fb-w', dur, started, function(){
+      var my=(self.room.answers||{})[self.me.id];
+      if(!my){ self._submitText('...'); }
+    });
   },
   async submitAnswer(){
     var ta=$$('fb-w-text'); var txt=(ta.value||'').trim().slice(0,80);
     if(!txt){ toast('Écris une réponse'); return; }
-    var trueAns=(this.room.current_question||{}).answer||'';
+    var q=this.room.current_question||{};
+    var trueAns=q.answer||'';
     if(tooClose(txt, trueAns)){ toast('Trop proche de la vraie réponse 😏', 2400); ta.style.borderColor='#FF6B9D'; setTimeout(function(){ta.style.borderColor='';},1500); return; }
+    if(q.constraint){
+      var c=CONTRAINTES.find(function(x){return x.id===q.constraint.id;});
+      if(c){ try{ if(!c.validate(txt)){ toast('❌ '+q.constraint.text, 3000); ta.style.borderColor='#FFD700'; setTimeout(function(){ta.style.borderColor='';},1500); return; } }catch(e){} }
+    }
     await this._submitText(txt);
   },
   async _submitText(txt){
@@ -967,7 +1111,8 @@ const FB={
       FB._advancing=false;
       if(!FB.room||FB.room.phase!=='write') return;
       stopTimer();
-      await FB.client.from('fb_rooms').update({phase:'vote',votes:{},updated_at:new Date().toISOString()}).eq('id',FB.roomId);
+      var cq=Object.assign({}, FB.room.current_question||{}, {vote_started_at:Date.now()});
+      await FB.client.from('fb_rooms').update({phase:'vote',votes:{},current_question:cq,updated_at:new Date().toISOString()}).eq('id',FB.roomId);
     }, 800);
   },
 
@@ -976,32 +1121,43 @@ const FB={
     var r=this.room, q=r.current_question||{}, me=this._meP();
     $$('fb-v-cat').textContent=q.category||'';
     $$('fb-v-question').textContent=q.question||'';
+    this._renderModeBanner('fb-v');
     var grid=$$('fb-v-answers'); grid.innerHTML='';
     var ans=r.answers||{}, votes=r.votes||{};
-    // Build list: all submitted + true answer (anonymous)
+    var mode=(r.game_mode||((r.current_question||{}).mode)||'classic');
+    var isDetective=(mode==='detective' && q.detective_id===this.me.id);
     var entries=[];
     Object.keys(ans).forEach(function(pid){
       entries.push({id:'a:'+pid, text:ans[pid].text, authorId:pid, isTrue:false});
     });
     entries.push({id:'truth', text:q.answer, authorId:null, isTrue:true});
-    // Stable shuffle per client
     if(!this.shuffledAnswerOrder.length || this.shuffledAnswerOrder[0]?.qid!==q.id){
       var order=shuffle(entries);
       this.shuffledAnswerOrder=[Object.assign({qid:q.id}, order[0])].concat(order.slice(1));
       this._currentEntries=order;
-    } else {
-      // re-render avec même ordre
     }
     var shown=this._currentEntries||shuffle(entries);
     this._currentEntries=shown;
     var myVote=votes[this.me.id];
+    var teamA=r.team_a||[], teamB=r.team_b||[];
     shown.forEach(function(e){
       var btn=document.createElement('button');
       var isMine = e.authorId===FB.me.id;
-      var cls='fb-answer'+(isMine?' disabled':'')+(myVote===e.id?' sel':'');
+      var teamCls='';
+      if(mode==='team' && e.authorId){
+        if(teamA.indexOf(e.authorId)>=0) teamCls=' team-a';
+        else if(teamB.indexOf(e.authorId)>=0) teamCls=' team-b';
+      }
+      var cls='fb-answer'+(isMine?' disabled':'')+(myVote===e.id?' sel':'')+teamCls;
       btn.className=cls;
       btn.disabled=isMine||!!myVote;
-      btn.innerHTML=esc(e.text)+(isMine?'<span class="fb-answer-meta">— Ta réponse</span>':'');
+      var metaHTML='';
+      if(isMine) metaHTML='<span class="fb-answer-meta">— Ta réponse</span>';
+      else if(isDetective && !e.isTrue && e.authorId){
+        var auth=(r.players||[]).find(function(x){return x.id===e.authorId;});
+        if(auth) metaHTML='<span class="fb-answer-meta">— '+esc(auth.pseudo)+'</span>';
+      }
+      btn.innerHTML=esc(e.text)+metaHTML;
       btn.onclick=function(){ if(!isMine && !myVote) FB.submitVote(e.id); };
       grid.appendChild(btn);
     });
@@ -1011,10 +1167,12 @@ const FB={
   },
   _startVoteTimer(){
     $$('fb-v-timer-svg').innerHTML=createTimerSVG('fb-v');
-    startTimer('fb-v', VOTE_TIME, function(){
+    var q=this.room.current_question||{};
+    var dur=q.timer_vote||VOTE_TIME;
+    var started=(q.vote_started_at||q.started_at||Date.now());
+    startSyncTimer('fb-v', dur, started, function(){
       var my=(FB.room.votes||{})[FB.me.id];
       if(!my){
-        // vote aléatoire excluant sa propre réponse
         var ans=FB.room.answers||{};
         var ids=Object.keys(ans).map(function(pid){return 'a:'+pid;}).filter(function(id){return id!=='a:'+FB.me.id;});
         ids.push('truth');
@@ -1053,9 +1211,11 @@ const FB={
   _computeRoundScores(){
     var r=this.room, q=r.current_question||{}, ans=r.answers||{}, votes=r.votes||{};
     var trueAns=q.answer||'';
+    var mode=(r.game_mode||((r.current_question||{}).mode)||'classic');
+    var detId=(mode==='detective')?(q.detective_id||null):null;
     var pls=(r.players||[]).filter(function(p){return !p.spectator;});
     var scores={}; pls.forEach(function(p){ scores[p.id]=0; });
-    var correctVoters=[]; // ordre d'arrivée approx via at
+    var correctVoters=[];
     var voteEntries=Object.entries(votes);
     voteEntries.forEach(function(kv){
       var voter=kv[0], answerId=kv[1];
@@ -1067,7 +1227,9 @@ const FB={
         if(authorId && authorId!==voter && ans[authorId]){
           var t=ans[authorId].text;
           if(!tooClose(t, trueAns)){
-            scores[authorId]=(scores[authorId]||0)+POINTS.FOOLED_PLAYER;
+            var base=POINTS.FOOLED_PLAYER;
+            if(detId && voter===detId) base*=2;
+            scores[authorId]=(scores[authorId]||0)+base;
           }
         }
       }
@@ -1075,7 +1237,9 @@ const FB={
     if(correctVoters.length>0){
       scores[correctVoters[0]]=(scores[correctVoters[0]]||0)+POINTS.FIRST_TO_FIND;
     }
-    // Bonus si tu as trompé TOUS les autres
+    if(detId && votes[detId]==='truth'){
+      scores[detId]=(scores[detId]||0)+300;
+    }
     var others=pls.length-1;
     if(others>0){
       pls.forEach(function(p){
@@ -1159,6 +1323,15 @@ const FB={
     });
     $$('fb-s-list').innerHTML=html;
     $$('fb-s-title').textContent='📊 Manche '+r.round+'/'+r.max_rounds;
+    // Team totals
+    var teamEl=$$('fb-s-team-totals');
+    if(((r.game_mode||((r.current_question||{}).mode))==='team') && teamEl){
+      var sumA=0,sumB=0;
+      (r.team_a||((r.current_question||{}).team_a)||[]).forEach(function(pid){sumA+=(scores[pid]||0);});
+      (r.team_b||((r.current_question||{}).team_b)||[]).forEach(function(pid){sumB+=(scores[pid]||0);});
+      teamEl.innerHTML='<div style="display:flex;gap:10px;justify-content:center;margin:10px 0"><div style="flex:1;text-align:center;padding:8px;border-radius:10px;background:rgba(255,45,85,.15);border:1px solid #FF2D55"><div style="font-size:11px;color:#FF6B9D;letter-spacing:2px">ÉQUIPE A</div><div style="font-size:22px;font-weight:900;color:#fff">'+sumA+'</div></div><div style="flex:1;text-align:center;padding:8px;border-radius:10px;background:rgba(0,180,255,.15);border:1px solid #00B4FF"><div style="font-size:11px;color:#9ec4ff;letter-spacing:2px">ÉQUIPE B</div><div style="font-size:22px;font-weight:900;color:#fff">'+sumB+'</div></div></div>';
+      teamEl.style.display='block';
+    } else if(teamEl){ teamEl.style.display='none'; }
     var host=this._isHost();
     $$('fb-s-host-actions').style.display=host?'block':'none';
     var nextBtn=$$('fb-s-next-btn');
@@ -1175,7 +1348,10 @@ const FB={
       await this.client.from('fb_rooms').update({phase:'end', status:'finished', updated_at:new Date().toISOString()}).eq('id',this.roomId);
       return;
     }
-    var q=this._pickQuestion();
+    var mode=(r.game_mode||((r.current_question||{}).mode)||'classic');
+    var q=this._pickQuestion(mode);
+    var prevCId=(r.current_question&&r.current_question.constraint)?r.current_question.constraint.id:null;
+    q=this._enrichQuestion(q, mode, r.round+1, prevCId);
     var used=(r.used_questions||[]).slice(); used.push(q.id);
     await this.client.from('fb_rooms').update({phase:'write', round:r.round+1, current_question:q, answers:{}, votes:{}, used_questions:used, updated_at:new Date().toISOString()}).eq('id',this.roomId);
   },
@@ -1581,14 +1757,7 @@ LocalFB.setup=function(){
   var badge=$$('fb-l-mode-badge'); if(badge) badge.textContent=GAME_MODES[cur]||'';
 };
 
-/* ===== v2.0 — Multi-mode: persist gameMode dans la room ===== */
-var _origCreate=FB.createRoom.bind(FB);
-FB.createRoom=async function(){
-  await _origCreate();
-  if(FB.room && FB.roomId){
-    try{ await FB.client.from('fb_rooms').update({game_mode:getGameMode(),updated_at:new Date().toISOString()}).eq('id',FB.roomId); }catch(e){}
-  }
-};
+/* v2.0 : le mode est stocké dans current_question par startGame, pas besoin d'override createRoom */
 
 window.FB=FB; window.LocalFB=LocalFB;
 window.GAME_MODES=GAME_MODES; window.CONTRAINTES=CONTRAINTES;
